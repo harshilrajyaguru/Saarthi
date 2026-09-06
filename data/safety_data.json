@@ -1,0 +1,34 @@
+{
+  "banned_words": [
+    "gambling",
+    "alcohol",
+    "violence",
+    "weapon",
+    "cheat",
+    "death",
+    "stolen"
+  ],
+  "grade_reading_limits": {
+    "3": {
+      "max_avg_word_length": 6.5,
+      "max_words_per_item": 25
+    },
+    "4": {
+      "max_avg_word_length": 7.0,
+      "max_words_per_item": 30
+    },
+    "5": {
+      "max_avg_word_length": 7.5,
+      "max_words_per_item": 35
+    },
+    "6": {
+      "max_avg_word_length": 8.0,
+      "max_words_per_item": 40
+    }
+  },
+  "nuance_triggers": [
+    "culturally_insensitive",
+    "confusing_stereotype",
+    "misleading_analogy"
+  ]
+}

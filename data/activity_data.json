@@ -1,0 +1,73 @@
+{
+  "templates": [
+    {
+      "topic": "Equivalent fractions",
+      "resource_type": "printable_worksheet",
+      "template_id": "tpl_frac_sheet_scaffolded",
+      "format": "scaffolded_fraction_practice",
+      "difficulty": "scaffolded",
+      "base_instructions": "Identify the top number (numerator) and bottom number (denominator), then fill in the missing equivalent fraction.",
+      "base_items": [
+        "In 3/4, circle the numerator and underline the denominator.",
+        "Complete 1/2 = ?/4. Label which number is the numerator and which is the denominator."
+      ]
+    },
+    {
+      "topic": "Equivalent fractions",
+      "resource_type": "printable_worksheet",
+      "template_id": "tpl_frac_sheet_error_analysis",
+      "format": "error_analysis_worksheet",
+      "difficulty": "standard",
+      "base_instructions": "Analyze student statements for fraction scaling errors and complete equivalent pairs with explanation.",
+      "base_items": [
+        "A student says 2/3 becomes 4/3 when scaling to an equivalent fraction. Is the student correct? Explain why or why not.",
+        "Complete 2/3 = ?/6 and explain what happened to BOTH the numerator and denominator."
+      ]
+    },
+    {
+      "topic": "Equivalent fractions",
+      "resource_type": "printable_worksheet",
+      "template_id": "tpl_frac_sheet_challenge",
+      "format": "multi_step_fraction_challenge",
+      "difficulty": "challenging",
+      "base_instructions": "Solve multi-step equivalent fraction challenges and create non-unit equivalent chains.",
+      "base_items": [
+        "Find three equivalent fractions for 3/5 with denominators greater than 20.",
+        "A recipe calls for 6/8 cup of flour. Write this in simplest form and as an equivalent fraction with denominator 16."
+      ]
+    },
+    {
+      "topic": "Equivalent fractions",
+      "resource_type": "whiteboard_activity",
+      "template_id": "tpl_frac_wb_1",
+      "format": "whiteboard_draw_and_label",
+      "difficulty": "standard",
+      "base_instructions": "Teacher draws fraction bars on whiteboard; students explicitly label numerator and denominator while scaling up.",
+      "base_items": [
+        "Draw 1/2 and 2/4 on whiteboard: circle top as numerator and box bottom as denominator.",
+        "Scale 1/3 to 2/6 on whiteboard and explain why numerator and denominator both doubled."
+      ]
+    },
+    {
+      "topic": "Multiplying fractions",
+      "resource_type": "printable_worksheet",
+      "template_id": "tpl_frac_mult_sheet",
+      "format": "step_by_step_multiplication",
+      "difficulty": "standard",
+      "base_instructions": "Multiply numerators together and denominators together for each item.",
+      "base_items": [
+        "1/2 * 3/4 = ?/8",
+        "2/5 * 1/3 = ?/15"
+      ]
+    }
+  ],
+  "recent_history": {
+    "Grade 3_Math": [
+      {
+        "session_date": "2026-09-01",
+        "format": "scaffolded_fraction_practice",
+        "activity_type": "printable_worksheet"
+      }
+    ]
+  }
+}

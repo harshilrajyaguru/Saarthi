@@ -1,0 +1,238 @@
+{
+  "classrooms": [
+    {
+      "grade": 3,
+      "subjects": {
+        "math": {
+          "current_topic": "Fractions - introduction",
+          "trouble_spot_log": [],
+          "sessions": [
+            {
+              "session_id": "sess_301",
+              "date": "2026-08-28",
+              "topic": "Fractions - introduction",
+              "result": 70,
+              "correctness": 0.7,
+              "completion": 0.85,
+              "time_on_task": "15m",
+              "teacher_signal": "slightly_struggling",
+              "trouble_spots": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "grade": 4,
+      "subjects": {
+        "math": {
+          "current_topic": "Fractions - equivalent fractions",
+          "trouble_spot_log": [
+            "confusing numerator/denominator when scaling"
+          ],
+          "sessions": [
+            {
+              "session_id": "sess_401",
+              "date": "2026-08-24",
+              "topic": "Fractions - equivalent fractions",
+              "result": 60,
+              "correctness": 0.6,
+              "completion": 0.75,
+              "time_on_task": "12m",
+              "teacher_signal": "struggling",
+              "trouble_spots": [
+                "confusing numerator/denominator when scaling"
+              ]
+            },
+            {
+              "session_id": "sess_402",
+              "date": "2026-08-27",
+              "topic": "Fractions - equivalent fractions",
+              "result": 58,
+              "correctness": 0.58,
+              "completion": 0.7,
+              "time_on_task": "14m",
+              "teacher_signal": "struggling",
+              "trouble_spots": [
+                "confusing numerator/denominator when scaling"
+              ]
+            },
+            {
+              "session_id": "sess_403",
+              "date": "2026-08-30",
+              "topic": "Fractions - equivalent fractions",
+              "result": 55,
+              "correctness": 0.55,
+              "completion": 0.65,
+              "time_on_task": "15m",
+              "teacher_signal": "struggling",
+              "trouble_spots": [
+                "confusing numerator/denominator when scaling"
+              ]
+            }
+          ]
+        },
+        "english": {
+          "current_topic": "Reading Comprehension",
+          "trouble_spot_log": [
+            "identifying main idea in complex paragraphs"
+          ],
+          "sessions": [
+            {
+              "session_id": "sess_404",
+              "date": "2026-08-25",
+              "topic": "Reading Comprehension",
+              "result": 52,
+              "correctness": 0.52,
+              "completion": 0.7,
+              "teacher_signal": "struggling",
+              "trouble_spots": [
+                "identifying main idea in complex paragraphs"
+              ]
+            },
+            {
+              "session_id": "sess_405",
+              "date": "2026-08-28",
+              "topic": "Reading Comprehension",
+              "result": 48,
+              "correctness": 0.48,
+              "completion": 0.65,
+              "teacher_signal": "declining",
+              "trouble_spots": [
+                "identifying main idea in complex paragraphs"
+              ]
+            },
+            {
+              "session_id": "sess_406",
+              "date": "2026-08-31",
+              "topic": "Reading Comprehension",
+              "result": 45,
+              "correctness": 0.45,
+              "completion": 0.6,
+              "teacher_signal": "declining",
+              "trouble_spots": [
+                "identifying main idea in complex paragraphs"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "grade": 5,
+      "subjects": {
+        "math": {
+          "current_topic": "Decimals - addition",
+          "trouble_spot_log": [
+            "decimal point alignment"
+          ],
+          "sessions": [
+            {
+              "session_id": "sess_501",
+              "date": "2026-08-25",
+              "topic": "Decimals - addition",
+              "result": 60,
+              "correctness": 0.6,
+              "completion": 0.8,
+              "teacher_signal": "struggling",
+              "trouble_spots": [
+                "decimal point alignment"
+              ]
+            },
+            {
+              "session_id": "sess_502",
+              "date": "2026-08-28",
+              "topic": "Decimals - addition",
+              "result": 75,
+              "correctness": 0.75,
+              "completion": 0.9,
+              "teacher_signal": "improving",
+              "trouble_spots": []
+            },
+            {
+              "session_id": "sess_503",
+              "date": "2026-08-31",
+              "topic": "Decimals - addition",
+              "result": 88,
+              "correctness": 0.88,
+              "completion": 0.95,
+              "teacher_signal": "on_track",
+              "trouble_spots": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "grade": 6,
+      "subjects": {
+        "math": {
+          "current_topic": "Algebra - linear equations",
+          "trouble_spot_log": [],
+          "sessions": [
+            {
+              "session_id": "sess_601",
+              "date": "2026-08-22",
+              "topic": "Algebra - linear equations",
+              "result": 88,
+              "correctness": 0.88,
+              "completion": 0.95,
+              "teacher_signal": "on_track",
+              "trouble_spots": []
+            },
+            {
+              "session_id": "sess_602",
+              "date": "2026-08-25",
+              "topic": "Algebra - linear equations",
+              "result": 92,
+              "correctness": 0.92,
+              "completion": 1.0,
+              "teacher_signal": "mastered",
+              "trouble_spots": []
+            },
+            {
+              "session_id": "sess_603",
+              "date": "2026-08-29",
+              "topic": "Algebra - linear equations",
+              "result": 90,
+              "correctness": 0.9,
+              "completion": 0.98,
+              "teacher_signal": "mastered",
+              "trouble_spots": []
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "grades": {
+    "Grade_3_Math": {
+      "current_topic": "Fractions - introduction",
+      "pacing_decision": "advance",
+      "mastery_estimate": "developing",
+      "attention_flag": false,
+      "recommended_resource": "printable_worksheet",
+      "activity_status": "passed_safety_gate",
+      "last_evaluation_date": "2026-09-04T00:00:00Z"
+    },
+    "Grade_4_Math": {
+      "current_topic": "Fractions - equivalent fractions (reinforcement)",
+      "pacing_decision": "hold",
+      "mastery_estimate": "developing",
+      "attention_flag": true,
+      "recommended_resource": "whiteboard_activity",
+      "activity_status": "passed_safety_gate",
+      "last_evaluation_date": "2026-09-04T00:00:00Z"
+    },
+    "Grade_5_Math": {
+      "current_topic": "Decimals - multiplication",
+      "pacing_decision": "advance",
+      "mastery_estimate": "developing",
+      "attention_flag": true,
+      "recommended_resource": "whiteboard_activity",
+      "activity_status": "passed_safety_gate",
+      "last_evaluation_date": "2026-09-04T00:00:00Z"
+    }
+  },
+  "last_updated": "2026-09-05T18:38:50.246607+00:00"
+}

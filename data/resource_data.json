@@ -1,0 +1,28 @@
+{
+  "inventory": {
+    "internet_available": false,
+    "power_reliable": true,
+    "tv_available": true,
+    "tablets_total": 3,
+    "tablets_free": 1,
+    "printer_available": true,
+    "printer_has_paper": true,
+    "textbooks_available": true,
+    "classroom_materials": ["paper", "markers", "whiteboard", "manipulatives"]
+  },
+  "usage_log": {
+    "Grade 3_Math_Equivalent fractions (prerequisite reinforcement)": [
+      {"session_date": "2026-08-28", "resource_type": "whiteboard_activity"},
+      {"session_date": "2026-08-30", "resource_type": "whiteboard_activity"},
+      {"session_date": "2026-09-01", "resource_type": "whiteboard_activity"}
+    ],
+    "Grade 4_Math_Multiplying fractions": [
+      {"session_date": "2026-08-29", "resource_type": "printable_worksheet"}
+    ]
+  },
+  "concurrent_demand": {
+    "Grade 5": ["tablet"],
+    "Grade 4": ["TV"],
+    "Grade 3": ["tablet", "printable_worksheet"]
+  }
+}

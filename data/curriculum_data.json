@@ -1,0 +1,102 @@
+{
+  "curriculum": {
+    "3": {
+      "subject": "Math",
+      "topics": [
+        {
+          "topic_id": "g3_m1",
+          "name": "Addition and Subtraction",
+          "order": 1,
+          "prerequisites": []
+        },
+        {
+          "topic_id": "g3_m2",
+          "name": "Introduction to Multiplication",
+          "order": 2,
+          "prerequisites": ["Addition and Subtraction"]
+        },
+        {
+          "topic_id": "g3_m3",
+          "name": "Fractions - introduction",
+          "order": 3,
+          "prerequisites": []
+        }
+      ]
+    },
+    "4": {
+      "subject": "Math",
+      "topics": [
+        {
+          "topic_id": "g4_m1",
+          "name": "Place Value and Scaling",
+          "order": 1,
+          "prerequisites": []
+        },
+        {
+          "topic_id": "g4_m2",
+          "name": "Equivalent fractions",
+          "order": 2,
+          "prerequisites": ["Fractions - introduction"]
+        },
+        {
+          "topic_id": "g4_m3",
+          "name": "Multiplying fractions",
+          "order": 3,
+          "prerequisites": ["Equivalent fractions"]
+        },
+        {
+          "topic_id": "g4_m4",
+          "name": "Multi-digit division",
+          "order": 4,
+          "prerequisites": ["Place Value and Scaling"]
+        }
+      ]
+    },
+    "5": {
+      "subject": "Math",
+      "topics": [
+        {
+          "topic_id": "g5_m1",
+          "name": "Decimals - place value",
+          "order": 1,
+          "prerequisites": []
+        },
+        {
+          "topic_id": "g5_m2",
+          "name": "Decimals - addition",
+          "order": 2,
+          "prerequisites": ["Decimals - place value"]
+        },
+        {
+          "topic_id": "g5_m3",
+          "name": "Decimals - multiplication",
+          "order": 3,
+          "prerequisites": ["Decimals - addition"]
+        }
+      ]
+    },
+    "6": {
+      "subject": "Math",
+      "topics": [
+        {
+          "topic_id": "g6_m1",
+          "name": "Ratios and Proportions",
+          "order": 1,
+          "prerequisites": []
+        },
+        {
+          "topic_id": "g6_m2",
+          "name": "Algebra - linear equations",
+          "order": 2,
+          "prerequisites": ["Algebraic Expressions"]
+        },
+        {
+          "topic_id": "g6_m3",
+          "name": "Algebra - multi-step equations",
+          "order": 3,
+          "prerequisites": ["Algebra - linear equations"]
+        }
+      ]
+    }
+  }
+}
