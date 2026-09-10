@@ -130,6 +130,8 @@ def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:
     return d
 
 
+from agents.bedrock_checker import is_bedrock_available, mark_bedrock_unavailable
+
 def analyze_progress(
     grade: Union[int, str],
     subject: str,
@@ -159,21 +161,26 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
     history_res = get_history(grade=grade, subject=subject, topic=current_topic, n=10)
     history_count = history_res.get("count", 0) if isinstance(history_res, dict) else 0
 
-    try:
-        # 1. Execute Strands Agent (Amazon Bedrock model)
-        result = progress_agent(prompt)
+    raw_diagnosis = None
+    if is_bedrock_available():
+        try:
+            # 1. Execute Strands Agent (Amazon Bedrock model)
+            result = progress_agent(prompt)
 
-        # 2. Extract structured diagnosis
-        if hasattr(result, "structured_output") and result.structured_output:
-            raw_diagnosis = (
-                result.structured_output.model_dump()
-                if hasattr(result.structured_output, "model_dump")
-                else dict(result.structured_output)
-            )
-        else:
-            text_resp = str(result.message if hasattr(result, "message") else result)
-            raw_diagnosis = json.loads(text_resp)
-    except Exception:
+            # 2. Extract structured diagnosis
+            if hasattr(result, "structured_output") and result.structured_output:
+                raw_diagnosis = (
+                    result.structured_output.model_dump()
+                    if hasattr(result.structured_output, "model_dump")
+                    else dict(result.structured_output)
+                )
+            else:
+                text_resp = str(result.message if hasattr(result, "message") else result)
+                raw_diagnosis = json.loads(text_resp)
+        except Exception:
+            mark_bedrock_unavailable()
+
+    if raw_diagnosis is None:
         # Local offline diagnostic fallback when Bedrock API is unconfigured
         trouble_log = get_trouble_spot_log(grade=grade, subject=subject)
         trouble_spots = trouble_log.get("trouble_spots", [])

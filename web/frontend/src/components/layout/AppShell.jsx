@@ -9,8 +9,10 @@ import { useTranslation } from '../../i18n/i18n';
  * Includes environmental depth layer for Liquid Glass material visibility.
  * Header titles are translated via the centralized i18n system.
  */
-export default function AppShell({ children }) {
-  const [activeTab, setActiveTab] = useState('dashboard');
+export default function AppShell({ activeTab: propActiveTab, onTabChange: propOnTabChange, children }) {
+  const [localActiveTab, setLocalActiveTab] = useState('dashboard');
+  const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
+  const handleTabChange = propOnTabChange || setLocalActiveTab;
   const { t } = useTranslation();
 
   // Translation keys for header titles, mapped to tab ids
@@ -26,7 +28,7 @@ export default function AppShell({ children }) {
   };
 
   return (
-    <div className="flex min-h-screen text-[#0A0A0A] dark:text-[#F5F5F5] font-sans antialiased transition-colors duration-300 relative">
+    <div className="flex h-screen overflow-hidden text-[#0A0A0A] dark:text-[#F5F5F5] font-sans antialiased transition-colors duration-300 relative">
       {/* Environmental depth layer — subtle tonal gradients behind glass (light mode) */}
       <div
         className="fixed inset-0 pointer-events-none z-0 dark:opacity-0 transition-opacity duration-300"
@@ -54,16 +56,16 @@ export default function AppShell({ children }) {
       {/* App Sidebar */}
       <AppSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 relative z-[1]">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-[1]">
         {/* Top Header */}
         <TopHeader title={t(titleKeys[activeTab] || 'header.dashboard')} activeTab={activeTab} />
 
         {/* Viewport Main Container */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto min-h-0">
           {children || (
             <div className="liquid-glass-card flex items-center justify-center h-64 rounded-[20px] text-[#6E6E6E] dark:text-[#A3A3A3] text-sm">
               <span className="relative z-[1]">{t('app.page_content')}</span>

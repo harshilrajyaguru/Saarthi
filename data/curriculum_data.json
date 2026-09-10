@@ -79,21 +79,41 @@
       "subject": "Math",
       "topics": [
         {
+          "topic_id": "g6_f1",
+          "name": "Fractions - adding with unlike denominators",
+          "order": 1,
+          "prerequisites": [
+            "finding LCM for denominators",
+            "Equivalent fractions"
+          ]
+        },
+        {
+          "topic_id": "g6_f2",
+          "name": "Fractions - subtracting with unlike denominators",
+          "order": 2,
+          "prerequisites": [
+            "Fractions - adding with unlike denominators",
+            "finding LCM for denominators"
+          ]
+        },
+        {
           "topic_id": "g6_m1",
           "name": "Ratios and Proportions",
-          "order": 1,
-          "prerequisites": []
+          "order": 3,
+          "prerequisites": [
+            "Fractions - subtracting with unlike denominators"
+          ]
         },
         {
           "topic_id": "g6_m2",
           "name": "Algebra - linear equations",
-          "order": 2,
+          "order": 4,
           "prerequisites": ["Algebraic Expressions"]
         },
         {
           "topic_id": "g6_m3",
           "name": "Algebra - multi-step equations",
-          "order": 3,
+          "order": 5,
           "prerequisites": ["Algebra - linear equations"]
         }
       ]

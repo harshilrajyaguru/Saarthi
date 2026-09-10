@@ -36,6 +36,9 @@ def write_shared_state(updates: dict) -> dict:
     if "grades" in updates:
         current_state["grades"] = updates["grades"]
 
+    if "active_session" in updates:
+        current_state["active_session"] = updates["active_session"]
+
     current_state["last_updated"] = datetime.now(timezone.utc).isoformat()
 
     with open(STATE_FILE, "w", encoding="utf-8") as f:
@@ -44,11 +47,22 @@ def write_shared_state(updates: dict) -> dict:
     return {"status": "success", "last_updated": current_state["last_updated"]}
 
 
+def normalize_subject(s: str) -> str:
+    if not s:
+        return "Math"
+    s_clean = str(s).strip()
+    if s_clean.lower() in ["mathematics", "maths", "math"]:
+        return "Math"
+    return s_clean.capitalize()
+
+
 @tool
 def get_active_grades(session: dict) -> dict:
     """
     Identifies Grade x Subject entries that actually need re-evaluation.
     Evaluates:
+    - Initial session setup: For a new session (trigger_type='initial' or is_initial_session=True),
+      all teacher-selected active grades require initial evaluation.
     - New learning signals (unread session logs)
     - Pending flags (attention_flag = true)
     - Stale state (no session for >= 3 days)
@@ -64,10 +78,11 @@ def get_active_grades(session: dict) -> dict:
             g_num = c.get("grade")
             subjs = c.get("subjects", {})
             for s_name, s_data in subjs.items():
-                g_key = f"Grade_{g_num}_{s_name.capitalize()}"
+                s_norm = normalize_subject(s_name)
+                g_key = f"Grade_{g_num}_{s_norm}"
                 grades_state[g_key] = {
                     "grade": str(g_num),
-                    "subject": s_name.capitalize(),
+                    "subject": s_norm,
                     "current_topic": s_data.get("current_topic"),
                     "attention_flag": s_data.get("attention_flag", False),
                     "pending_action": s_data.get("pending_action", False),
@@ -84,15 +99,47 @@ def get_active_grades(session: dict) -> dict:
             "Grade_6_Math": {"grade": "6", "subject": "Math", "current_topic": "Ratios"}
         }
 
-    all_grades = list(grades_state.keys())
-    active_specified = session.get("active_grades")
+    active_specified_raw = session.get("active_grades")
+    active_specified = None
+    if active_specified_raw is not None:
+        active_specified = []
+        for ak in active_specified_raw:
+            parts = ak.split("_")
+            if len(parts) >= 3 and parts[0] == "Grade":
+                active_specified.append(f"Grade_{parts[1]}_{normalize_subject(parts[2])}")
+            elif len(parts) == 2 and parts[0] == "Grade":
+                active_specified.append(f"Grade_{parts[1]}_Math")
+            else:
+                active_specified.append(ak)
+
+    is_initial = (
+        session.get("is_initial_session", False)
+        or session.get("trigger_type") == "initial"
+        or session.get("session_type") == "initial"
+    )
+
+    # Union existing state keys and requested active grade keys so new grades are not lost
+    all_grade_keys = list(dict.fromkeys(list(grades_state.keys()) + (active_specified if active_specified else [])))
 
     active_evaluations = []
     skipped_grades = []
 
-    for g_key in all_grades:
-        g_data = grades_state.get(g_key, {})
+    for g_key in all_grade_keys:
+        g_data = grades_state.get(g_key)
+        if not g_data:
+            parts = g_key.split("_")
+            g_str = parts[1] if len(parts) >= 2 else "3"
+            subj_str = parts[2] if len(parts) >= 3 else "Math"
+            g_data = {
+                "grade": g_str,
+                "subject": subj_str,
+                "current_topic": f"{subj_str} Concepts",
+                "attention_flag": False,
+                "pending_action": False,
+                "last_evaluation_date": None
+            }
 
+        # If teacher specified active grades for this session, skip grades not in active_specified
         if active_specified is not None and g_key not in active_specified:
             skipped_grades.append({
                 "grade_key": g_key,
@@ -100,6 +147,16 @@ def get_active_grades(session: dict) -> dict:
             })
             continue
 
+        # In an initial session cycle, all teacher-requested active grades MUST be evaluated
+        if is_initial:
+            active_evaluations.append({
+                "grade_key": g_key,
+                "reason": "initial_session_request",
+                "grade_data": g_data
+            })
+            continue
+
+        # Subsequent cycles: evaluate adaptive signals, flags, staleness, or session changes
         has_new_signal = session.get("new_signals", {}).get(g_key, False) or g_data.get("has_new_signal", False)
         has_pending_flag = g_data.get("attention_flag", False) or g_data.get("pending_action", False)
 

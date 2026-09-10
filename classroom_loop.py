@@ -64,7 +64,9 @@ def parse_grade_subject(grade_key: str) -> tuple[str, str]:
     """
     parts = grade_key.split("_")
     if len(parts) >= 3 and parts[0] == "Grade":
-        return parts[1], "_".join(parts[2:])
+        s = "_".join(parts[2:])
+        s_norm = "Math" if s.lower() in ["mathematics", "maths", "math"] else s.capitalize()
+        return parts[1], s_norm
     elif len(parts) == 2 and parts[0] == "Grade":
         return parts[1], "Math"
     clean = grade_key.replace("Grade", "").strip()
@@ -130,6 +132,8 @@ class ClassroomLoopRunner:
         session_config = {
             "session_id": self.session.session_id,
             "active_grades": self.session.active_grades,
+            "trigger_type": trigger_type,
+            "is_initial_session": (trigger_type == "initial" or cycle_num == 1),
             "new_signals": signals,
             "session_info": {
                 "duration_minutes": self.session.remaining_time_minutes,
@@ -232,3 +236,25 @@ class ClassroomLoopRunner:
         """
         print(f"\n[Environment Update] Classroom Resource Conditions Changed: {resource_updates}")
         self.session.classroom_resources.update(resource_updates)
+
+    def end_session(self) -> CycleRecord:
+        """
+        Ends the classroom session through the Orchestrator engine.
+        Ensures state mutations route strictly via Orchestrator single-writer state tools.
+        """
+        print(f"\n[Session Termination] Ending session {self.session.session_id} via Orchestrator.")
+        self.session.status = "ended"
+        orch_result = run_orchestration_cycle({
+            "session_id": self.session.session_id,
+            "end_session": True,
+            "active_grades": self.session.active_grades
+        })
+        cycle_rec = CycleRecord(
+            cycle_number=self.session.current_cycle,
+            trigger_type="end_session",
+            active_evaluations=[],
+            orchestration_result=orch_result.model_dump(),
+            decision="END"
+        )
+        self.session.cycle_history.append(cycle_rec)
+        return cycle_rec

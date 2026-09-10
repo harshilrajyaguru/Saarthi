@@ -29,7 +29,7 @@ export default function AppSidebar({
   const { t } = useTranslation();
 
   return (
-    <aside className="liquid-glass-sidebar w-[250px] flex flex-col justify-between h-screen sticky top-0 shrink-0 select-none z-30 transition-colors duration-300">
+    <aside className="liquid-glass-sidebar w-[250px] flex flex-col justify-between h-screen shrink-0 select-none z-30 transition-colors duration-300 overflow-y-auto">
       {/* Top Section */}
       <div className="p-5 relative z-[1]">
         {/* Brand Header */}

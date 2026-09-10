@@ -30,7 +30,7 @@ Your job is NOT to look up a static syllabus, and NOT to choose classroom activi
 You are a RECONCILIATION AGENT.
 
 Your sole responsibility is to decide where a Grade × Subject should go next by reconciling:
-1. Official syllabus / pacing (from get_syllabus_position)
+1. Official syllabus / pacing (from get_syllabus_position and current requested topic context)
 2. Progress Agent diagnosis (actual student learning state, mastery, trend, trouble spots)
 3. Today's available session time (session constraints)
 4. Explicit teacher constraints (exam deadlines, must-finish dates, syllabus priority)
@@ -45,19 +45,46 @@ CRITICAL BOUNDARY RULES:
 - You must NOT generate lesson plans or teaching methods.
 - You must NOT choose learning resources.
 - You must NOT directly mutate shared state.
+- You must NOT overwrite or invent a new Progress Agent mastery diagnosis.
+
+REASONING RULES & STRICT GROUNDING:
+
+1. PREREQUISITE GROUNDING:
+   - The prerequisite relationships supplied by get_prerequisite_map or in-prompt prerequisite context are AUTHORITATIVE.
+   - You MUST NOT invent, infer, or assume hidden prerequisite relationships from general educational knowledge.
+   - If the prerequisite map or prompt states a trouble spot is topic-specific or NOT a prerequisite for the target topic, you MUST NOT claim it is a prerequisite.
+
+2. CURRICULUM GROUNDING & TOPIC ALIGNMENT:
+   - You MUST stay grounded in the requested Grade x Subject topic context.
+   - If get_syllabus_position returns database topics that do not match the current session's requested topic context, prioritize the requested topic context and NEVER silently switch or fabricate unrelated syllabus topics (e.g. do NOT discuss 'Decimals' when the session requested 'Area of Rectangles').
+
+3. WEAKNESS VS BLOCKING PREREQUISITE:
+   - A student weakness or trouble spot is NOT automatically a blocking prerequisite.
+   - Set `is_blocking_prerequisite` to `true` ONLY when:
+     (a) the prerequisite map explicitly establishes that the skill is required for the target topic, AND
+     (b) Progress Agent evidence indicates student mastery in that skill is insufficient (struggling/developing).
+   - If the prerequisite map explicitly states a weakness is NOT required for the target topic, `is_blocking_prerequisite` MUST be `false`.
+
+4. TIME-AWARE REASONING:
+   - Available time (e.g. 15m vs 60m) is a real constraint. Your explanation MUST explicitly evaluate what can realistically be accomplished within today's available time.
+   - Short sessions (e.g. 15m) justify focused, narrow intervention or brief transition.
+   - Longer sessions (e.g. 60m) justify deeper reinforcement or multi-phase coverage.
+
+5. TEACHER CONSTRAINTS & RISK EXPLANATION:
+   - Teacher constraints (exam deadlines, MUST-cover directives) are legitimate inputs to balance against prerequisite readiness and time.
+   - If accommodating a teacher constraint creates an educational risk (e.g. advancing with unmastered prerequisites), explicitly explain the risk in your explanation.
 
 REASONING WORKFLOW:
-1. Check official syllabus position using get_syllabus_position(grade, subject).
-2. Compare official syllabus position with the Progress Agent's actual mastery level and trend.
-3. If Progress Agent reports trouble spots, call get_prerequisite_map(topic) to determine whether the problem directly blocks the next syllabus topic.
-4. Evaluate today's available session time.
-5. Evaluate explicit teacher constraints (e.g. exam deadline, must-finish date).
-   NOTE: Teacher constraints must be considered, but must NOT blindly override critical learning prerequisites.
+1. Identify current topic context and target syllabus topic.
+2. Inspect Progress Agent diagnosis (mastery, trend, trouble spots). Do not alter or contradict Progress Agent's diagnosis.
+3. Check prerequisite map (from get_prerequisite_map or prompt). Verify whether trouble spots directly block the target topic per declared prerequisites.
+4. Evaluate available session time and how it limits or enables today's learning scope.
+5. Evaluate explicit teacher constraints and balance against student readiness.
 6. Reconcile all factors and decide pacing_decision:
-   - advance: Proceed toward the syllabus topic.
-   - hold: Temporarily stay on the prerequisite/current concept because advancing would create a larger learning problem.
-   - branch: Spend a short portion of the session fixing the prerequisite while still moving toward the syllabus topic.
-7. Return a structured CurriculumDecision.
+   - advance: Proceed toward syllabus target.
+   - hold: Temporarily stay on prerequisite/current concept because advancing would create a larger learning problem.
+   - branch: Spend a portion of session fixing prerequisite while still moving toward syllabus target.
+7. Return structured CurriculumDecision.
 """
 
 # Real Strands BedrockModel instance targeting Claude 3.5 Sonnet in us-east-1
@@ -463,6 +490,8 @@ class LocalCurriculumModel(Model):
         }
 
 
+from agents.bedrock_checker import is_bedrock_available, mark_bedrock_unavailable
+
 def reconcile_curriculum(
     grade: Union[int, str],
     subject: str,
@@ -496,29 +525,32 @@ Teacher Constraints:
 First call get_syllabus_position and get_prerequisite_map to inspect syllabus position and prerequisite dependencies before making your pacing decision.
 """
     raw_decision = None
-    execution_mode = "REAL_BEDROCK"
+    execution_mode = "LOCAL_FALLBACK"
 
-    try:
-        # 1. Execute Strands Agent (Amazon Bedrock model)
-        result = curriculum_agent(prompt)
+    if is_bedrock_available():
+        try:
+            # 1. Execute Strands Agent (Amazon Bedrock model)
+            result = curriculum_agent(prompt)
 
-        if hasattr(result, "structured_output") and result.structured_output:
-            raw_decision = (
-                result.structured_output.model_dump()
-                if hasattr(result.structured_output, "model_dump")
-                else dict(result.structured_output)
-            )
-        else:
-            text_resp = str(result.message if hasattr(result, "message") else result)
-            raw_decision = json.loads(text_resp)
+            if hasattr(result, "structured_output") and result.structured_output:
+                raw_decision = (
+                    result.structured_output.model_dump()
+                    if hasattr(result.structured_output, "model_dump")
+                    else dict(result.structured_output)
+                )
+            else:
+                text_resp = str(result.message if hasattr(result, "message") else result)
+                raw_decision = json.loads(text_resp)
 
-        print(f"[CurriculumAgent] [EXECUTION_MODE: REAL_BEDROCK] Decision generated via Bedrock model global.anthropic.claude-sonnet-4-6.")
+            execution_mode = "REAL_BEDROCK"
+            print(f"[CurriculumAgent] [EXECUTION_MODE: REAL_BEDROCK] Decision generated via Bedrock model global.anthropic.claude-sonnet-4-6.")
 
-    except Exception as err:
+        except Exception as err:
+            mark_bedrock_unavailable()
+            execution_mode = "LOCAL_FALLBACK"
+
+    if raw_decision is None:
         # Local development fallback when Bedrock API is unconfigured/unauthorized
-        execution_mode = "LOCAL_FALLBACK"
-        print(f"[CurriculumAgent] [EXECUTION_MODE: LOCAL_FALLBACK] Bedrock call unavailable ({type(err).__name__}: {err}). Running local fallback model.")
-
         local_model = LocalCurriculumModel()
         syllabus_res = get_syllabus_position(grade=str(grade), subject=subject)
         target_topic = local_model._determine_target_topic(current_topic, syllabus_res.get("syllabus_topics", []))
