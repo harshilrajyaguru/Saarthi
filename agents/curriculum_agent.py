@@ -3,7 +3,7 @@ from typing import Any, AsyncGenerator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from strands import Agent
-from strands.models import Model, BedrockModel
+from strands.models import Model
 from tools.curriculum_tools import get_syllabus_position, get_prerequisite_map
 
 
@@ -87,21 +87,10 @@ REASONING WORKFLOW:
 7. Return structured CurriculumDecision.
 """
 
-# Real Strands BedrockModel instance targeting Claude 3.5 Sonnet in us-east-1
-bedrock_curriculum_model = BedrockModel(
-    model_id="global.anthropic.claude-sonnet-4-6",
-    region_name="us-east-1"
-)
-
-# Strands Agent configured with Amazon Bedrock model and tools
-curriculum_agent = Agent(
-    model=bedrock_curriculum_model,
-    system_prompt=SYSTEM_PROMPT,
-    tools=[get_syllabus_position, get_prerequisite_map],
-    structured_output_model=CurriculumDecision,
-    name="CurriculumAgent",
-    description="SAARTHI Curriculum Agent reconciling syllabus, progress diagnosis, and constraints."
-)
+# GroqModel replaces BedrockModel for live Groq inference.
+# _CURRICULUM_MODEL is stateless — safe to share. Fresh Agent created per call.
+from agents.groq_model import GroqModel
+_CURRICULUM_MODEL = GroqModel(reasoning_effort="low")
 
 
 def apply_curriculum_guardrails(
@@ -490,8 +479,6 @@ class LocalCurriculumModel(Model):
         }
 
 
-from agents.bedrock_checker import is_bedrock_available, mark_bedrock_unavailable
-
 def reconcile_curriculum(
     grade: Union[int, str],
     subject: str,
@@ -502,8 +489,7 @@ def reconcile_curriculum(
 ) -> dict:
     """
     Executes the Curriculum Agent reconciliation for a Grade x Subject.
-    First attempts genuine Strands Agent call using BedrockModel (Claude 3.5 Sonnet).
-    Falls back to LocalCurriculumModel if Bedrock authorization/connectivity is unavailable.
+    Routes through Strands Agent → Groq → openai/gpt-oss-120b.
     Applies post-processing deterministic guardrails outside LLM reasoning.
     Does NOT mutate shared state.
     """
@@ -524,42 +510,31 @@ Teacher Constraints:
 
 First call get_syllabus_position and get_prerequisite_map to inspect syllabus position and prerequisite dependencies before making your pacing decision.
 """
-    raw_decision = None
-    execution_mode = "LOCAL_FALLBACK"
+    print(f"\n[STRANDS AGENT] Invoking CurriculumAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
+    agent = Agent(
+        model=_CURRICULUM_MODEL,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[get_syllabus_position, get_prerequisite_map],
+        structured_output_model=CurriculumDecision,
+        name="CurriculumAgent",
+        description="SAARTHI Curriculum Agent reconciling syllabus, progress diagnosis, and constraints.",
+    )
+    result = agent(prompt)
 
-    if is_bedrock_available():
-        try:
-            # 1. Execute Strands Agent (Amazon Bedrock model)
-            result = curriculum_agent(prompt)
+    if hasattr(result, "structured_output") and result.structured_output:
+        raw_decision = (
+            result.structured_output.model_dump()
+            if hasattr(result.structured_output, "model_dump")
+            else dict(result.structured_output)
+        )
+    elif hasattr(result, "message") and result.message:
+        text_resp = str(result.message.content if hasattr(result.message, "content") else result.message)
+        raw_decision = json.loads(text_resp)
+    else:
+        raise ValueError(f"CurriculumAgent failed to return structured output: {result}")
 
-            if hasattr(result, "structured_output") and result.structured_output:
-                raw_decision = (
-                    result.structured_output.model_dump()
-                    if hasattr(result.structured_output, "model_dump")
-                    else dict(result.structured_output)
-                )
-            else:
-                text_resp = str(result.message if hasattr(result, "message") else result)
-                raw_decision = json.loads(text_resp)
-
-            execution_mode = "REAL_BEDROCK"
-            print(f"[CurriculumAgent] [EXECUTION_MODE: REAL_BEDROCK] Decision generated via Bedrock model global.anthropic.claude-sonnet-4-6.")
-
-        except Exception as err:
-            mark_bedrock_unavailable()
-            execution_mode = "LOCAL_FALLBACK"
-
-    if raw_decision is None:
-        # Local development fallback when Bedrock API is unconfigured/unauthorized
-        local_model = LocalCurriculumModel()
-        syllabus_res = get_syllabus_position(grade=str(grade), subject=subject)
-        target_topic = local_model._determine_target_topic(current_topic, syllabus_res.get("syllabus_topics", []))
-        prereq_res = get_prerequisite_map(topic=target_topic)
-
-        prompt_with_tools = prompt + f"\nSyllabusPosition: {json.dumps(syllabus_res)}\nPrerequisites: {json.dumps(prereq_res)}"
-        raw_decision = local_model._reconcile_dynamically(prompt_with_tools, syllabus_res, prereq_res)
-
-    # 2. Apply hard deterministic guardrails
+    # Apply hard deterministic guardrails
     final_decision = apply_curriculum_guardrails(
         raw_decision,
         grade=str(grade),
@@ -569,5 +544,5 @@ First call get_syllabus_position and get_prerequisite_map to inspect syllabus po
         session_constraints=session_constraints,
         teacher_constraints=teacher_constraints
     )
-    final_decision["_execution_mode"] = execution_mode
+    final_decision["_execution_mode"] = "GROQ"
     return final_decision

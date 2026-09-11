@@ -1,7 +1,7 @@
-﻿"""
+"""
 test_local_progress_agent.py
 -----------------------------
-Tests the local Qwen3 8B Progress Agent via Ollama.
+Tests the GPT-OSS-120B Progress Agent via Groq API.
 
 Scenario: Grade 6, Mathematics (Fractions),
           "Fractions - adding with unlike denominators"
@@ -12,12 +12,12 @@ with known trouble spots.
 
 What this test verifies
 -----------------------
-1.  Ollama was actually called (mocked call counter, confirmed via
+1.  Groq API was actually called (mocked call counter, confirmed via
     unittest.mock.patch spy wrapping the real call).
 2.  Returned data conforms to ProgressDiagnosis.
 3.  grade is "6".
 4.  subject contains "fraction" (case-insensitive) -- or exactly "Mathematics"
-    depending on what Qwen echoes; we accept either.
+    depending on what the model echoes; we accept either.
 5.  diagnosis explanation uses evidence from the provided scenario
     (mentions at least one of: session, score, correctness, trouble, LCM,
     unlike denominator).
@@ -27,13 +27,13 @@ What this test verifies
 7.  recommendation_direction is one of the four allowed values.
 8.  No forbidden activity/lesson-plan fields appear in the output.
 9.  The result does not contain activity-selection logic fields.
-10. Ollama provider is used -- Bedrock is NOT invoked.
+10. Groq provider is used -- Bedrock is NOT invoked.
 
 Exit banner
 -----------
-    LOCAL QWEN PROGRESS AGENT: PASS
-    Model: qwen3:8b
-    Provider: Ollama
+    GROQ PROGRESS AGENT: PASS
+    Model: openai/gpt-oss-120b
+    Provider: Groq
     Bedrock: NOT USED
 """
 
@@ -81,23 +81,25 @@ EVIDENCE_KEYWORDS = [
 ]
 
 
-class TestLocalQwenProgressAgent(unittest.TestCase):
+class TestGroqProgressAgent(unittest.TestCase):
 
     def setUp(self):
         """Run analyze_progress_local once and capture the result."""
-        self._ollama_called = False
-        self._ollama_call_args = None
+        self._groq_called = False
+        self._groq_call_kwargs = None
 
-        # We wrap ollama.chat with a spy that records the call but still
-        # calls the real function so we actually test Qwen3.
-        original_chat = __import__("ollama").chat
+        # We wrap the Groq client's create method with a spy that records the
+        # call but still calls the real function so we actually test GPT-OSS-120B.
+        from agents.groq_model import get_groq_client
+        client = get_groq_client()
+        original_create = client.chat.completions.create
 
-        def spy_chat(*args, **kwargs):
-            self._ollama_called = True
-            self._ollama_call_args = (args, kwargs)
-            return original_chat(*args, **kwargs)   # real network call
+        def spy_create(*args, **kwargs):
+            self._groq_called = True
+            self._groq_call_kwargs = kwargs
+            return original_create(*args, **kwargs)
 
-        with patch("agents.local_ollama.ollama.chat", side_effect=spy_chat):
+        with patch.object(client.chat.completions, "create", side_effect=spy_create):
             self.result = analyze_progress_local(
                 grade=GRADE,
                 subject=SUBJECT,
@@ -106,11 +108,11 @@ class TestLocalQwenProgressAgent(unittest.TestCase):
                 activity_metadata=ACTIVITY_METADATA,
             )
 
-    # ── 1. Ollama was actually called ─────────────────────────────────────────
-    def test_ollama_was_called(self):
+    # ── 1. Groq API was actually called ───────────────────────────────────────
+    def test_groq_was_called(self):
         self.assertTrue(
-            self._ollama_called,
-            "Ollama was NOT called -- local adapter did not reach the Ollama API",
+            self._groq_called,
+            "Groq API was NOT called -- adapter did not reach the Groq API",
         )
 
     # ── 2. Result conforms to ProgressDiagnosis ───────────────────────────────
@@ -153,7 +155,6 @@ class TestLocalQwenProgressAgent(unittest.TestCase):
     def test_confidence_guardrail(self):
         # 3 prior sessions -> history_count=3 >= 2 -> guardrail does NOT
         # force "low", so any valid value is acceptable.
-        # But if Qwen said low that is also valid.
         conf = self.result.get("confidence")
         self.assertIn(
             conf, {"low", "medium", "high"},
@@ -184,40 +185,37 @@ class TestLocalQwenProgressAgent(unittest.TestCase):
                 f"Unexpected activity-related key in result: '{key}'",
             )
 
-    # ── 10. Bedrock NOT used ──────────────────────────────────────────────────
-    def test_bedrock_not_used(self):
-        # The local adapter imports from agents.progress_agent but never calls
-        # progress_agent (the Strands Agent object). We verify that by checking
-        # the result came from our adapter, not the Bedrock path.
-        # The simplest proof: ollama.chat was called (test_ollama_was_called).
-        # Here we also assert the model name passed to Ollama is qwen3:8b.
-        if self._ollama_call_args:
-            _, kwargs = self._ollama_call_args
-            model_used = kwargs.get("model", "")
+    # ── 10. Groq provider used, Bedrock NOT used ─────────────────────────────
+    def test_groq_provider_used(self):
+        # Verify the adapter uses Groq, not Bedrock.
+        # The simplest proof: Groq API was called (test_groq_was_called).
+        # Here we also assert the model name passed to Groq is openai/gpt-oss-120b.
+        if self._groq_call_kwargs:
+            model_used = self._groq_call_kwargs.get("model", "")
             self.assertEqual(
-                model_used, "qwen3:8b",
-                f"Expected model 'qwen3:8b', Ollama received '{model_used}'",
+                model_used, "openai/gpt-oss-120b",
+                f"Expected model 'openai/gpt-oss-120b', Groq received '{model_used}'",
             )
 
 
 def main():
     """Run tests and print the pass/fail banner."""
     loader  = unittest.TestLoader()
-    suite   = loader.loadTestsFromTestCase(TestLocalQwenProgressAgent)
+    suite   = loader.loadTestsFromTestCase(TestGroqProgressAgent)
     runner  = unittest.TextTestRunner(verbosity=2)
     result_obj = runner.run(suite)
 
     print()
     print("=" * 60)
     if result_obj.wasSuccessful():
-        print("LOCAL QWEN PROGRESS AGENT: PASS")
+        print("GROQ PROGRESS AGENT: PASS")
         print(f"Model: {LOCAL_MODEL}")
         print(f"Provider: {PROVIDER}")
         print("Bedrock: NOT USED")
         print()
         # Re-run to print the actual diagnosis (setUp runs again inside suite,
         # so we call the adapter once more here just to display the output).
-        print("ProgressDiagnosis returned by Qwen3 8B:")
+        print(f"ProgressDiagnosis returned by {LOCAL_MODEL}:")
         diagnosis = analyze_progress_local(
             grade=GRADE,
             subject=SUBJECT,
@@ -227,7 +225,7 @@ def main():
         )
         print(json.dumps(diagnosis, indent=2))
     else:
-        print("LOCAL QWEN PROGRESS AGENT: FAIL")
+        print("GROQ PROGRESS AGENT: FAIL")
         print(f"Failures : {len(result_obj.failures)}")
         print(f"Errors   : {len(result_obj.errors)}")
     print("=" * 60)

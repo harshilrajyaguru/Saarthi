@@ -480,14 +480,11 @@ class LocalResourceModel(Model):
         }
 
 
-resource_agent = Agent(
-    model=LocalResourceModel(),
-    system_prompt=SYSTEM_PROMPT,
-    tools=[get_resource_inventory, get_resource_usage_log, check_concurrent_demand],
-    structured_output_model=ResourceRecommendation,
-    name="ResourceAgent",
-    description="SAARTHI Resource Agent evaluating deployable resource options under physical, digital, and contention constraints."
-)
+# GroqModel replaces LocalResourceModel for live Groq inference.
+# _RESOURCE_MODEL is stateless — safe to share. Fresh Agent created per call.
+from agents.groq_model import GroqModel
+_RESOURCE_MODEL = GroqModel(reasoning_effort="low")
+
 
 
 def recommend_resources(
@@ -498,6 +495,7 @@ def recommend_resources(
 ) -> dict:
     """
     Executes the Resource Agent recommendation process for a Grade x Subject x Topic.
+    Routes through Strands Agent → Groq → openai/gpt-oss-120b.
     Applies post-processing hard guardrails outside LLM reasoning.
     Does NOT mutate shared state or call other agents.
     """
@@ -510,8 +508,10 @@ Evaluate resource feasibility for:
 
 First call get_resource_inventory(session), get_resource_usage_log(grade, subject, topic), and check_concurrent_demand(session) before producing your final structured ResourceRecommendation.
 """
+    print(f"\n[STRANDS AGENT] Invoking ResourceAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
     agent = Agent(
-        model=LocalResourceModel(),
+        model=_RESOURCE_MODEL,
         system_prompt=SYSTEM_PROMPT,
         tools=[get_resource_inventory, get_resource_usage_log, check_concurrent_demand],
         structured_output_model=ResourceRecommendation,
@@ -526,9 +526,11 @@ First call get_resource_inventory(session), get_resource_usage_log(grade, subjec
             raw_data = result.structured_output.model_dump()
         else:
             raw_data = dict(result.structured_output)
-    else:
-        text_resp = str(result.message if hasattr(result, "message") else result)
+    elif hasattr(result, "message") and result.message:
+        text_resp = str(result.message.content if hasattr(result.message, "content") else result.message)
         raw_data = json.loads(text_resp)
+    else:
+        raise ValueError(f"ResourceAgent failed to return structured output: {result}")
 
     inventory = get_resource_inventory(session)
     usage = get_resource_usage_log(grade, subject, topic)

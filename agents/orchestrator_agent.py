@@ -85,72 +85,8 @@ ORCHESTRATION WORKFLOW:
 """
 
 
-class LocalOrchestratorModel(Model):
-    """
-    Strands Model adapter for local/offline Orchestrator execution using Ollama Qwen3:8b.
-    """
-
-    def __init__(self, model_name: str = "qwen3:8b", temperature: float = 0.0):
-        self.model_name = model_name
-        self.temperature = temperature
-
-    def update_config(self, **model_config: Any) -> None:
-        pass
-
-    def get_config(self) -> Any:
-        return {"model_name": self.model_name, "temperature": self.temperature}
-
-    async def structured_output(
-        self, output_model: type[BaseModel], prompt: Any, system_prompt: str | None = None, **kwargs: Any
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        import ollama
-        prompt_str = str(prompt)
-        sys_prompt = system_prompt or SYSTEM_PROMPT
-        response = ollama.chat(
-            model=self.model_name,
-            messages=[
-                {"role": "system", "content": sys_prompt.strip()},
-                {"role": "user", "content": prompt_str}
-            ],
-            format=output_model.model_json_schema(),
-            options={"temperature": self.temperature}
-        )
-        parsed = output_model.model_validate_json(response.message.content)
-        yield parsed
-
-    async def stream(
-        self,
-        messages: Any,
-        tool_specs: Any = None,
-        system_prompt: str | None = None,
-        **kwargs: Any
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        import ollama
-        sys_prompt = system_prompt or SYSTEM_PROMPT
-        response = ollama.chat(
-            model=self.model_name,
-            messages=[
-                {"role": "system", "content": sys_prompt.strip()},
-                {"role": "user", "content": str(messages)}
-            ],
-            format=OrchestrationResult.model_json_schema(),
-            options={"temperature": self.temperature}
-        )
-        yield {"messageStart": {"role": "assistant"}}
-        yield {
-            "contentBlockStart": {
-                "start": {"toolUse": {"toolUseId": "call_orchestrator", "name": "OrchestrationResult"}},
-                "contentBlockIndex": 0,
-            }
-        }
-        yield {
-            "contentBlockDelta": {
-                "delta": {"toolUse": {"input": response.message.content}},
-                "contentBlockIndex": 0,
-            }
-        }
-        yield {"contentBlockStop": {"contentBlockIndex": 0}}
-        yield {"messageStop": {"stopReason": "tool_use"}}
+# GroqModel replaces LocalOrchestratorModel for live Groq inference
+from agents.groq_model import GroqModel
 
 
 def parse_grade_key(g_key: str) -> tuple[str, str]:
@@ -329,14 +265,7 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
     return g_key, prop
 
 
-orchestrator_agent = Agent(
-    model=LocalOrchestratorModel(),
-    system_prompt=SYSTEM_PROMPT,
-    tools=[read_shared_state, write_shared_state, get_active_grades],
-    structured_output_model=OrchestrationResult,
-    name="OrchestratorAgent",
-    description="SAARTHI Orchestrator Agent sequencing active grades, resolving conflicts, surfacing one next action, and acting as single state writer."
-)
+_ORCHESTRATOR_MODEL = GroqModel(reasoning_effort="medium")
 
 
 def run_orchestration_cycle(session: dict) -> OrchestrationResult:
@@ -344,7 +273,7 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
     Executes a complete Orchestration Cycle:
     1. get_active_grades(session) acts as a cheap candidate filter to identify candidate grades.
     2. Runs specialist pipeline for active candidate grades concurrently.
-    3. Invokes Strands OrchestratorAgent (Ollama/Qwen3:8b) with real runtime context to reason about cross-grade priorities and conflicts.
+    3. Invokes Strands OrchestratorAgent (Groq/openai/gpt-oss-120b) with real runtime context to reason about cross-grade priorities and conflicts.
     4. Applies deterministic guardrails (Safety Gate overrides, state integrity).
     5. SINGLE WRITER: Commits finalized state to data/classroom_state.json via write_shared_state.
     """
@@ -445,7 +374,15 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
         f"5. Document resolved_conflicts in next_action if applicable."
     )
 
-    print(f"\n[STRANDS AGENT] Invoking OrchestratorAgent (Ollama Qwen3:8b) for cycle {cycle_id}...")
+    print(f"\n[STRANDS AGENT] Invoking OrchestratorAgent (Groq openai/gpt-oss-120b) for cycle {cycle_id}...")
+    orchestrator_agent = Agent(
+        model=_ORCHESTRATOR_MODEL,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[read_shared_state, write_shared_state, get_active_grades],
+        structured_output_model=OrchestrationResult,
+        name="OrchestratorAgent",
+        description="SAARTHI Orchestrator Agent sequencing active grades, resolving conflicts, surfacing one next action, and acting as single state writer."
+    )
     agent_result = orchestrator_agent(orchestrator_user_prompt)
 
     if hasattr(agent_result, "structured_output") and agent_result.structured_output:

@@ -1,10 +1,10 @@
 """
 test/local/test_curriculum_reasoning_hard.py
----------------------------------------------
-Hard real-world curriculum reasoning test suite for Saarthi Curriculum Agent (Qwen3 8B via Ollama).
+---------------------------------
+Hard real-world curriculum reasoning test suite for Saarthi Curriculum Agent (GPT-OSS-120B via Groq API).
 
-Tests 10 challenging classroom conflict scenarios to evaluate decision quality, trade-off reasoning,
-time adaptation, teacher constraint handling, boundary compliance, and hallucination avoidance.
+Focuses exclusively on the most complex, borderline scenarios where simple heuristics fail.
+Requires nuanced weighing of prerequisite dependencies vs. pacing pressure vs. mastery trends.
 """
 
 import sys

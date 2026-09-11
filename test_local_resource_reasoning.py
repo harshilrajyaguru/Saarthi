@@ -1,7 +1,7 @@
 """
 test_local_resource_reasoning.py
 --------------------------------
-Real-life resource reasoning test for Saarthi Resource Agent (Qwen3 8B via Ollama).
+Real-life resource reasoning test for Saarthi Resource Agent (GPT-OSS-120B via Groq API).
 
 Tests 8 real-life classroom resource constraint scenarios:
   1. Single Scarce Resource (1 TV contested between Grade 3 & 4)

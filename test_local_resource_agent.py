@@ -1,7 +1,7 @@
-﻿"""
+"""
 test_local_resource_agent.py
 -----------------------------
-Tests the local Qwen3 8B Resource Agent via Ollama.
+Tests the GPT-OSS-120B Resource Agent via Groq API.
 
 Scenario: Multi-grade classroom — Grades 6, 7, 8 — Mathematics — 40-minute session.
 
@@ -22,12 +22,12 @@ Concurrent demand (all three grades want TV and/or tablet):
 CRITICAL: 1 TV + 2 tablets shared across 3 grades → CONTENTION.
 
 The test validates:
-  1.  Ollama was actually called (once per grade — 3 calls total).
-  2.  Model used was exactly qwen3:8b.
+  1.  Groq API was actually called (once per grade — 3 calls total).
+  2.  Model used was exactly openai/gpt-oss-120b.
   3.  Bedrock was NOT used.
   4.  Output validates against ResourceRecommendation schema for each grade.
   5.  All three grades are represented (one result each).
-  6.  Available resources are correctly understood by Qwen.
+  6.  Available resources are correctly understood by the model.
   7.  Responses do NOT claim simultaneous use of more physical instances than available.
   8.  Contention is recognised for TV and/or tablet.
   9.  Any proposed rotation / sharing fits within 40 minutes.
@@ -54,7 +54,7 @@ from agents.local_ollama import recommend_resources_local, LOCAL_MODEL, PROVIDER
 
 # ---------------------------------------------------------------------------
 # Shared session — encodes the EXACT physical classroom state and concurrent
-# demand across all three grades so every Ollama call sees the same truth.
+# demand across all three grades so every Groq API call sees the same truth.
 # ---------------------------------------------------------------------------
 CLASSROOM_STATE_PATH = Path(__file__).resolve().parent / "data" / "classroom_state.json"
 
@@ -114,29 +114,31 @@ ACTIVITY_TERMS    = ["worksheet", "quiz questions", "lesson plan",
                      "game", "flashcard drill", "group activity design"]
 
 
-class TestLocalQwenResourceAgent(unittest.TestCase):
+class TestGroqResourceAgent(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Call Ollama once per grade and cache results. Track call count."""
-        cls._ollama_call_count = 0
-        cls._ollama_models     = []
+        """Call Groq API once per grade and cache results. Track call count."""
+        cls._groq_call_count = 0
+        cls._groq_models     = []
         cls._mtime_before      = (
             CLASSROOM_STATE_PATH.stat().st_mtime
             if CLASSROOM_STATE_PATH.exists() else None
         )
         cls._start_time = time.time()
 
-        original_chat = __import__("ollama").chat
+        from agents.groq_model import get_groq_client
+        client = get_groq_client()
+        original_create = client.chat.completions.create
 
-        def spy_chat(*args, **kwargs):
-            cls._ollama_call_count += 1
-            cls._ollama_models.append(kwargs.get("model", ""))
-            return original_chat(*args, **kwargs)
+        def spy_create(*args, **kwargs):
+            cls._groq_call_count += 1
+            cls._groq_models.append(kwargs.get("model", ""))
+            return original_create(*args, **kwargs)
 
         cls.results = {}
 
-        with patch("agents.local_ollama.ollama.chat", side_effect=spy_chat):
+        with patch.object(client.chat.completions, "create", side_effect=spy_create):
             for cfg in GRADES_CONFIG:
                 result = recommend_resources_local(
                     grade   = cfg["grade"],
@@ -152,19 +154,19 @@ class TestLocalQwenResourceAgent(unittest.TestCase):
             if CLASSROOM_STATE_PATH.exists() else None
         )
 
-    # ── 1. Ollama was actually called ─────────────────────────────────────────
-    def test_01_ollama_was_called(self):
+    # ── 1. Groq API was actually called ───────────────────────────────────────
+    def test_01_groq_was_called(self):
         self.assertGreater(
-            self._ollama_call_count, 0,
-            "Ollama was NOT called — local adapter never reached Ollama API",
+            self._groq_call_count, 0,
+            "Groq API was NOT called — adapter never reached Groq API",
         )
 
-    # ── 2. Model used was exactly qwen3:8b ────────────────────────────────────
-    def test_02_model_is_qwen3_8b(self):
-        for m in self._ollama_models:
+    # ── 2. Model used was exactly openai/gpt-oss-120b ─────────────────────────
+    def test_02_model_is_gpt_oss_120b(self):
+        for m in self._groq_models:
             self.assertEqual(
-                m, "qwen3:8b",
-                f"Expected model 'qwen3:8b', Ollama received '{m}'",
+                m, "openai/gpt-oss-120b",
+                f"Expected model 'openai/gpt-oss-120b', Groq received '{m}'",
             )
 
     # ── 3. Bedrock was NOT used ───────────────────────────────────────────────
@@ -366,24 +368,24 @@ class TestLocalQwenResourceAgent(unittest.TestCase):
 
 def main():
     loader     = unittest.TestLoader()
-    suite      = loader.loadTestsFromTestCase(TestLocalQwenResourceAgent)
+    suite      = loader.loadTestsFromTestCase(TestGroqResourceAgent)
     runner     = unittest.TextTestRunner(verbosity=2)
     result_obj = runner.run(suite)
 
     print()
     print("=" * 60)
     if result_obj.wasSuccessful():
-        print("LOCAL QWEN RESOURCE AGENT: PASS")
+        print("GROQ RESOURCE AGENT: PASS")
         print(f"Model: {LOCAL_MODEL}")
         print(f"Provider: {PROVIDER}")
         print("Bedrock: NOT USED")
-        elapsed = getattr(TestLocalQwenResourceAgent, "_elapsed", 0.0)
-        call_count = getattr(TestLocalQwenResourceAgent, "_ollama_call_count", 0)
-        print(f"Execution time (all Ollama calls): {elapsed:.1f}s  ({call_count} calls)")
+        elapsed = getattr(TestGroqResourceAgent, "_elapsed", 0.0)
+        call_count = getattr(TestGroqResourceAgent, "_groq_call_count", 0)
+        print(f"Execution time (all Groq API calls): {elapsed:.1f}s  ({call_count} calls)")
         print()
-        print("ResourceRecommendation returned by Qwen3 8B — per grade:")
+        print(f"ResourceRecommendation returned by {LOCAL_MODEL} — per grade:")
         for grade_str in ["6", "7", "8"]:
-            res = TestLocalQwenResourceAgent.results.get(grade_str)
+            res = TestGroqResourceAgent.results.get(grade_str)
             if res is None:
                 continue
             print(f"\n--- Grade {grade_str} ---")
@@ -395,7 +397,7 @@ def main():
             print(f"  recommended_resource: {res.get('recommended_resource')}")
             print(f"  delivery_possible : {res.get('delivery_possible')}")
     else:
-        print("LOCAL QWEN RESOURCE AGENT: FAIL")
+        print("GROQ RESOURCE AGENT: FAIL")
         print(f"Failures : {len(result_obj.failures)}")
         print(f"Errors   : {len(result_obj.errors)}")
         for name, tb in result_obj.failures + result_obj.errors:

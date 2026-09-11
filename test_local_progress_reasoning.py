@@ -1,7 +1,7 @@
 """
 test_local_progress_reasoning.py
 --------------------------------
-Real-life classroom timeline reasoning test for Saarthi Progress Agent (Qwen3 8B via Ollama).
+Real-life classroom timeline reasoning test for Saarthi Progress Agent (GPT-OSS-120B via Groq API).
 
 Tests sequential progress tracking for Grade 4 Mathematics:
   Step 1: First Session (Equivalent Fractions) - initial exposure, 2/5 correct, mixed errors.

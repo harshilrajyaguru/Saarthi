@@ -140,83 +140,10 @@ def apply_activity_guardrails(
     return d
 
 
-class LocalActivityModel(Model):
-    """
-    Strands Model implementation for local Activity Agent execution using Ollama Qwen3:8b.
-    Synthesizes real upstream agent outputs to generate a delivery-ready ActivityDesign.
-    """
-
-    def __init__(self, model_name: str = "qwen3:8b", temperature: float = 0.2):
-        self.model_name = model_name
-        self.temperature = temperature
-
-    def update_config(self, **model_config: Any) -> None:
-        pass
-
-    def get_config(self) -> Any:
-        return {"model_name": self.model_name, "temperature": self.temperature}
-
-    async def structured_output(
-        self, output_model: type[BaseModel], prompt: Any, system_prompt: str | None = None, **kwargs: Any
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        import ollama
-        prompt_str = str(prompt)
-        sys_prompt = system_prompt or SYSTEM_PROMPT
-        response = ollama.chat(
-            model=self.model_name,
-            messages=[
-                {"role": "system", "content": sys_prompt.strip()},
-                {"role": "user", "content": prompt_str}
-            ],
-            format=output_model.model_json_schema(),
-            options={"temperature": self.temperature}
-        )
-        parsed = output_model.model_validate_json(response.message.content)
-        yield parsed
-
-    async def stream(
-        self,
-        messages: Any,
-        tool_specs: Any = None,
-        system_prompt: str | None = None,
-        **kwargs: Any
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        import ollama
-        sys_prompt = system_prompt or SYSTEM_PROMPT
-        response = ollama.chat(
-            model=self.model_name,
-            messages=[
-                {"role": "system", "content": sys_prompt.strip()},
-                {"role": "user", "content": str(messages)}
-            ],
-            format=ActivityDesign.model_json_schema(),
-            options={"temperature": self.temperature}
-        )
-        yield {"messageStart": {"role": "assistant"}}
-        yield {
-            "contentBlockStart": {
-                "start": {"toolUse": {"toolUseId": "call_activity_design", "name": "ActivityDesign"}},
-                "contentBlockIndex": 0,
-            }
-        }
-        yield {
-            "contentBlockDelta": {
-                "delta": {"toolUse": {"input": response.message.content}},
-                "contentBlockIndex": 0,
-            }
-        }
-        yield {"contentBlockStop": {"contentBlockIndex": 0}}
-        yield {"messageStop": {"stopReason": "tool_use"}}
-
-
-activity_agent = Agent(
-    model=LocalActivityModel(),
-    system_prompt=SYSTEM_PROMPT,
-    tools=[get_activity_templates, get_recent_activity_history],
-    structured_output_model=ActivityDesign,
-    name="ActivityAgent",
-    description="SAARTHI Activity Agent designing student-facing activities targeting specific trouble spots."
-)
+# GroqModel replaces LocalActivityModel for live Groq inference.
+# _ACTIVITY_MODEL is stateless — safe to share. Fresh Agent created per call.
+from agents.groq_model import GroqModel
+_ACTIVITY_MODEL = GroqModel(reasoning_effort="low")
 
 
 def design_activity(
@@ -281,9 +208,10 @@ INSTRUCTIONS:
    - An answer key or expected outcomes for the items where applicable.
 6. Ensure estimated_time_minutes <= {available_time_minutes}.
 """
-    print(f"\n[STRANDS AGENT] Invoking ActivityAgent (Ollama Qwen3:8b) for Grade {grade} {subject} topic '{decided_topic}'...")
+    print(f"\n[STRANDS AGENT] Invoking ActivityAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject} topic '{decided_topic}'...")
+    # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
     agent = Agent(
-        model=LocalActivityModel(),
+        model=_ACTIVITY_MODEL,
         system_prompt=SYSTEM_PROMPT,
         tools=[get_activity_templates, get_recent_activity_history],
         structured_output_model=ActivityDesign,

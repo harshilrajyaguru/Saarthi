@@ -1,7 +1,7 @@
 """
 test_local_activity_agent.py
 -----------------------------
-Tests the local Qwen3 8B Activity Agent via Ollama across three independent scenarios.
+Tests the GPT-OSS-120B Activity Agent via Groq API across three independent scenarios.
 
 The Activity Agent synthesizes:
   Progress diagnosis + Curriculum decision + Resource constraints
@@ -13,7 +13,7 @@ SCENARIO A — VISUAL / CREATIVE LEARNING NEED
   Curriculum: hold / reinforce prerequisite
   Resources: printer + paper AVAILABLE, whiteboard available
   Time: 20 minutes
-  → Qwen must reason whether a visual/printable/drawing activity is appropriate.
+  → The model must reason whether a visual/printable/drawing activity is appropriate.
     It MUST produce actual student instructions and exercises — not a vague suggestion.
 
 SCENARIO B — KNOWLEDGE / PRACTICE REINFORCEMENT
@@ -22,7 +22,7 @@ SCENARIO B — KNOWLEDGE / PRACTICE REINFORCEMENT
   Curriculum: branch (reinforce while advancing)
   Resources: printer + paper AVAILABLE, whiteboard available
   Time: 25 minutes
-  → Qwen must produce a concrete practice activity targeting LCM / unlike-denominator errors.
+  → The model must produce a concrete practice activity targeting LCM / unlike-denominator errors.
     If it chooses a quiz format, actual questions must exist targeting the trouble spot.
 
 SCENARIO C — NON-DIGITAL / PHYSICAL / COLLABORATIVE ACTIVITY
@@ -31,7 +31,7 @@ SCENARIO C — NON-DIGITAL / PHYSICAL / COLLABORATIVE ACTIVITY
   Curriculum: hold / reinforce
   Resources: NO printer, NO tablet, NO TV — only whiteboard + classroom materials
   Time: 30 minutes
-  → Qwen must choose an appropriate resource-free/physical/offline/collaborative activity.
+  → The model must choose an appropriate resource-free/physical/offline/collaborative activity.
     The chosen activity must be executable without digital resources.
     actual student-facing instructions and tasks must be present.
 
@@ -132,29 +132,31 @@ PACING_DECISION_TERMS     = ["pacing_decision", "curriculum direction",
                               "advance", "hold", "branch", "reteach curriculum"]
 
 
-class TestLocalQwenActivityAgent(unittest.TestCase):
+class TestGroqActivityAgent(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         """Run design_activity_local once per scenario and cache results."""
-        cls._ollama_call_count = 0
-        cls._ollama_models     = []
+        cls._groq_call_count = 0
+        cls._groq_models     = []
         cls._mtime_before      = (
             CLASSROOM_STATE_PATH.stat().st_mtime
             if CLASSROOM_STATE_PATH.exists() else None
         )
         cls._start_time = time.time()
 
-        original_chat = __import__("ollama").chat
+        from agents.groq_model import get_groq_client
+        client = get_groq_client()
+        original_create = client.chat.completions.create
 
-        def spy_chat(*args, **kwargs):
-            cls._ollama_call_count += 1
-            cls._ollama_models.append(kwargs.get("model", ""))
-            return original_chat(*args, **kwargs)
+        def spy_create(*args, **kwargs):
+            cls._groq_call_count += 1
+            cls._groq_models.append(kwargs.get("model", ""))
+            return original_create(*args, **kwargs)
 
         cls.results = {}
 
-        with patch("agents.local_ollama.ollama.chat", side_effect=spy_chat):
+        with patch.object(client.chat.completions, "create", side_effect=spy_create):
             for sc in SCENARIOS:
                 result = design_activity_local(
                     grade                   = sc["grade"],
@@ -176,16 +178,16 @@ class TestLocalQwenActivityAgent(unittest.TestCase):
             if CLASSROOM_STATE_PATH.exists() else None
         )
 
-    # ── 1. Ollama was actually called ─────────────────────────────────────────
-    def test_01_ollama_was_called(self):
-        self.assertGreaterEqual(self._ollama_call_count, len(SCENARIOS),
-            "Ollama was called fewer times than scenarios — some Qwen calls were skipped")
+    # ── 1. Groq API was actually called ───────────────────────────────────────
+    def test_01_groq_was_called(self):
+        self.assertGreaterEqual(self._groq_call_count, len(SCENARIOS),
+            "Groq API was called fewer times than scenarios — some API calls were skipped")
 
-    # ── 2. Model is exactly qwen3:8b ──────────────────────────────────────────
-    def test_02_model_is_qwen3_8b(self):
-        for m in self._ollama_models:
-            self.assertEqual(m, "qwen3:8b",
-                f"Expected model 'qwen3:8b', got '{m}'")
+    # ── 2. Model is exactly openai/gpt-oss-120b ───────────────────────────────
+    def test_02_model_is_gpt_oss_120b(self):
+        for m in self._groq_models:
+            self.assertEqual(m, "openai/gpt-oss-120b",
+                f"Expected model 'openai/gpt-oss-120b', got '{m}'")
 
     # ── 3. Bedrock NOT used ───────────────────────────────────────────────────
     def test_03_bedrock_not_used(self):
@@ -412,7 +414,7 @@ def _print_scenario_report(sid, sc, res):
     print(f"  recommended_resource    : {sc['recommended_resource']}")
     print(f"  printer_available       : {sc['printer_available']}")
     print(f"  available_time_minutes  : {sc['available_time_minutes']}")
-    print("\nACTIVITY RETURNED BY QWEN3 8B:")
+    print("\nACTIVITY RETURNED BY GROQ:")
     print(json.dumps(res, indent=2))
     content = res.get("content", {})
     print(f"\n  activity_type    : {res.get('activity_type')}")
@@ -428,11 +430,11 @@ def _print_scenario_report(sid, sc, res):
 
 
 def main():
-    # Ensure stdout uses UTF-8 so Qwen unicode output (e.g. → \u2192) prints cleanly
+    # Ensure stdout uses UTF-8 so unicode output prints cleanly
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     loader     = unittest.TestLoader()
-    suite      = loader.loadTestsFromTestCase(TestLocalQwenActivityAgent)
+    suite      = loader.loadTestsFromTestCase(TestGroqActivityAgent)
     runner     = unittest.TextTestRunner(verbosity=2)
     result_obj = runner.run(suite)
 
@@ -444,16 +446,16 @@ def main():
     print()
     print("=" * 60)
     if result_obj.wasSuccessful():
-        print("LOCAL QWEN ACTIVITY AGENT: PASS")
+        print("GROQ ACTIVITY AGENT: PASS")
         print(f"Model: {LOCAL_MODEL}")
         print(f"Provider: {PROVIDER}")
         print("Bedrock: NOT USED")
-        elapsed    = getattr(TestLocalQwenActivityAgent, "_elapsed", 0.0)
-        call_count = getattr(TestLocalQwenActivityAgent, "_ollama_call_count", 0)
-        print(f"Total execution time: {elapsed:.1f}s  ({call_count} Ollama calls)")
+        elapsed    = getattr(TestGroqActivityAgent, "_elapsed", 0.0)
+        call_count = getattr(TestGroqActivityAgent, "_groq_call_count", 0)
+        print(f"Total execution time: {elapsed:.1f}s  ({call_count} Groq calls)")
         print(f"Total assertions: {total}  |  Passed: {passed}  |  Failed: {failures + errors}")
     else:
-        print("LOCAL QWEN ACTIVITY AGENT: FAIL")
+        print("GROQ ACTIVITY AGENT: FAIL")
         print(f"Total assertions: {total}  |  Passed: {passed}  |  Failed: {failures + errors}")
         for name, tb in result_obj.failures + result_obj.errors:
             print(f"\n--- {name} ---")
@@ -461,7 +463,7 @@ def main():
     print("=" * 60)
 
     # Always print per-scenario reports
-    results_map = getattr(TestLocalQwenActivityAgent, "results", {})
+    results_map = getattr(TestGroqActivityAgent, "results", {})
     sc_map = {sc["id"]: sc for sc in SCENARIOS}
     for sid in ["A", "B", "C"]:
         if sid in results_map and sid in sc_map:

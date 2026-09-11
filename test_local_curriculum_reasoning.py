@@ -1,7 +1,7 @@
 """
 test_local_curriculum_reasoning.py
 ----------------------------------
-Real-world curriculum reasoning test for Saarthi Curriculum Agent (Qwen3 8B via Ollama).
+Real-world curriculum reasoning test for Saarthi Curriculum Agent (GPT-OSS-120B via Groq API).
 
 Tests 8 real-world classroom conflict scenarios to evaluate whether the Curriculum Agent
 makes defensible curriculum decisions (advance, hold, branch) balancing syllabus pace,

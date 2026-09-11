@@ -1,25 +1,25 @@
 """
 agents/local_ollama.py
 ----------------------
-Local Ollama adapter for Saarthi's Progress Agent.
+Groq API adapter for Saarthi's specialist agents.
 
-Calls Qwen3 8B via the official Ollama Python client, uses
-ProgressDiagnosis.model_json_schema() as structured-output format,
-and applies the same hard guardrails as analyze_progress().
+Calls openai/gpt-oss-120b via the Groq API, uses Pydantic
+model_json_schema() for structured-output via response_format,
+and applies the same hard guardrails as the Strands agent path.
 
 Design constraints enforced here:
-  * Uses the EXACT SYSTEM_PROMPT from progress_agent.py -- unmodified.
-  * Uses the EXACT ProgressDiagnosis Pydantic schema -- unmodified.
-  * Calls get_history + get_trouble_spot_log directly (same as Strands agent).
-  * Applies apply_hard_guardrails() after validation.
-  * NEVER falls back to deterministic diagnosis on Ollama/Qwen failure --
-    the exception propagates so the caller knows Qwen did not work.
+  * Uses the EXACT SYSTEM_PROMPT from each agent module -- unmodified.
+  * Uses the EXACT Pydantic schemas from each agent module -- unmodified.
+  * Calls tool functions directly (same as Strands agent).
+  * Applies the same guardrails after validation.
+  * NEVER falls back to deterministic diagnosis on failure --
+    the exception propagates so the caller knows the API did not work.
 """
 
 import json
 from typing import Optional, Union
 
-import ollama
+from agents.groq_model import get_groq_client
 
 from agents.progress_agent import (
     SYSTEM_PROMPT,
@@ -31,9 +31,45 @@ from tools.progress_tools import get_history, get_trouble_spot_log
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-LOCAL_MODEL = "qwen3:8b"
-PROVIDER    = "Ollama"
+LOCAL_MODEL = "openai/gpt-oss-120b"
+PROVIDER    = "Groq"
 TEMPERATURE = 0          # deterministic output for testing
+
+
+def _call_groq_structured(system_prompt: str, user_prompt: str, schema: dict, *, model: str = LOCAL_MODEL) -> str:
+    """
+    Shared helper: calls Groq chat completions with JSON-object response_format
+    and a schema instruction injected into the system prompt.
+    Returns the raw JSON string from the model.
+    """
+    client = get_groq_client()
+
+    sys_content = system_prompt.strip() + (
+        "\n\nCRITICAL OUTPUT REQUIREMENT:\n"
+        "You MUST return ONLY a valid, raw JSON object matching this JSON Schema:\n"
+        + json.dumps(schema, indent=2)
+        + "\nDo NOT use markdown fences. Do NOT add surrounding text."
+    )
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": sys_content},
+            {"role": "user",   "content": user_prompt},
+        ],
+        response_format={"type": "json_object"},
+        temperature=TEMPERATURE,
+    )
+
+    raw = (response.choices[0].message.content or "{}").strip()
+    # Strip markdown fences if present
+    if raw.startswith("```json"):
+        raw = raw[7:]
+    if raw.startswith("```"):
+        raw = raw[3:]
+    if raw.endswith("```"):
+        raw = raw[:-3]
+    return raw.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -50,7 +86,7 @@ def analyze_progress_local(
     model: str = LOCAL_MODEL,
 ) -> dict:
     """
-    Local Ollama equivalent of analyze_progress().
+    Groq API equivalent of analyze_progress().
 
     Input contract is identical to analyze_progress() in progress_agent.py.
 
@@ -60,14 +96,14 @@ def analyze_progress_local(
     2.  Call get_trouble_spot_log() -- same as the Strands agent.
     3.  Build a user message that bundles the tool results + latest signals
         so the LLM has all evidence in-context.
-    4.  Call Ollama with qwen3:8b and ProgressDiagnosis JSON schema as the
-        structured-output format (format= parameter).
+    4.  Call Groq with openai/gpt-oss-120b and ProgressDiagnosis JSON schema as the
+        structured-output format (response_format=json_object).
     5.  Validate the response with ProgressDiagnosis.model_validate_json().
-    6.  Apply apply_hard_guardrails() -- same post-processing as Bedrock path.
+    6.  Apply apply_hard_guardrails() -- same post-processing as Strands path.
 
     Raises
     ------
-    Any exception from the Ollama client or Pydantic validation propagates
+    Any exception from the Groq client or Pydantic validation propagates
     directly to the caller.  There is NO silent deterministic fallback.
     """
     grade_str = str(grade)
@@ -104,37 +140,30 @@ def analyze_progress_local(
         f"trouble-spot patterns) in your explanation."
     )
 
-    # Step 4: call Ollama
-    # format= accepts a JSON-schema dict -- Ollama enforces the schema via
-    # constrained decoding (grammar-based sampling).
-    response = ollama.chat(
+    # Step 4: call Groq
+    raw_json = _call_groq_structured(
+        SYSTEM_PROMPT,
+        user_prompt,
+        ProgressDiagnosis.model_json_schema(),
         model=model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT.strip()},
-            {"role": "user",   "content": user_prompt},
-        ],
-        format=ProgressDiagnosis.model_json_schema(),
-        options={"temperature": TEMPERATURE},
     )
-
-    raw_json: str = response.message.content
 
     # Step 5: validate against ProgressDiagnosis schema
     diagnosis_obj: ProgressDiagnosis = ProgressDiagnosis.model_validate_json(raw_json)
     raw_diagnosis: dict = diagnosis_obj.model_dump()
 
-    # Step 6: apply hard guardrails (same as Bedrock path)
+    # Step 6: apply hard guardrails (same as Strands path)
     final_diagnosis = apply_hard_guardrails(raw_diagnosis, history_count)
     return final_diagnosis
 
 
 # ===========================================================================
-# CURRICULUM AGENT — LOCAL OLLAMA ADAPTER
+# CURRICULUM AGENT — GROQ API ADAPTER
 # ===========================================================================
 # Mirrors the pattern of analyze_progress_local() above.
 # Uses CurriculumDecision schema, SYSTEM_PROMPT, apply_curriculum_guardrails,
 # get_syllabus_position, get_prerequisite_map -- all from curriculum_agent.py.
-# No Bedrock. No deterministic fallback. Errors propagate.
+# No Ollama. No deterministic fallback. Errors propagate.
 # ===========================================================================
 
 from agents.curriculum_agent import (
@@ -156,7 +185,7 @@ def reconcile_curriculum_local(
     model: str = LOCAL_MODEL,
 ) -> dict:
     """
-    Local Ollama equivalent of reconcile_curriculum() in curriculum_agent.py.
+    Groq API equivalent of reconcile_curriculum() in curriculum_agent.py.
 
     Input contract is identical to reconcile_curriculum().
 
@@ -166,14 +195,14 @@ def reconcile_curriculum_local(
     2.  Call get_prerequisite_map() for the next target syllabus topic.
     3.  Build a user message bundling all tool results + progress diagnosis +
         session/teacher constraints.
-    4.  Call Ollama with qwen3:8b and CurriculumDecision JSON schema as the
-        structured-output format (format= parameter).
+    4.  Call Groq with openai/gpt-oss-120b and CurriculumDecision JSON schema as the
+        structured-output format (response_format=json_object).
     5.  Validate the response with CurriculumDecision.model_validate_json().
-    6.  Apply apply_curriculum_guardrails() -- same post-processing as Bedrock path.
+    6.  Apply apply_curriculum_guardrails() -- same post-processing as Strands path.
 
     Raises
     ------
-    Any exception from the Ollama client or Pydantic validation propagates
+    Any exception from the Groq client or Pydantic validation propagates
     directly to the caller.  There is NO silent deterministic fallback.
     """
     grade_str = str(grade)
@@ -224,24 +253,19 @@ def reconcile_curriculum_local(
         f"6. Do NOT select specific activities, worksheets, quizzes, or learning resources."
     )
 
-    # Step 4: call Ollama with CurriculumDecision schema for constrained output
-    response = ollama.chat(
+    # Step 4: call Groq with CurriculumDecision schema for structured output
+    raw_json = _call_groq_structured(
+        CURRICULUM_SYSTEM_PROMPT,
+        user_prompt,
+        CurriculumDecision.model_json_schema(),
         model=model,
-        messages=[
-            {"role": "system", "content": CURRICULUM_SYSTEM_PROMPT.strip()},
-            {"role": "user",   "content": user_prompt},
-        ],
-        format=CurriculumDecision.model_json_schema(),
-        options={"temperature": TEMPERATURE},
     )
-
-    raw_json: str = response.message.content
 
     # Step 5: validate against CurriculumDecision schema
     decision_obj: CurriculumDecision = CurriculumDecision.model_validate_json(raw_json)
     raw_decision: dict = decision_obj.model_dump()
 
-    # Step 6: apply hard guardrails (same as Bedrock path)
+    # Step 6: apply hard guardrails (same as Strands path)
     final_decision = apply_curriculum_guardrails(
         raw_decision,
         grade=grade_str,
@@ -255,12 +279,12 @@ def reconcile_curriculum_local(
 
 
 # ===========================================================================
-# RESOURCE AGENT — LOCAL OLLAMA ADAPTER
+# RESOURCE AGENT — GROQ API ADAPTER
 # ===========================================================================
 # Mirrors the pattern of analyze_progress_local() and reconcile_curriculum_local().
 # Uses ResourceRecommendation schema, SYSTEM_PROMPT, apply_resource_guardrails,
 # get_resource_inventory, get_resource_usage_log, check_concurrent_demand —
-# all from resource_agent.py.  No Bedrock. No deterministic fallback.
+# all from resource_agent.py.  No Ollama. No deterministic fallback.
 # Errors propagate directly.
 # ===========================================================================
 
@@ -285,7 +309,7 @@ def recommend_resources_local(
     model: str = LOCAL_MODEL,
 ) -> dict:
     """
-    Local Ollama equivalent of recommend_resources() in resource_agent.py.
+    Groq API equivalent of recommend_resources() in resource_agent.py.
 
     Input contract is identical to recommend_resources().
 
@@ -295,14 +319,14 @@ def recommend_resources_local(
     2.  Call get_resource_usage_log(grade, subject, topic) -- staleness data.
     3.  Call check_concurrent_demand(session) -- contention data across grades.
     4.  Build a user message bundling all tool results + session config.
-    5.  Call Ollama with qwen3:8b and ResourceRecommendation JSON schema as the
-        structured-output format (format= parameter).
+    5.  Call Groq with openai/gpt-oss-120b and ResourceRecommendation JSON schema as the
+        structured-output format (response_format=json_object).
     6.  Validate the response with ResourceRecommendation.model_validate_json().
     7.  Apply apply_resource_guardrails() -- same deterministic post-processing.
 
     Raises
     ------
-    Any exception from the Ollama client or Pydantic validation propagates
+    Any exception from the Groq client or Pydantic validation propagates
     directly to the caller.  There is NO silent deterministic fallback.
     """
     grade_str = str(grade)
@@ -316,7 +340,7 @@ def recommend_resources_local(
     # Step 3: pull concurrent demand (contention across grades)
     demand = check_concurrent_demand(session)
 
-    # Step 4: build the user prompt — include full tool output so Qwen
+    # Step 4: build the user prompt — include full tool output so the model
     # has all physical constraints in-context before reasoning.
     user_prompt = (
         f"Evaluate resource feasibility for:\n"
@@ -341,18 +365,13 @@ def recommend_resources_local(
         f"- Do NOT diagnose student mastery or decide curriculum pacing."
     )
 
-    # Step 5: call Ollama with ResourceRecommendation schema for constrained output
-    response = ollama.chat(
+    # Step 5: call Groq with ResourceRecommendation schema for structured output
+    raw_json = _call_groq_structured(
+        RESOURCE_SYSTEM_PROMPT,
+        user_prompt,
+        ResourceRecommendation.model_json_schema(),
         model=model,
-        messages=[
-            {"role": "system", "content": RESOURCE_SYSTEM_PROMPT.strip()},
-            {"role": "user",   "content": user_prompt},
-        ],
-        format=ResourceRecommendation.model_json_schema(),
-        options={"temperature": TEMPERATURE},
     )
-
-    raw_json: str = response.message.content
 
     # Step 6: validate against ResourceRecommendation schema
     rec_obj: ResourceRecommendation = ResourceRecommendation.model_validate_json(raw_json)
@@ -364,12 +383,12 @@ def recommend_resources_local(
 
 
 # ===========================================================================
-# ACTIVITY AGENT — LOCAL OLLAMA ADAPTER
+# ACTIVITY AGENT — GROQ API ADAPTER
 # ===========================================================================
 # Mirrors the pattern of the validated Progress/Curriculum/Resource adapters.
 # Uses ActivityDesign schema, SYSTEM_PROMPT, apply_activity_guardrails,
 # get_activity_templates, get_recent_activity_history — all from activity_agent.py.
-# No Bedrock. No deterministic fallback. Errors propagate directly.
+# No Ollama. No deterministic fallback. Errors propagate directly.
 # ===========================================================================
 
 from agents.activity_agent import (
@@ -395,7 +414,7 @@ def design_activity_local(
     model: str = LOCAL_MODEL,
 ) -> dict:
     """
-    Local Ollama equivalent of design_activity() in activity_agent.py.
+    Groq API equivalent of design_activity() in activity_agent.py.
 
     Input contract is identical to design_activity().
 
@@ -404,15 +423,15 @@ def design_activity_local(
     1.  Call get_activity_templates(decided_topic, recommended_resource) -- same tool.
     2.  Call get_recent_activity_history(grade, subject) -- avoids format repetition.
     3.  Build a user message bundling all upstream agent outputs + tool results
-        so Qwen can synthesize the concrete activity in-context.
-    4.  Call Ollama with qwen3:8b and ActivityDesign JSON schema as the
-        structured-output format (format= parameter).
+        so the model can synthesize the concrete activity in-context.
+    4.  Call Groq with openai/gpt-oss-120b and ActivityDesign JSON schema as the
+        structured-output format (response_format=json_object).
     5.  Validate the response with ActivityDesign.model_validate_json().
     6.  Apply apply_activity_guardrails() -- topic lock, resource lock, time fit.
 
     Raises
     ------
-    Any exception from the Ollama client or Pydantic validation propagates
+    Any exception from the Groq client or Pydantic validation propagates
     directly to the caller.  There is NO silent deterministic fallback.
     """
     grade_str = str(grade)
@@ -457,18 +476,13 @@ def design_activity_local(
         f"10. Generate the complete, delivery-ready student-facing activity content now."
     )
 
-    # Step 4: call Ollama with ActivityDesign schema for constrained output
-    response = ollama.chat(
+    # Step 4: call Groq with ActivityDesign schema for structured output
+    raw_json = _call_groq_structured(
+        ACTIVITY_SYSTEM_PROMPT,
+        user_prompt,
+        ActivityDesign.model_json_schema(),
         model=model,
-        messages=[
-            {"role": "system", "content": ACTIVITY_SYSTEM_PROMPT.strip()},
-            {"role": "user",   "content": user_prompt},
-        ],
-        format=ActivityDesign.model_json_schema(),
-        options={"temperature": TEMPERATURE},
     )
-
-    raw_json: str = response.message.content
 
     # Step 5: validate against ActivityDesign schema
     design_obj: ActivityDesign = ActivityDesign.model_validate_json(raw_json)

@@ -3,7 +3,6 @@ from typing import Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from strands import Agent
-from strands.models import BedrockModel
 from tools.progress_tools import get_history, get_trouble_spot_log
 
 
@@ -71,20 +70,12 @@ HARD BOUNDARIES:
 - Your explanation MUST be exactly one concise sentence referencing actual evidence used (e.g. scores, session count, specific error patterns). Never use generic templates.
 """
 
-# Real Strands Agent using Claude Sonnet through Amazon Bedrock
-bedrock_model = BedrockModel(
-    model_id="global.anthropic.claude-sonnet-4-6",
-    region_name="us-east-1"
-)
-
-progress_agent = Agent(
-    model=bedrock_model,
-    system_prompt=SYSTEM_PROMPT,
-    tools=[get_history, get_trouble_spot_log],
-    structured_output_model=ProgressDiagnosis,
-    name="ProgressAgent",
-    description="SAARTHI Progress Agent diagnosing learning state from evidence."
-)
+# GroqModel replaces BedrockModel for live Groq inference.
+# _PROGRESS_MODEL is a stateless config object — safe to share across threads.
+# Each analyze_progress() call creates its OWN Agent instance to avoid
+# ConcurrencyException when multiple grades run in parallel threads.
+from agents.groq_model import GroqModel
+_PROGRESS_MODEL = GroqModel(reasoning_effort="low")
 
 
 def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:
@@ -130,8 +121,6 @@ def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:
     return d
 
 
-from agents.bedrock_checker import is_bedrock_available, mark_bedrock_unavailable
-
 def analyze_progress(
     grade: Union[int, str],
     subject: str,
@@ -141,6 +130,8 @@ def analyze_progress(
 ) -> dict:
     """
     Executes the Progress Agent diagnosis for a given Grade x Subject with latest signals.
+    Routes through Strands Agent → GroqModel → Groq API → openai/gpt-oss-120b.
+    Creates a fresh Agent instance per call to support concurrent grade evaluation.
     Applies post-processing hard guardrails outside LLM reasoning.
     Does NOT mutate shared state.
     """
@@ -161,69 +152,29 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
     history_res = get_history(grade=grade, subject=subject, topic=current_topic, n=10)
     history_count = history_res.get("count", 0) if isinstance(history_res, dict) else 0
 
-    raw_diagnosis = None
-    if is_bedrock_available():
-        try:
-            # 1. Execute Strands Agent (Amazon Bedrock model)
-            result = progress_agent(prompt)
+    print(f"\n[STRANDS AGENT] Invoking ProgressAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    # Fresh Agent per call — avoids ConcurrencyException when multiple grades run concurrently.
+    agent = Agent(
+        model=_PROGRESS_MODEL,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[get_history, get_trouble_spot_log],
+        structured_output_model=ProgressDiagnosis,
+        name="ProgressAgent",
+        description="SAARTHI Progress Agent diagnosing learning state from evidence.",
+    )
+    result = agent(prompt)
 
-            # 2. Extract structured diagnosis
-            if hasattr(result, "structured_output") and result.structured_output:
-                raw_diagnosis = (
-                    result.structured_output.model_dump()
-                    if hasattr(result.structured_output, "model_dump")
-                    else dict(result.structured_output)
-                )
-            else:
-                text_resp = str(result.message if hasattr(result, "message") else result)
-                raw_diagnosis = json.loads(text_resp)
-        except Exception:
-            mark_bedrock_unavailable()
+    if hasattr(result, "structured_output") and result.structured_output:
+        raw_diagnosis = (
+            result.structured_output.model_dump()
+            if hasattr(result.structured_output, "model_dump")
+            else dict(result.structured_output)
+        )
+    elif hasattr(result, "message") and result.message:
+        text_resp = str(result.message.content if hasattr(result.message, "content") else result.message)
+        raw_diagnosis = json.loads(text_resp)
+    else:
+        raise ValueError(f"ProgressAgent failed to return structured output: {result}")
 
-    if raw_diagnosis is None:
-        # Local offline diagnostic fallback when Bedrock API is unconfigured
-        trouble_log = get_trouble_spot_log(grade=grade, subject=subject)
-        trouble_spots = trouble_log.get("trouble_spots", [])
-
-        correctness = latest_signals.get("correctness") if isinstance(latest_signals, dict) else None
-        if correctness is None and isinstance(latest_signals, dict):
-            correctness = latest_signals.get("score")
-
-        if correctness is not None:
-            if correctness >= 0.8:
-                mastery = "proficient"
-                trend = "improving"
-                direction = "advance"
-            elif correctness >= 0.5:
-                mastery = "developing"
-                trend = "stagnant"
-                direction = "reinforce"
-            else:
-                mastery = "struggling"
-                trend = "declining"
-                direction = "reteach"
-        else:
-            sig_flag = bool(latest_signals.get(f"Grade_{grade}_{subject}", False)) if isinstance(latest_signals, dict) else False
-            mastery = "struggling" if (sig_flag and str(grade) in ["3", "5"]) else "developing"
-            trend = "declining" if (sig_flag and str(grade) in ["3", "5"]) else "stagnant"
-            direction = "reteach" if mastery == "struggling" else "reinforce"
-
-        confidence = "low" if history_count < 2 else "high"
-        att_flag = (trend in ["stagnant", "declining"]) and (confidence in ["medium", "high"])
-
-        raw_diagnosis = {
-            "grade": str(grade),
-            "subject": subject,
-            "topic": current_topic,
-            "mastery_estimate": mastery,
-            "trend": trend,
-            "confidence": confidence,
-            "trouble_spots": trouble_spots if trouble_spots else ["conceptual gap"],
-            "attention_flag": att_flag,
-            "recommendation_direction": direction,
-            "explanation": f"Diagnostic analysis based on {history_count} historical sessions and latest signals for Grade {grade} {subject}."
-        }
-
-    # Apply hard post-processing guardrails
     final_diagnosis = apply_hard_guardrails(raw_diagnosis, history_count)
     return final_diagnosis
