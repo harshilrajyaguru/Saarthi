@@ -256,9 +256,9 @@
   ],
   "grades": {
     "Grade_3_Math": {
-      "current_topic": "Fractions - introduction",
-      "pacing_decision": "advance",
-      "mastery_estimate": "developing",
+      "current_topic": "Fractions - introduction (reinforcement)",
+      "pacing_decision": "hold",
+      "mastery_estimate": "struggling",
       "attention_flag": false,
       "recommended_resource": "printable_worksheet",
       "activity_status": "passed_safety_gate",
@@ -283,9 +283,9 @@
       "last_evaluation_date": "2026-09-04T00:00:00Z"
     }
   },
-  "last_updated": "2026-09-09T20:41:48.279280+00:00",
+  "last_updated": "2026-09-11T07:43:52.380139+00:00",
   "active_session": {
-    "session_id": "sess_e87d1f7b",
+    "session_id": "sess_61ff4edb",
     "status": "adapting",
     "active_grades": [
       "Grade_3_Math",
@@ -300,7 +300,7 @@
     "duration_minutes": 40,
     "remaining_time_minutes": 4,
     "current_cycle": 1,
-    "started_at": "2026-09-09T20:41:48.263962+00:00",
+    "started_at": "2026-09-11T07:43:26.005655+00:00",
     "classroom_resources": {
       "tablets_free": 2,
       "tv_available": true,
@@ -332,7 +332,7 @@
     },
     "delivered_activities": [
       {
-        "activity_id": "act_546531",
+        "activity_id": "act_f58311",
         "grade": "3",
         "subject": "Math",
         "topic": "Fractions - introduction",
@@ -348,7 +348,7 @@
         "delivered_at_cycle": 1
       },
       {
-        "activity_id": "act_92b72f",
+        "activity_id": "act_6a660b",
         "grade": "4",
         "subject": "Math",
         "topic": "Fractions - equivalent fractions (reinforcement)",
@@ -364,7 +364,7 @@
         "delivered_at_cycle": 1
       },
       {
-        "activity_id": "act_7d86dd",
+        "activity_id": "act_097158",
         "grade": "5",
         "subject": "Math",
         "topic": "Decimals - multiplication",
@@ -390,7 +390,7 @@
         "recommended_resource": "printable_worksheet",
         "activity_status": "passed_safety_gate",
         "delivered_activity": {
-          "activity_id": "act_546531",
+          "activity_id": "act_f58311",
           "grade": "3",
           "subject": "Math",
           "topic": "Fractions - introduction",
@@ -415,7 +415,7 @@
         "recommended_resource": "whiteboard_activity",
         "activity_status": "passed_safety_gate",
         "delivered_activity": {
-          "activity_id": "act_92b72f",
+          "activity_id": "act_6a660b",
           "grade": "4",
           "subject": "Math",
           "topic": "Fractions - equivalent fractions (reinforcement)",
@@ -440,7 +440,7 @@
         "recommended_resource": "whiteboard_activity",
         "activity_status": "passed_safety_gate",
         "delivered_activity": {
-          "activity_id": "act_7d86dd",
+          "activity_id": "act_097158",
           "grade": "5",
           "subject": "Math",
           "topic": "Decimals - multiplication",
@@ -478,7 +478,7 @@
       "internet": true
     },
     "cycle_record": {
-      "cycle_id": "orc_925e8cfc",
+      "cycle_id": "orc_c6a47930",
       "next_action": {
         "priority": "high",
         "grade": "4",
