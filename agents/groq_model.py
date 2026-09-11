@@ -171,6 +171,93 @@ def _convert_tool_specs_to_groq(tool_specs: list[Any] | None) -> tuple[list[dict
 
 # ── GroqModel Implementation ──────────────────────────────────────────────────
 
+def _get_fallback_chain(start_model: str) -> list[str]:
+    raw_env = os.getenv(
+        "GROQ_FALLBACK_MODELS",
+        "openai/gpt-oss-120b,llama-3.3-70b-versatile,openai/gpt-oss-20b,llama-3.1-8b-instant"
+    )
+    fallback_list = [m.strip() for m in raw_env.split(",") if m.strip()]
+
+    chain = []
+    if start_model:
+        chain.append(start_model)
+    for model in fallback_list:
+        if model not in chain:
+            chain.append(model)
+    return chain
+
+
+def _is_decommissioned_error(e: Exception) -> bool:
+    err_str = str(e).lower()
+    body_str = ""
+    if hasattr(e, "body") and isinstance(e.body, dict):
+        body_str = json.dumps(e.body).lower()
+    full_msg = f"{err_str} {body_str}"
+    return (
+        "decommissioned" in full_msg
+        or "model_decommissioned" in full_msg
+        or "model_not_found" in full_msg
+        or "not_found" in full_msg
+        or "not found" in full_msg
+    )
+
+
+async def _execute_completion_with_fallback(
+    client: Any,
+    req_kwargs: dict[str, Any],
+    model_obj: Any,
+    max_retries: int = 4,
+    base_delay: float = 2.0,
+) -> Any:
+    import groq
+
+    start_model = req_kwargs.get("model") or getattr(model_obj, "model_name", None) or os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
+    chain = _get_fallback_chain(start_model)
+
+    last_exception = None
+
+    for candidate_model in chain:
+        req_kwargs["model"] = candidate_model
+        if getattr(model_obj, "model_name", None) != candidate_model:
+            print(f"[GroqModel Fallback] Active model updated: '{candidate_model}' (previously '{getattr(model_obj, 'model_name', None)}')")
+            if hasattr(model_obj, "model_name"):
+                model_obj.model_name = candidate_model
+
+        for attempt in range(max_retries):
+            try:
+                reasoning = getattr(model_obj, "reasoning_effort", None)
+                if reasoning:
+                    try:
+                        return client.chat.completions.create(
+                            **req_kwargs, reasoning_effort=reasoning
+                        )
+                    except (TypeError, groq.BadRequestError, groq.UnprocessableEntityError) as err:
+                        if _is_decommissioned_error(err):
+                            raise err
+
+                return client.chat.completions.create(**req_kwargs)
+
+            except groq.BadRequestError as e:
+                if _is_decommissioned_error(e):
+                    last_exception = e
+                    print(f"[GroqModel Fallback] Model '{candidate_model}' raised BadRequestError ({e}). Retrying with next model in fallback chain...")
+                    break
+                else:
+                    raise
+
+            except (groq.RateLimitError, groq.InternalServerError, groq.APIConnectionError, groq.APIStatusError) as e:
+                last_exception = e
+                if attempt == max_retries - 1:
+                    raise
+                sleep_time = base_delay * (2 ** attempt)
+                print(f"[GroqModel] API Error ({type(e).__name__} on '{candidate_model}'). Retrying in {sleep_time}s...")
+                await asyncio.sleep(sleep_time)
+
+    if last_exception:
+        raise last_exception
+    raise RuntimeError("All Groq model fallback candidates failed.")
+
+
 class GroqModel(Model):
     """
     Strands Model implementation backing live Saarthi agent reasoning.
@@ -179,10 +266,12 @@ class GroqModel(Model):
 
     def __init__(
         self,
-        model_name: str = "openai/gpt-oss-120b",
+        model_name: str | None = None,
         reasoning_effort: str = "low",
         temperature: float = 0.2,
     ):
+        if not model_name:
+            model_name = os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
         self.model_name = model_name
         self.reasoning_effort = reasoning_effort
         self.temperature = temperature
@@ -233,28 +322,7 @@ class GroqModel(Model):
             "temperature": self.temperature,
         }
 
-        import groq
-        max_retries = 4
-        base_delay = 2
-        
-        for attempt in range(max_retries):
-            try:
-                if self.reasoning_effort:
-                    try:
-                        response = client.chat.completions.create(
-                            **req_kwargs, reasoning_effort=self.reasoning_effort
-                        )
-                    except TypeError:
-                        response = client.chat.completions.create(**req_kwargs)
-                else:
-                    response = client.chat.completions.create(**req_kwargs)
-                break
-            except (groq.RateLimitError, groq.InternalServerError, groq.APIConnectionError, groq.APIStatusError) as e:
-                if attempt == max_retries - 1:
-                    raise
-                sleep_time = base_delay * (2 ** attempt)
-                print(f"[GroqModel] API Error ({type(e).__name__}). Retrying in {sleep_time}s...")
-                await asyncio.sleep(sleep_time)
+        response = await _execute_completion_with_fallback(client, req_kwargs, self)
 
         raw = (response.choices[0].message.content or "{}").strip()
         if raw.startswith("```json"):
@@ -310,28 +378,7 @@ class GroqModel(Model):
 
         print(f"[MODEL_PROVIDER: GROQ]  [MODEL: {self.model_name}]  [tools: {len(groq_tools)}]  [struct_tool: {struct_tool_name}]")
 
-        import groq
-        max_retries = 4
-        base_delay = 2
-        
-        for attempt in range(max_retries):
-            try:
-                if self.reasoning_effort:
-                    try:
-                        response = client.chat.completions.create(
-                            **req_kwargs, reasoning_effort=self.reasoning_effort
-                        )
-                    except TypeError:
-                        response = client.chat.completions.create(**req_kwargs)
-                else:
-                    response = client.chat.completions.create(**req_kwargs)
-                break
-            except (groq.RateLimitError, groq.InternalServerError, groq.APIConnectionError, groq.APIStatusError) as e:
-                if attempt == max_retries - 1:
-                    raise
-                sleep_time = base_delay * (2 ** attempt)
-                print(f"[GroqModel] API Error ({type(e).__name__}). Retrying in {sleep_time}s...")
-                await asyncio.sleep(sleep_time)
+        response = await _execute_completion_with_fallback(client, req_kwargs, self)
 
         choice = response.choices[0]
         msg = choice.message

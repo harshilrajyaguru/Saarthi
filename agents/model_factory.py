@@ -27,7 +27,7 @@ def get_saarthi_model(**kwargs):
                 "api_key": os.getenv("GROQ_API_KEY"),
                 "base_url": "https://api.groq.com/openai/v1",
             },
-            model_id=os.getenv("GROQ_MODEL_ID", "llama-3.1-70b-versatile"),
+            model_id=os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b"),
             **kwargs
         )
 
