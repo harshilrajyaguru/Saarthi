@@ -141,7 +141,7 @@ def apply_activity_guardrails(
 
 
 from agents.model_factory import get_saarthi_model
-_ACTIVITY_MODEL = get_saarthi_model()
+_ACTIVITY_MODEL = get_saarthi_model(tier="fast")
 
 
 def design_activity(

@@ -9,8 +9,13 @@ async function handleResponse(response) {
   if (!response.ok) {
     let errorDetail = 'API request failed';
     try {
-      const errJson = await response.json();
-      errorDetail = errJson.detail || errJson.message || JSON.stringify(errJson);
+      const errText = await response.text();
+      try {
+        const errJson = JSON.parse(errText);
+        errorDetail = errJson.detail || errJson.message || errText;
+      } catch (e) {
+        if (errText) errorDetail = errText;
+      }
     } catch (e) {
       errorDetail = `HTTP ${response.status}: ${response.statusText}`;
     }
@@ -23,13 +28,81 @@ async function handleResponse(response) {
  * Starts a real classroom session and runs cold-start agent cycle.
  * POST /api/classroom/start
  */
-export async function startClassroomSession(payload) {
+export async function startSession(payload) {
   const res = await fetch(`${API_BASE_URL}/api/classroom/start`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  return handleResponse(res);
+  if (!res.ok) {
+    let errorDetail = `HTTP ${res.status}`;
+    try {
+      const errText = await res.text();
+      try {
+        const errJson = JSON.parse(errText);
+        errorDetail = errJson.detail || errJson.message || errText;
+      } catch (e) {
+        if (errText) errorDetail = errText;
+      }
+    } catch (e) {}
+    throw new Error(errorDetail);
+  }
+  return res.json();
+}
+
+export const startClassroomSession = startSession;
+
+/**
+ * Fetches current session state fallback from /api/session-state
+ * GET /api/session-state
+ */
+export async function getSessionState() {
+  const res = await fetch(`${API_BASE_URL}/api/session-state`);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+/**
+ * Normalizes BOTH flat (data.cycle_record) and nested (data.shared_state.active_session.cycle_record)
+ * backend shapes so field drift never causes blank UI screens.
+ */
+export function normalizeCycle(data) {
+  if (!data) return null;
+
+  const sharedState = data?.shared_state ?? {};
+  const active = sharedState?.active_session ?? data?.active_session ?? {};
+  const cycle = data?.cycle_record ?? active?.cycle_record ?? {};
+  const orchestration = cycle?.orchestration_result ?? cycle;
+
+  const sessionId = data?.session_id ?? active?.session_id ?? data?.sessionId;
+  const status = data?.status ?? active?.status ?? 'active';
+  const durationMinutes = data?.duration_minutes ?? active?.duration_minutes ?? 40;
+  const gradeSelection = data?.grade_selection ?? active?.grade_selection ?? [];
+  const resources = data?.resources ?? active?.resources ?? {};
+  const currentSessionGrades = data?.current_session_grades ?? active?.current_session_grades ?? [];
+  const deliveredActivities = data?.delivered_activities ?? active?.delivered_activities ?? cycle?.delivered_activities ?? [];
+
+  return {
+    sessionId,
+    session_id: sessionId,
+    status,
+    duration_minutes: durationMinutes,
+    durationMinutes,
+    grade_selection: gradeSelection,
+    resources,
+    current_session_grades: currentSessionGrades,
+    grades: currentSessionGrades,
+    delivered_activities: deliveredActivities,
+    activities: deliveredActivities,
+    cycle_record: cycle,
+    shared_state: sharedState,
+    orchestration,
+    next_action: cycle?.next_action ?? orchestration?.next_action,
+    state_updates: cycle?.state_updates ?? orchestration?.state_updates ?? [],
+    raw: data,
+  };
 }
 
 /**
@@ -69,7 +142,7 @@ export async function runClassroomCycle(sessionId, options = {}) {
 
 /**
  * Ends active classroom session via Orchestrator state transition.
- * POST /api/classroom/{session_id}/end or POST /api/end-session
+ * POST /api/classroom/{session_id}/end
  */
 export async function endClassroomSession(sessionId) {
   const res = await fetch(`${API_BASE_URL}/api/classroom/${sessionId}/end`, {

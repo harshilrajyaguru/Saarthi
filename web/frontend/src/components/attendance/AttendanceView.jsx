@@ -78,8 +78,9 @@ const INITIAL_STUDENTS_BY_GRADE = {
   ],
 };
 
-export default function AttendanceView({ onSaveAttendance = () => {} }) {
-  const [selectedGrade, setSelectedGrade] = useState('3');
+export default function AttendanceView({ activeSession, sharedState, onSaveAttendance = () => {} }) {
+  const initialGrade = activeSession?.grade_selection?.[0]?.grade || activeSession?.grades?.[0]?.grade || '3';
+  const [selectedGrade, setSelectedGrade] = useState(initialGrade);
   const [studentsByGrade, setStudentsByGrade] = useState(INITIAL_STUDENTS_BY_GRADE);
   const [toastMessage, setToastMessage] = useState(null);
 

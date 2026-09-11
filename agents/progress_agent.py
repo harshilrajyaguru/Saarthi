@@ -71,7 +71,7 @@ HARD BOUNDARIES:
 """
 
 from agents.model_factory import get_saarthi_model
-_PROGRESS_MODEL = get_saarthi_model()
+_PROGRESS_MODEL = get_saarthi_model(tier="smart")
 
 
 def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:

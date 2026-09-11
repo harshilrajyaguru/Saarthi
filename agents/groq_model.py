@@ -10,6 +10,7 @@ import json
 import uuid
 import pathlib
 import asyncio
+import random
 from typing import Any, AsyncGenerator, Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -20,6 +21,8 @@ _ENV_PATH = pathlib.Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=str(_ENV_PATH), override=True)
 
 from agents.model_factory import get_saarthi_model, get_model
+
+_GROQ_SEM = asyncio.Semaphore(int(os.getenv("GROQ_MAX_CONCURRENT", "2")))
 
 # ── Groq client singleton ──────────────────────────────────────────────────────
 _groq_client = None
@@ -202,6 +205,20 @@ def _is_decommissioned_error(e: Exception) -> bool:
     )
 
 
+def _sanitize_messages(messages: list[Any]) -> list[dict[str, Any]]:
+    """Groq rejects reasoningContent on replayed multi-turn history."""
+    clean = []
+    for msg in messages:
+        if isinstance(msg, dict):
+            m = dict(msg)
+            for key in ("reasoningContent", "reasoning_content", "reasoning"):
+                m.pop(key, None)
+            clean.append(m)
+        else:
+            clean.append(msg)
+    return clean
+
+
 async def _execute_completion_with_fallback(
     client: Any,
     req_kwargs: dict[str, Any],
@@ -210,6 +227,9 @@ async def _execute_completion_with_fallback(
     base_delay: float = 2.0,
 ) -> Any:
     import groq
+
+    if "messages" in req_kwargs and isinstance(req_kwargs["messages"], list):
+        req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
 
     start_model = req_kwargs.get("model") or getattr(model_obj, "model_name", None) or os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
     chain = _get_fallback_chain(start_model)
@@ -225,17 +245,20 @@ async def _execute_completion_with_fallback(
 
         for attempt in range(max_retries):
             try:
-                reasoning = getattr(model_obj, "reasoning_effort", None)
-                if reasoning:
-                    try:
-                        return client.chat.completions.create(
-                            **req_kwargs, reasoning_effort=reasoning
-                        )
-                    except (TypeError, groq.BadRequestError, groq.UnprocessableEntityError) as err:
-                        if _is_decommissioned_error(err):
-                            raise err
+                async with _GROQ_SEM:
+                    reasoning = getattr(model_obj, "reasoning_effort", None)
+                    if reasoning:
+                        try:
+                            req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
+                            return client.chat.completions.create(
+                                **req_kwargs, reasoning_effort=reasoning
+                            )
+                        except (TypeError, groq.BadRequestError, groq.UnprocessableEntityError) as err:
+                            if _is_decommissioned_error(err):
+                                raise err
 
-                return client.chat.completions.create(**req_kwargs)
+                    req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
+                    return client.chat.completions.create(**req_kwargs)
 
             except groq.BadRequestError as e:
                 if _is_decommissioned_error(e):
@@ -249,8 +272,15 @@ async def _execute_completion_with_fallback(
                 last_exception = e
                 if attempt == max_retries - 1:
                     raise
-                sleep_time = base_delay * (2 ** attempt)
-                print(f"[GroqModel] API Error ({type(e).__name__} on '{candidate_model}'). Retrying in {sleep_time}s...")
+
+                retry_after = getattr(getattr(e, "response", None), "headers", {}).get("retry-after")
+                try:
+                    sleep_time = float(retry_after) if retry_after else base_delay * (2 ** attempt)
+                except (ValueError, TypeError):
+                    sleep_time = base_delay * (2 ** attempt)
+
+                sleep_time += random.uniform(0, 1)  # Add 0-1s random jitter
+                print(f"[GroqModel] API Error ({type(e).__name__} on '{candidate_model}'). Retrying in {sleep_time:.2f}s...")
                 await asyncio.sleep(sleep_time)
 
     if last_exception:

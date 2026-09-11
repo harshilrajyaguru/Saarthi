@@ -15,7 +15,7 @@ import SettingsView from './components/settings/SettingsView';
 import HelpSupportView from './components/help/HelpSupportView';
 import { useTranslation } from './i18n/i18n';
 import { CheckCircle2 } from 'lucide-react';
-import { getClassroomSession, endClassroomSession } from './services/saarthiApi';
+import { getClassroomSession, endClassroomSession, getSessionState, normalizeCycle } from './services/saarthiApi';
 
 export default function App() {
   const { t } = useTranslation();
@@ -45,8 +45,8 @@ export default function App() {
 
       try {
         const data = await getClassroomSession(storedSessionId);
-        if (data && data.session_id && data.status !== 'completed') {
-          setActiveSession(data);
+        if (data && (data.session_id || data.sessionId) && data.status !== 'completed') {
+          setActiveSession(normalizeCycle(data));
         } else {
           localStorage.removeItem('saarthi_session_id');
           setActiveSession(null);
@@ -62,6 +62,34 @@ export default function App() {
 
     restoreActiveSession();
   }, []);
+
+  // Requirement 5: 5-second polling fallback to GET /api/session-state while a session is active
+  useEffect(() => {
+    if (!activeSession || (!activeSession.session_id && !activeSession.sessionId)) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const stateData = await getSessionState();
+        if (stateData && (stateData.shared_state || stateData.active_session || stateData.cycle_record)) {
+          const normalized = normalizeCycle(stateData);
+          if (normalized && (normalized.session_id || normalized.sessionId)) {
+            setActiveSession((prev) => ({
+              ...prev,
+              ...normalized,
+              // Retain active grades/selection if backend polling shared_state lacks explicit grade_selection array
+              grade_selection: (normalized.grade_selection && normalized.grade_selection.length > 0)
+                ? normalized.grade_selection
+                : (prev?.grade_selection || []),
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('5s session state polling fallback error:', err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [activeSession?.session_id, activeSession?.sessionId]);
 
   // Dynamic Teacher Profile Info
   const teacherName = 'Sarah Jenkins';
@@ -90,14 +118,17 @@ export default function App() {
 
   // Called when AgentsWorkingScreen finishes real backend session creation
   const handleTransitionComplete = (createdSessionData) => {
-    if (createdSessionData && createdSessionData.session_id) {
-      localStorage.setItem('saarthi_session_id', createdSessionData.session_id);
-      setActiveSession(createdSessionData);
+    const normalized = normalizeCycle(createdSessionData);
+    if (normalized && (normalized.session_id || normalized.sessionId)) {
+      const sessId = normalized.session_id || normalized.sessionId;
+      localStorage.setItem('saarthi_session_id', sessId);
+      setActiveSession(normalized);
     } else {
       const fallbackId = `sess_${Math.random().toString(36).substring(2, 10)}`;
       localStorage.setItem('saarthi_session_id', fallbackId);
       setActiveSession({
         session_id: fallbackId,
+        sessionId: fallbackId,
         status: 'active',
         started_at: Date.now(),
         duration_minutes: createdSessionData?.duration_minutes || 45,
@@ -166,9 +197,9 @@ export default function App() {
             isSessionActive={!!activeSession}
           />
         ) : activeTab === 'grade_backlog' ? (
-          <GradeBacklogView />
+          <GradeBacklogView activeSession={activeSession} sharedState={activeSession?.shared_state} />
         ) : activeTab === 'attendance' ? (
-          <AttendanceView onSaveAttendance={() => setIsAttendanceSaved(true)} />
+          <AttendanceView activeSession={activeSession} sharedState={activeSession?.shared_state} onSaveAttendance={() => setIsAttendanceSaved(true)} />
         ) : activeTab === 'settings' ? (
           <SettingsView />
         ) : activeTab === 'help' ? (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, AlertCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from '../../i18n/i18n';
-import { startClassroomSession } from '../../services/saarthiApi';
+import { startSession, normalizeCycle } from '../../services/saarthiApi';
 
 export default function AgentsWorkingScreen({ sessionPayload, onComplete, onCancel }) {
   const { t } = useTranslation();
@@ -56,8 +56,17 @@ export default function AgentsWorkingScreen({ sessionPayload, onComplete, onCanc
     setIsApiLoading(true);
     setApiError(null);
     try {
-      const result = await startClassroomSession(sessionPayload);
-      setApiResult(result);
+      const rawResult = await startSession(sessionPayload);
+      const normalized = normalizeCycle(rawResult);
+      const enriched = {
+        ...normalized,
+        duration_minutes: sessionPayload.duration_minutes || normalized.duration_minutes || 40,
+        grade_selection: sessionPayload.grade_selection || normalized.grade_selection || [],
+        resources: sessionPayload.resources || normalized.resources || {},
+        included_gov_sessions: sessionPayload.included_gov_sessions || {},
+        started_at: Date.now(),
+      };
+      setApiResult(enriched);
       setIsApiLoading(false);
     } catch (err) {
       console.error('Failed to start session via backend:', err);
@@ -79,7 +88,7 @@ export default function AgentsWorkingScreen({ sessionPayload, onComplete, onCanc
       if (currentStepIndex < STATUS_STEPS.length) {
         timer = setTimeout(() => {
           setCurrentStepIndex((prev) => prev + 1);
-        }, 900);
+        }, 500);
       } else if (currentStepIndex >= STATUS_STEPS.length && !isApiLoading && apiResult && !isReadyState) {
         setIsReadyState(true);
       }
@@ -88,24 +97,16 @@ export default function AgentsWorkingScreen({ sessionPayload, onComplete, onCanc
     if (isReadyState && apiResult) {
       completionTimer = setTimeout(() => {
         if (onComplete) {
-          // Pass real backend response enriched with initial payload
-          onComplete({
-            ...apiResult,
-            duration_minutes: sessionPayload.duration_minutes || apiResult.duration_minutes || 40,
-            grade_selection: sessionPayload.grade_selection || [],
-            resources: sessionPayload.resources || {},
-            included_gov_sessions: sessionPayload.included_gov_sessions || {},
-            started_at: Date.now(),
-          });
+          onComplete(apiResult);
         }
-      }, 1200);
+      }, 600);
     }
 
     return () => {
       if (timer) clearTimeout(timer);
       if (completionTimer) clearTimeout(completionTimer);
     };
-  }, [currentStepIndex, isReadyState, isApiLoading, apiResult, apiError, onComplete, sessionPayload]);
+  }, [currentStepIndex, isReadyState, isApiLoading, apiResult, apiError, onComplete]);
 
   // Compute grade status ('ready', 'working', 'pending') for each grade dynamically
   const getGradeStatus = (index) => {

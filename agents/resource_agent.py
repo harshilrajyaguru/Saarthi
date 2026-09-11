@@ -481,7 +481,7 @@ class LocalResourceModel(Model):
 
 
 from agents.model_factory import get_saarthi_model
-_RESOURCE_MODEL = get_saarthi_model()
+_RESOURCE_MODEL = get_saarthi_model(tier="fast")
 
 
 

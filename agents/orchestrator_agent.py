@@ -86,7 +86,7 @@ ORCHESTRATION WORKFLOW:
 
 
 from agents.model_factory import get_saarthi_model
-_ORCHESTRATOR_MODEL = get_saarthi_model()
+_ORCHESTRATOR_MODEL = get_saarthi_model(tier="smart")
 
 
 def parse_grade_key(g_key: str) -> tuple[str, str]:
@@ -265,7 +265,7 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
     return g_key, prop
 
 
-_ORCHESTRATOR_MODEL = get_saarthi_model()
+_ORCHESTRATOR_MODEL = get_saarthi_model(tier="smart")
 
 
 def run_orchestration_cycle(session: dict) -> OrchestrationResult:

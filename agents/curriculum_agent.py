@@ -88,7 +88,7 @@ REASONING WORKFLOW:
 """
 
 from agents.model_factory import get_saarthi_model
-_CURRICULUM_MODEL = get_saarthi_model()
+_CURRICULUM_MODEL = get_saarthi_model(tier="smart")
 
 
 def apply_curriculum_guardrails(

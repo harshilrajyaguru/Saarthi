@@ -144,19 +144,54 @@ export const DETERMINISTIC_BACKLOG_DATA = {
 const ALL_GRADES = ['1', '2', '3', '4', '5', '6', '7', '8'];
 const ALL_SUBJECTS = ['Mathematics', 'Science', 'English', 'Social Studies', 'Environmental Studies'];
 
-export default function GradeBacklogView() {
-  const [selectedGrade, setSelectedGrade] = useState('3');
+export default function GradeBacklogView({ activeSession, sharedState }) {
+  const initialGrade = activeSession?.grade_selection?.[0]?.grade || activeSession?.grades?.[0]?.grade || '3';
+  const [selectedGrade, setSelectedGrade] = useState(initialGrade);
   const [selectedSubject, setSelectedSubject] = useState('Mathematics');
   const [expandedItemId, setExpandedItemId] = useState(null);
 
   // Retrieve data deterministically for selected Grade x Subject
   const currentKey = `${selectedGrade}_${selectedSubject.toLowerCase().replace(/\s+/g, '_')}`;
-  const backlogData = DETERMINISTIC_BACKLOG_DATA[currentKey] || DETERMINISTIC_BACKLOG_DATA['default'] || {
-    summary: { totalOutstanding: 0, oldestSessionsAgo: 0 },
-    pacing: { status: 'On pace', statusType: 'on_pace', explanation: 'The class is progressing with the planned curriculum.' },
-    unresolvedItems: [],
-    deferredActivities: [],
-  };
+  const effectiveState = sharedState || activeSession?.shared_state;
+
+  // Extract from sharedState if available, fallback to deterministic data
+  const backlogData = useMemo(() => {
+    const defaultData = DETERMINISTIC_BACKLOG_DATA[currentKey] || DETERMINISTIC_BACKLOG_DATA['default'] || {
+      summary: { totalOutstanding: 0, oldestSessionsAgo: 0 },
+      pacing: { status: 'On pace', statusType: 'on_pace', explanation: 'The class is progressing with the planned curriculum.' },
+      unresolvedItems: [],
+      deferredActivities: [],
+    };
+
+    if (!effectiveState) return defaultData;
+
+    // Check if shared_state contains trouble spots / pacing for this grade
+    const gradeKey = `Grade_${selectedGrade}_${selectedSubject === 'Mathematics' ? 'Math' : selectedSubject}`;
+    const gradeProgress = effectiveState?.curriculum_progress?.[gradeKey] || effectiveState?.[gradeKey] || {};
+    const troubleSpots = gradeProgress?.trouble_spots || effectiveState?.trouble_spots || [];
+
+    if (troubleSpots.length > 0) {
+      const unresolvedItems = troubleSpots.map((ts, idx) => ({
+        id: ts.id || `spot_${selectedGrade}_${idx}`,
+        title: ts.topic || ts.title || 'Concept reinforcement required',
+        summary: ts.description || ts.summary || 'Identified from student performance telemetry.',
+        flaggedSessionsAgo: ts.sessions_ago || 1,
+        status: 'Still unresolved',
+        observedDetail: ts.detail || 'Flagged during active classroom cycle.',
+        firstFlaggedSessionAgo: ts.first_flagged || 1,
+        sessionsUnresolvedCount: ts.count || 1,
+        mostRecentSession: 'Active session cycle',
+        explanation: ts.explanation || 'Requires additional practice and scaffolding.',
+      }));
+
+      return {
+        ...defaultData,
+        unresolvedItems,
+      };
+    }
+
+    return defaultData;
+  }, [currentKey, effectiveState, selectedGrade, selectedSubject]);
 
   // Sort unresolved items oldest first (chronological persistence)
   const sortedUnresolvedItems = useMemo(() => {
