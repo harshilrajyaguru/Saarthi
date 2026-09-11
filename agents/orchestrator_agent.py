@@ -85,8 +85,8 @@ ORCHESTRATION WORKFLOW:
 """
 
 
-# GroqModel replaces LocalOrchestratorModel for live Groq inference
-from agents.groq_model import GroqModel
+from agents.model_factory import get_saarthi_model
+_ORCHESTRATOR_MODEL = get_saarthi_model()
 
 
 def parse_grade_key(g_key: str) -> tuple[str, str]:
@@ -265,7 +265,7 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
     return g_key, prop
 
 
-_ORCHESTRATOR_MODEL = GroqModel(reasoning_effort="medium")
+_ORCHESTRATOR_MODEL = get_saarthi_model()
 
 
 def run_orchestration_cycle(session: dict) -> OrchestrationResult:

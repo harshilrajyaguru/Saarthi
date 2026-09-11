@@ -87,10 +87,8 @@ REASONING WORKFLOW:
 7. Return structured CurriculumDecision.
 """
 
-# GroqModel replaces BedrockModel for live Groq inference.
-# _CURRICULUM_MODEL is stateless — safe to share. Fresh Agent created per call.
-from agents.groq_model import GroqModel
-_CURRICULUM_MODEL = GroqModel(reasoning_effort="low")
+from agents.model_factory import get_saarthi_model
+_CURRICULUM_MODEL = get_saarthi_model()
 
 
 def apply_curriculum_guardrails(

@@ -11,12 +11,12 @@ DATA_FILE = (
 )
 
 
+from tools.orchestrator_tools import safe_read_local_json
+
+
 def load_classroom_data() -> dict:
     """Helper to read the classroom state JSON file."""
-    if not DATA_FILE.exists():
-        return {"classrooms": []}
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(DATA_FILE, {"classrooms": []})
 
 
 @tool

@@ -9,15 +9,17 @@ import os
 import json
 import uuid
 import pathlib
+import asyncio
 from typing import Any, AsyncGenerator, Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
 from strands.models import Model
 
-# ── Environment loading ────────────────────────────────────────────────────────
 _ENV_PATH = pathlib.Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=str(_ENV_PATH), override=True)
+
+from agents.model_factory import get_saarthi_model, get_model
 
 # ── Groq client singleton ──────────────────────────────────────────────────────
 _groq_client = None
@@ -231,15 +233,28 @@ class GroqModel(Model):
             "temperature": self.temperature,
         }
 
-        if self.reasoning_effort:
+        import groq
+        max_retries = 4
+        base_delay = 2
+        
+        for attempt in range(max_retries):
             try:
-                response = client.chat.completions.create(
-                    **req_kwargs, reasoning_effort=self.reasoning_effort
-                )
-            except TypeError:
-                response = client.chat.completions.create(**req_kwargs)
-        else:
-            response = client.chat.completions.create(**req_kwargs)
+                if self.reasoning_effort:
+                    try:
+                        response = client.chat.completions.create(
+                            **req_kwargs, reasoning_effort=self.reasoning_effort
+                        )
+                    except TypeError:
+                        response = client.chat.completions.create(**req_kwargs)
+                else:
+                    response = client.chat.completions.create(**req_kwargs)
+                break
+            except (groq.RateLimitError, groq.InternalServerError, groq.APIConnectionError, groq.APIStatusError) as e:
+                if attempt == max_retries - 1:
+                    raise
+                sleep_time = base_delay * (2 ** attempt)
+                print(f"[GroqModel] API Error ({type(e).__name__}). Retrying in {sleep_time}s...")
+                await asyncio.sleep(sleep_time)
 
         raw = (response.choices[0].message.content or "{}").strip()
         if raw.startswith("```json"):
@@ -295,15 +310,28 @@ class GroqModel(Model):
 
         print(f"[MODEL_PROVIDER: GROQ]  [MODEL: {self.model_name}]  [tools: {len(groq_tools)}]  [struct_tool: {struct_tool_name}]")
 
-        if self.reasoning_effort:
+        import groq
+        max_retries = 4
+        base_delay = 2
+        
+        for attempt in range(max_retries):
             try:
-                response = client.chat.completions.create(
-                    **req_kwargs, reasoning_effort=self.reasoning_effort
-                )
-            except TypeError:
-                response = client.chat.completions.create(**req_kwargs)
-        else:
-            response = client.chat.completions.create(**req_kwargs)
+                if self.reasoning_effort:
+                    try:
+                        response = client.chat.completions.create(
+                            **req_kwargs, reasoning_effort=self.reasoning_effort
+                        )
+                    except TypeError:
+                        response = client.chat.completions.create(**req_kwargs)
+                else:
+                    response = client.chat.completions.create(**req_kwargs)
+                break
+            except (groq.RateLimitError, groq.InternalServerError, groq.APIConnectionError, groq.APIStatusError) as e:
+                if attempt == max_retries - 1:
+                    raise
+                sleep_time = base_delay * (2 ** attempt)
+                print(f"[GroqModel] API Error ({type(e).__name__}). Retrying in {sleep_time}s...")
+                await asyncio.sleep(sleep_time)
 
         choice = response.choices[0]
         msg = choice.message

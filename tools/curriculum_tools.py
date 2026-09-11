@@ -10,12 +10,12 @@ CURRICULUM_FILE = (
 )
 
 
+from tools.orchestrator_tools import safe_read_local_json
+
+
 def load_curriculum_data() -> dict:
     """Helper to read the local curriculum JSON file."""
-    if not CURRICULUM_FILE.exists():
-        return {"curriculum": {}}
-    with open(CURRICULUM_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(CURRICULUM_FILE, {"curriculum": {}})
 
 
 @tool

@@ -70,12 +70,8 @@ HARD BOUNDARIES:
 - Your explanation MUST be exactly one concise sentence referencing actual evidence used (e.g. scores, session count, specific error patterns). Never use generic templates.
 """
 
-# GroqModel replaces BedrockModel for live Groq inference.
-# _PROGRESS_MODEL is a stateless config object — safe to share across threads.
-# Each analyze_progress() call creates its OWN Agent instance to avoid
-# ConcurrencyException when multiple grades run in parallel threads.
-from agents.groq_model import GroqModel
-_PROGRESS_MODEL = GroqModel(reasoning_effort="low")
+from agents.model_factory import get_saarthi_model
+_PROGRESS_MODEL = get_saarthi_model()
 
 
 def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:

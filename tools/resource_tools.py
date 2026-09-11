@@ -10,12 +10,12 @@ RESOURCE_FILE = (
 )
 
 
+from tools.orchestrator_tools import safe_read_local_json
+
+
 def load_resource_data() -> dict:
     """Helper to read the local resource data JSON file."""
-    if not RESOURCE_FILE.exists():
-        return {"inventory": {}, "usage_log": {}, "concurrent_demand": {}}
-    with open(RESOURCE_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(RESOURCE_FILE, {"inventory": {}, "usage_log": {}, "concurrent_demand": {}})
 
 
 @tool

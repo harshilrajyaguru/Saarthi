@@ -10,12 +10,12 @@ ACTIVITY_FILE = (
 )
 
 
+from tools.orchestrator_tools import safe_read_local_json
+
+
 def load_activity_data() -> dict:
     """Helper to read the local activity data JSON file."""
-    if not ACTIVITY_FILE.exists():
-        return {"templates": [], "recent_history": {}}
-    with open(ACTIVITY_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(ACTIVITY_FILE, {"templates": [], "recent_history": {}})
 
 
 @tool

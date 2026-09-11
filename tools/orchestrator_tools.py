@@ -10,16 +10,33 @@ STATE_FILE = (
 )
 
 
+import os
+
+def safe_read_local_json(file_path, default_data):
+    """Safely read local JSON files for local execution without crashing."""
+    try:
+        path_str = str(file_path)
+        if os.path.exists(path_str) and os.path.getsize(path_str) > 0:
+            with open(path_str, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        pass  # File is corrupted, empty, or missing
+
+    # If file doesn't exist or is broken, create it locally with default data
+    path_str = str(file_path)
+    os.makedirs(os.path.dirname(os.path.abspath(path_str)), exist_ok=True)
+    with open(path_str, "w", encoding="utf-8") as f:
+        json.dump(default_data, f, indent=2)
+    return default_data
+
+
 @tool
 def read_shared_state() -> dict:
     """
     Reads the shared classroom state from data/classroom_state.json.
     Does NOT mutate shared state.
     """
-    if not STATE_FILE.exists():
-        return {"classrooms": [], "last_updated": None}
-    with open(STATE_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(STATE_FILE, {"classrooms": [], "last_updated": None})
 
 
 @tool

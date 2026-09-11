@@ -140,10 +140,8 @@ def apply_activity_guardrails(
     return d
 
 
-# GroqModel replaces LocalActivityModel for live Groq inference.
-# _ACTIVITY_MODEL is stateless — safe to share. Fresh Agent created per call.
-from agents.groq_model import GroqModel
-_ACTIVITY_MODEL = GroqModel(reasoning_effort="low")
+from agents.model_factory import get_saarthi_model
+_ACTIVITY_MODEL = get_saarthi_model()
 
 
 def design_activity(

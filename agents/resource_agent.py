@@ -480,10 +480,8 @@ class LocalResourceModel(Model):
         }
 
 
-# GroqModel replaces LocalResourceModel for live Groq inference.
-# _RESOURCE_MODEL is stateless — safe to share. Fresh Agent created per call.
-from agents.groq_model import GroqModel
-_RESOURCE_MODEL = GroqModel(reasoning_effort="low")
+from agents.model_factory import get_saarthi_model
+_RESOURCE_MODEL = get_saarthi_model()
 
 
 

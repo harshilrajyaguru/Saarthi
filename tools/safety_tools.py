@@ -11,12 +11,12 @@ SAFETY_FILE = (
 )
 
 
+from tools.orchestrator_tools import safe_read_local_json
+
+
 def load_safety_data() -> dict:
     """Helper to read local safety data JSON file."""
-    if not SAFETY_FILE.exists():
-        return {"banned_words": [], "grade_reading_limits": {}}
-    with open(SAFETY_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return safe_read_local_json(SAFETY_FILE, {"banned_words": [], "grade_reading_limits": {}})
 
 
 @tool
