@@ -182,8 +182,29 @@ class ClassroomLoopRunner:
             print(f"  - Grade {sup.grade} {sup.subject}: status='{sup.status}', topic='{sup.decided_topic}', resource='{sup.recommended_resource}', activity_status='{sup.activity_status}'")
 
         # STEP 3: Auto-Deliver generated activities for active grades
+        evals = orch_result.specialist_evaluations or {}
         for sup in orch_result.state_updates:
             if sup.status == "reconciled" and sup.decided_topic and sup.recommended_resource:
+                if sup.activity_status != "passed_safety_gate":
+                    print(f"[Safety Gate Rejection] Activity for Grade {sup.grade} {sup.subject} (status='{sup.activity_status}') did not pass safety gate. Delivery skipped.")
+                    continue
+
+                act_design = None
+                for ev_key, ev_val in evals.items():
+                    if isinstance(ev_val, dict) and str(ev_val.get("grade")).strip() == str(sup.grade).strip():
+                        act_design = ev_val.get("activity_design")
+                        break
+
+                if act_design and isinstance(act_design, dict) and act_design.get("content"):
+                    delivered_content = act_design["content"]
+                    est_time = act_design.get("estimated_time_minutes", min(12, self.session.remaining_time_minutes))
+                else:
+                    delivered_content = {
+                        "instructions": f"Practice for {sup.decided_topic}",
+                        "items": [f"Exercise for {sup.decided_topic}"]
+                    }
+                    est_time = min(12, self.session.remaining_time_minutes)
+
                 act_id = f"act_{uuid.uuid4().hex[:6]}"
                 del_act = DeliveredActivity(
                     activity_id=act_id,
@@ -191,8 +212,8 @@ class ClassroomLoopRunner:
                     subject=sup.subject,
                     topic=sup.decided_topic,
                     activity_type=sup.recommended_resource,
-                    content={"instructions": f"Practice for {sup.decided_topic}", "items": [f"Exercise for {sup.decided_topic}"]},
-                    estimated_time_minutes=min(12, self.session.remaining_time_minutes),
+                    content=delivered_content,
+                    estimated_time_minutes=est_time,
                     delivery_status="delivered",
                     delivered_at_cycle=cycle_num
                 )

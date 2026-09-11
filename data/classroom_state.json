@@ -256,54 +256,32 @@
   ],
   "grades": {
     "Grade_3_Math": {
-      "current_topic": "Fractions - introduction (reinforcement)",
-      "pacing_decision": "hold",
-      "mastery_estimate": "struggling",
+      "current_topic": "Fractions - introduction",
+      "pacing_decision": "advance",
+      "mastery_estimate": "developing",
       "attention_flag": false,
       "recommended_resource": "printable_worksheet",
       "activity_status": "passed_safety_gate",
       "last_evaluation_date": "2026-09-04T00:00:00Z"
-    },
-    "Grade_4_Math": {
-      "current_topic": "Fractions - equivalent fractions (reinforcement)",
-      "pacing_decision": "hold",
-      "mastery_estimate": "developing",
-      "attention_flag": true,
-      "recommended_resource": "whiteboard_activity",
-      "activity_status": "passed_safety_gate",
-      "last_evaluation_date": "2026-09-04T00:00:00Z"
-    },
-    "Grade_5_Math": {
-      "current_topic": "Decimals - multiplication",
-      "pacing_decision": "advance",
-      "mastery_estimate": "developing",
-      "attention_flag": true,
-      "recommended_resource": "whiteboard_activity",
-      "activity_status": "passed_safety_gate",
-      "last_evaluation_date": "2026-09-04T00:00:00Z"
     }
   },
-  "last_updated": "2026-09-11T07:43:52.380139+00:00",
+  "last_updated": "2026-09-11T08:52:22.408030+00:00",
   "active_session": {
-    "session_id": "sess_61ff4edb",
-    "status": "adapting",
+    "session_id": "sess_23c44a47",
+    "status": "escalated",
     "active_grades": [
-      "Grade_3_Math",
-      "Grade_4_Math",
-      "Grade_5_Math"
+      "Grade_3_Math"
     ],
     "subjects": [
-      "Math",
-      "Math",
       "Math"
     ],
     "duration_minutes": 40,
-    "remaining_time_minutes": 4,
+    "remaining_time_minutes": 5,
     "current_cycle": 1,
-    "started_at": "2026-09-11T07:43:26.005655+00:00",
+    "started_at": "2026-09-11T08:52:22.393571+00:00",
     "classroom_resources": {
-      "tablets_free": 2,
-      "tv_available": true,
+      "tablets_free": 0,
+      "tv_available": false,
       "printer_available": true,
       "internet_connected": true
     },
@@ -313,69 +291,42 @@
       "teacher_constraints": {
         "Grade_3_Math": {
           "constraints": [],
-          "notes": ""
-        },
-        "Grade_4_Math": {
-          "constraints": [],
-          "notes": ""
-        },
-        "Grade_5_Math": {
-          "constraints": [],
-          "notes": ""
+          "notes": "Grade 3 students need help with fraction numerator and denominator scaling."
         }
       },
-      "notes": "",
-      "tablets": 2,
-      "tv": true,
+      "notes": "Grade 3 students need help with fraction numerator and denominator scaling.",
+      "tablets": 0,
+      "tv": false,
       "printer": true,
       "internet": true
     },
     "delivered_activities": [
       {
-        "activity_id": "act_f58311",
+        "activity_id": "act_9786bb",
         "grade": "3",
         "subject": "Math",
         "topic": "Fractions - introduction",
         "activity_type": "printable_worksheet",
         "content": {
-          "instructions": "Practice for Fractions - introduction",
+          "instructions": "Read each question carefully. Use your knowledge of fractions to complete the tasks. Label parts of fractions, explain scaling relationships, and show your work.",
           "items": [
-            "Exercise for Fractions - introduction"
+            "Label the numerator and denominator in these fractions: 2/5, 3/8, 1/2",
+            "Explain why 4/6 is equivalent to 2/3. Draw a visual model to show this.",
+            "A student says 1/2 is the same as 2/4. Is this correct? Use words and a diagram to justify your answer.",
+            "Write two equivalent fractions for 3/4 by scaling. Show how the numerator and denominator change.",
+            "Circle the fraction that shows 3 parts out of 5 total: 3/5, 5/3, 2/5",
+            "Draw a shape divided into 6 equal parts. Shade 4 parts and write the fraction. Then write an equivalent fraction with denominator 12."
+          ],
+          "answer_key": [
+            "Numerator: top number (2, 3, 1); Denominator: bottom number (5, 8, 2)",
+            "Yes, 4/6 simplifies to 2/3 by dividing numerator and denominator by 2. [Visual model showing 4 out of 6 parts shaded and 2 out of 3 parts shaded]",
+            "Yes, 1/2 = 2/4 because both represent the same portion. [Diagram showing two identical shapes: one divided into 2 parts with 1 shaded, another into 4 parts with 2 shaded]",
+            "Equivalent fractions: 6/8 and 9/12. Numerator and denominator both multiplied by 2 and 3 respectively",
+            "3/5",
+            "Shaded 4 out of 6 parts. Equivalent fraction: 8/12 (numerator and denominator multiplied by 2)"
           ]
         },
-        "estimated_time_minutes": 12,
-        "delivery_status": "delivered",
-        "delivered_at_cycle": 1
-      },
-      {
-        "activity_id": "act_6a660b",
-        "grade": "4",
-        "subject": "Math",
-        "topic": "Fractions - equivalent fractions (reinforcement)",
-        "activity_type": "whiteboard_activity",
-        "content": {
-          "instructions": "Practice for Fractions - equivalent fractions (reinforcement)",
-          "items": [
-            "Exercise for Fractions - equivalent fractions (reinforcement)"
-          ]
-        },
-        "estimated_time_minutes": 12,
-        "delivery_status": "delivered",
-        "delivered_at_cycle": 1
-      },
-      {
-        "activity_id": "act_097158",
-        "grade": "5",
-        "subject": "Math",
-        "topic": "Decimals - multiplication",
-        "activity_type": "whiteboard_activity",
-        "content": {
-          "instructions": "Practice for Decimals - multiplication",
-          "items": [
-            "Exercise for Decimals - multiplication"
-          ]
-        },
-        "estimated_time_minutes": 12,
+        "estimated_time_minutes": 35,
         "delivery_status": "delivered",
         "delivered_at_cycle": 1
       }
@@ -390,68 +341,31 @@
         "recommended_resource": "printable_worksheet",
         "activity_status": "passed_safety_gate",
         "delivered_activity": {
-          "activity_id": "act_f58311",
+          "activity_id": "act_9786bb",
           "grade": "3",
           "subject": "Math",
           "topic": "Fractions - introduction",
           "activity_type": "printable_worksheet",
           "content": {
-            "instructions": "Practice for Fractions - introduction",
+            "instructions": "Read each question carefully. Use your knowledge of fractions to complete the tasks. Label parts of fractions, explain scaling relationships, and show your work.",
             "items": [
-              "Exercise for Fractions - introduction"
+              "Label the numerator and denominator in these fractions: 2/5, 3/8, 1/2",
+              "Explain why 4/6 is equivalent to 2/3. Draw a visual model to show this.",
+              "A student says 1/2 is the same as 2/4. Is this correct? Use words and a diagram to justify your answer.",
+              "Write two equivalent fractions for 3/4 by scaling. Show how the numerator and denominator change.",
+              "Circle the fraction that shows 3 parts out of 5 total: 3/5, 5/3, 2/5",
+              "Draw a shape divided into 6 equal parts. Shade 4 parts and write the fraction. Then write an equivalent fraction with denominator 12."
+            ],
+            "answer_key": [
+              "Numerator: top number (2, 3, 1); Denominator: bottom number (5, 8, 2)",
+              "Yes, 4/6 simplifies to 2/3 by dividing numerator and denominator by 2. [Visual model showing 4 out of 6 parts shaded and 2 out of 3 parts shaded]",
+              "Yes, 1/2 = 2/4 because both represent the same portion. [Diagram showing two identical shapes: one divided into 2 parts with 1 shaded, another into 4 parts with 2 shaded]",
+              "Equivalent fractions: 6/8 and 9/12. Numerator and denominator both multiplied by 2 and 3 respectively",
+              "3/5",
+              "Shaded 4 out of 6 parts. Equivalent fraction: 8/12 (numerator and denominator multiplied by 2)"
             ]
           },
-          "estimated_time_minutes": 12,
-          "delivery_status": "delivered",
-          "delivered_at_cycle": 1
-        }
-      },
-      {
-        "grade": "4",
-        "subject": "Math",
-        "grade_key": "Grade_4_Math",
-        "status": "reconciled",
-        "decided_topic": "Fractions - equivalent fractions (reinforcement)",
-        "recommended_resource": "whiteboard_activity",
-        "activity_status": "passed_safety_gate",
-        "delivered_activity": {
-          "activity_id": "act_6a660b",
-          "grade": "4",
-          "subject": "Math",
-          "topic": "Fractions - equivalent fractions (reinforcement)",
-          "activity_type": "whiteboard_activity",
-          "content": {
-            "instructions": "Practice for Fractions - equivalent fractions (reinforcement)",
-            "items": [
-              "Exercise for Fractions - equivalent fractions (reinforcement)"
-            ]
-          },
-          "estimated_time_minutes": 12,
-          "delivery_status": "delivered",
-          "delivered_at_cycle": 1
-        }
-      },
-      {
-        "grade": "5",
-        "subject": "Math",
-        "grade_key": "Grade_5_Math",
-        "status": "reconciled",
-        "decided_topic": "Decimals - multiplication",
-        "recommended_resource": "whiteboard_activity",
-        "activity_status": "passed_safety_gate",
-        "delivered_activity": {
-          "activity_id": "act_097158",
-          "grade": "5",
-          "subject": "Math",
-          "topic": "Decimals - multiplication",
-          "activity_type": "whiteboard_activity",
-          "content": {
-            "instructions": "Practice for Decimals - multiplication",
-            "items": [
-              "Exercise for Decimals - multiplication"
-            ]
-          },
-          "estimated_time_minutes": 12,
+          "estimated_time_minutes": 35,
           "delivery_status": "delivered",
           "delivered_at_cycle": 1
         }
@@ -460,37 +374,50 @@
     "grade_selection": [
       {
         "grade": "3",
-        "subject": "Mathematics"
-      },
-      {
-        "grade": "4",
-        "subject": "Mathematics"
-      },
-      {
-        "grade": "5",
-        "subject": "Mathematics"
+        "subject": "Math"
       }
     ],
     "resources": {
-      "tablets": 2,
-      "tv": true,
+      "tablets": 0,
+      "tv": false,
       "printer": true,
       "internet": true
     },
     "cycle_record": {
-      "cycle_id": "orc_c6a47930",
+      "cycle_id": "orc_e981e758",
       "next_action": {
-        "priority": "high",
-        "grade": "4",
+        "priority": "critical",
+        "grade": "3",
         "subject": "Math",
-        "action_type": "progress_monitoring",
-        "reason": "Grade 4 progress trend is 'stagnant' with trouble spot 'confusing numerator/denominator when scaling'.",
-        "resolved_conflicts": []
+        "action_type": "resource_contention",
+        "reason": "Grade 3 Math requires printable worksheet (highest feasibility) but Grade 4's whiteboard activity (low feasibility) and Grade 5's tablet quiz (no tablets available) are in contention. Printer is the only available resource.",
+        "resolved_conflicts": [
+          "Grade 5 tablet quiz reassigned to paper-based alternative",
+          "Grade 4 whiteboard activity postponed due to resource contention"
+        ]
       },
       "state_updates": [
         {
           "grade": "4",
+          "subject": "Math",
+          "status": "skipped",
+          "decided_topic": null,
+          "pacing_decision": null,
+          "recommended_resource": null,
+          "activity_status": "skipped_no_change"
+        },
+        {
+          "grade": "4",
           "subject": "English",
+          "status": "skipped",
+          "decided_topic": null,
+          "pacing_decision": null,
+          "recommended_resource": null,
+          "activity_status": "skipped_no_change"
+        },
+        {
+          "grade": "5",
+          "subject": "Math",
           "status": "skipped",
           "decided_topic": null,
           "pacing_decision": null,
@@ -522,24 +449,6 @@
           "decided_topic": "Fractions - introduction",
           "pacing_decision": "advance",
           "recommended_resource": "printable_worksheet",
-          "activity_status": "passed_safety_gate"
-        },
-        {
-          "grade": "4",
-          "subject": "Math",
-          "status": "reconciled",
-          "decided_topic": "Fractions - equivalent fractions (reinforcement)",
-          "pacing_decision": "hold",
-          "recommended_resource": "whiteboard_activity",
-          "activity_status": "passed_safety_gate"
-        },
-        {
-          "grade": "5",
-          "subject": "Math",
-          "status": "reconciled",
-          "decided_topic": "Decimals - multiplication",
-          "pacing_decision": "advance",
-          "recommended_resource": "whiteboard_activity",
           "activity_status": "passed_safety_gate"
         }
       ],
@@ -588,8 +497,8 @@
               },
               {
                 "type": "tv_video",
-                "feasibility": "low",
-                "reason": "Infeasible: TV display is unavailable. [Contended with another grade]"
+                "feasibility": "infeasible",
+                "reason": "Infeasible: TV display is unavailable."
               },
               {
                 "type": "tablet_quiz",
@@ -616,196 +525,26 @@
             "targets_trouble_spot": "conceptual gap",
             "difficulty_level": "standard",
             "content": {
-              "instructions": "Analyze student statements for fraction scaling errors and complete equivalent pairs with explanation.",
+              "instructions": "Read each question carefully. Use your knowledge of fractions to complete the tasks. Label parts of fractions, explain scaling relationships, and show your work.",
               "items": [
-                "A student says 2/3 becomes 4/3 when scaling to an equivalent fraction. Is the student correct? Explain why or why not.",
-                "Complete 2/3 = ?/6 and explain what happened to BOTH the numerator and denominator."
+                "Label the numerator and denominator in these fractions: 2/5, 3/8, 1/2",
+                "Explain why 4/6 is equivalent to 2/3. Draw a visual model to show this.",
+                "A student says 1/2 is the same as 2/4. Is this correct? Use words and a diagram to justify your answer.",
+                "Write two equivalent fractions for 3/4 by scaling. Show how the numerator and denominator change.",
+                "Circle the fraction that shows 3 parts out of 5 total: 3/5, 5/3, 2/5",
+                "Draw a shape divided into 6 equal parts. Shade 4 parts and write the fraction. Then write an equivalent fraction with denominator 12."
+              ],
+              "answer_key": [
+                "Numerator: top number (2, 3, 1); Denominator: bottom number (5, 8, 2)",
+                "Yes, 4/6 simplifies to 2/3 by dividing numerator and denominator by 2. [Visual model showing 4 out of 6 parts shaded and 2 out of 3 parts shaded]",
+                "Yes, 1/2 = 2/4 because both represent the same portion. [Diagram showing two identical shapes: one divided into 2 parts with 1 shaded, another into 4 parts with 2 shaded]",
+                "Equivalent fractions: 6/8 and 9/12. Numerator and denominator both multiplied by 2 and 3 respectively",
+                "3/5",
+                "Shaded 4 out of 6 parts. Equivalent fraction: 8/12 (numerator and denominator multiplied by 2)"
               ]
             },
-            "estimated_time_minutes": 12,
-            "explanation": "Synthesized a standard printable_worksheet specifically targeting trouble spot 'conceptual gap' for topic 'Fractions - introduction' while avoiding recent formats ['scaffolded_fraction_practice'] and respecting the 40-minute time limit."
-          },
-          "safety_verdict": {
-            "activity_id": "act_101",
-            "passed": true,
-            "layer_failed": null,
-            "issues": [],
-            "action": "pass",
-            "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
-          },
-          "safety_attempts": 1
-        },
-        "Grade_4_Math": {
-          "grade": "4",
-          "subject": "Math",
-          "progress_diag": {
-            "grade": "4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions",
-            "mastery_estimate": "developing",
-            "trend": "stagnant",
-            "confidence": "high",
-            "trouble_spots": [
-              "confusing numerator/denominator when scaling"
-            ],
-            "attention_flag": true,
-            "recommendation_direction": "reinforce",
-            "explanation": "Diagnostic analysis based on 3 historical sessions and latest signals for Grade 4 Math."
-          },
-          "curriculum_dec": {
-            "grade": "4",
-            "subject": "Math",
-            "syllabus_topic": "Multiplying fractions",
-            "decided_topic": "Fractions - equivalent fractions (reinforcement)",
-            "pacing_decision": "hold",
-            "is_blocking_prerequisite": true,
-            "explanation": "Current topic 'Fractions - equivalent fractions' with trouble spot 'confusing numerator/denominator when scaling' shows struggling mastery; holding syllabus pacing to provide targeted reinforcement on 'Fractions - equivalent fractions (reinforcement)'.",
-            "_execution_mode": "LOCAL_FALLBACK"
-          },
-          "resource_rec": {
-            "grade": "4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions (reinforcement)",
-            "resource_options": [
-              {
-                "type": "whiteboard_activity",
-                "feasibility": "high",
-                "reason": "Whiteboard materials available with zero device or paper dependency."
-              },
-              {
-                "type": "tv_video",
-                "feasibility": "high",
-                "reason": "Infeasible: TV display is unavailable."
-              },
-              {
-                "type": "printable_worksheet",
-                "feasibility": "low",
-                "reason": "Works reliably offline without internet or device requirements. [Contended with another grade]"
-              },
-              {
-                "type": "tablet_quiz",
-                "feasibility": "infeasible",
-                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
-              }
-            ],
-            "recommended_resource": "whiteboard_activity",
-            "contention_flag": true,
-            "contention_detail": "Resource 'printable_worksheet' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 5.",
-            "delivery_possible": true,
-            "needs_generation": false,
-            "constraints_considered": [
-              "no internet",
-              "0 tablet free"
-            ],
-            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
-          },
-          "activity_design": {
-            "grade": "4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions (reinforcement)",
-            "activity_type": "whiteboard_activity",
-            "targets_trouble_spot": "confusing numerator/denominator when scaling",
-            "difficulty_level": "standard",
-            "content": {
-              "instructions": "Error Analysis & Diagnostic Practice for Fractions - equivalent fractions (reinforcement): Analyze fraction scaling statements and identify misconceptions.",
-              "items": [
-                "A student says 2/3 becomes 4/3 when scaling to an equivalent fraction. Is the student correct? Explain.",
-                "Complete 2/3 = ?/6 and explain what happened to BOTH the numerator and denominator."
-              ]
-            },
-            "estimated_time_minutes": 12,
-            "explanation": "Synthesized a standard whiteboard_activity specifically targeting trouble spot 'confusing numerator/denominator when scaling' for topic 'Fractions - equivalent fractions (reinforcement)' while avoiding recent formats [] and respecting the 40-minute time limit."
-          },
-          "safety_verdict": {
-            "activity_id": "act_101",
-            "passed": true,
-            "layer_failed": null,
-            "issues": [],
-            "action": "pass",
-            "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
-          },
-          "safety_attempts": 1
-        },
-        "Grade_5_Math": {
-          "grade": "5",
-          "subject": "Math",
-          "progress_diag": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - addition",
-            "mastery_estimate": "developing",
-            "trend": "stagnant",
-            "confidence": "high",
-            "trouble_spots": [
-              "decimal point alignment"
-            ],
-            "attention_flag": true,
-            "recommendation_direction": "reinforce",
-            "explanation": "Diagnostic analysis based on 3 historical sessions and latest signals for Grade 5 Math."
-          },
-          "curriculum_dec": {
-            "grade": "5",
-            "subject": "Math",
-            "syllabus_topic": "Decimals - multiplication",
-            "decided_topic": "Decimals - multiplication",
-            "pacing_decision": "advance",
-            "is_blocking_prerequisite": false,
-            "explanation": "Students are developing with an stagnant trend; prerequisites satisfied, advancing to syllabus topic 'Decimals - multiplication'.",
-            "_execution_mode": "LOCAL_FALLBACK"
-          },
-          "resource_rec": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - multiplication",
-            "resource_options": [
-              {
-                "type": "whiteboard_activity",
-                "feasibility": "high",
-                "reason": "Whiteboard materials available with zero device or paper dependency."
-              },
-              {
-                "type": "printable_worksheet",
-                "feasibility": "low",
-                "reason": "Works reliably offline without internet or device requirements. [Contended with another grade]"
-              },
-              {
-                "type": "tv_video",
-                "feasibility": "low",
-                "reason": "Infeasible: TV display is unavailable. [Contended with another grade]"
-              },
-              {
-                "type": "tablet_quiz",
-                "feasibility": "infeasible",
-                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
-              }
-            ],
-            "recommended_resource": "whiteboard_activity",
-            "contention_flag": true,
-            "contention_detail": "Resource 'printable_worksheet' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 3. Resource 'tv_video' is simultaneously requested by Grade 4.",
-            "delivery_possible": true,
-            "needs_generation": false,
-            "constraints_considered": [
-              "no internet",
-              "0 tablet free"
-            ],
-            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
-          },
-          "activity_design": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - multiplication",
-            "activity_type": "whiteboard_activity",
-            "targets_trouble_spot": "decimal point alignment",
-            "difficulty_level": "standard",
-            "content": {
-              "instructions": "Step-by-step decimal multiplication practice for Decimals - multiplication.",
-              "items": [
-                "Multiply 0.3 \u00d7 0.4 and count total decimal places.",
-                "Multiply 0.5 \u00d7 0.8 and write the product."
-              ]
-            },
-            "estimated_time_minutes": 12,
-            "explanation": "Synthesized a standard whiteboard_activity specifically targeting trouble spot 'decimal point alignment' for topic 'Decimals - multiplication' while avoiding recent formats [] and respecting the 40-minute time limit."
+            "estimated_time_minutes": 35,
+            "explanation": "This standard-difficulty worksheet reinforces conceptual understanding by requiring students to label fraction parts, explain equivalence through scaling, and create visual models. The tasks directly address the conceptual gap by linking abstract fraction notation to real-world representations and proportional reasoning."
           },
           "safety_verdict": {
             "activity_id": "act_101",

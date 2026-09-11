@@ -87,23 +87,36 @@ ORCHESTRATION WORKFLOW:
 
 class LocalOrchestratorModel(Model):
     """
-    Strands Model implementation for local/offline Orchestrator execution.
-    Executes get_active_grades as a candidate filter and coordinates specialist agents.
+    Strands Model adapter for local/offline Orchestrator execution using Ollama Qwen3:8b.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, model_name: str = "qwen3:8b", temperature: float = 0.0):
+        self.model_name = model_name
+        self.temperature = temperature
 
     def update_config(self, **model_config: Any) -> None:
         pass
 
     def get_config(self) -> Any:
-        return {}
+        return {"model_name": self.model_name, "temperature": self.temperature}
 
     async def structured_output(
         self, output_model: type[BaseModel], prompt: Any, system_prompt: str | None = None, **kwargs: Any
     ) -> AsyncGenerator[dict[str, Any], None]:
-        pass
+        import ollama
+        prompt_str = str(prompt)
+        sys_prompt = system_prompt or SYSTEM_PROMPT
+        response = ollama.chat(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": sys_prompt.strip()},
+                {"role": "user", "content": prompt_str}
+            ],
+            format=output_model.model_json_schema(),
+            options={"temperature": self.temperature}
+        )
+        parsed = output_model.model_validate_json(response.message.content)
+        yield parsed
 
     async def stream(
         self,
@@ -112,6 +125,17 @@ class LocalOrchestratorModel(Model):
         system_prompt: str | None = None,
         **kwargs: Any
     ) -> AsyncGenerator[dict[str, Any], None]:
+        import ollama
+        sys_prompt = system_prompt or SYSTEM_PROMPT
+        response = ollama.chat(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": sys_prompt.strip()},
+                {"role": "user", "content": str(messages)}
+            ],
+            format=OrchestrationResult.model_json_schema(),
+            options={"temperature": self.temperature}
+        )
         yield {"messageStart": {"role": "assistant"}}
         yield {
             "contentBlockStart": {
@@ -121,7 +145,7 @@ class LocalOrchestratorModel(Model):
         }
         yield {
             "contentBlockDelta": {
-                "delta": {"toolUse": {"input": json.dumps({"cycle_id": f"orc_{uuid.uuid4().hex[:8]}"})}},
+                "delta": {"toolUse": {"input": response.message.content}},
                 "contentBlockIndex": 0,
             }
         }
@@ -139,71 +163,6 @@ def parse_grade_key(g_key: str) -> tuple[str, str]:
         return parts[1], "Math"
     return parts[0].replace("Grade", "").strip() or "3", "Math"
 
-
-def run_orchestration_cycle(session: dict) -> OrchestrationResult:
-    """
-    Executes a complete Orchestration Cycle:
-    1. get_active_grades(session) acts as a cheap candidate filter to identify candidate grades.
-    2. Orchestrator decides whether candidate grades require full specialist evaluation.
-    3. Runs specialist pipeline for active grades.
-    4. Handles Safety Gate retries (max 2 attempts).
-    5. Resolves cross-grade resource conflicts using evidence:
-       - Blocking prerequisite: +10 pts
-       - Struggling mastery: +6 pts
-       - Declining trend: +4 pts
-       - Waiting time: +1 pt/day
-    6. Prioritizes EXACTLY ONE teacher-facing next_action.
-    7. SINGLE WRITER: Commits finalized state to data/classroom_state.json via write_shared_state.
-    """
-    if session.get("end_session"):
-        session_id = session.get("session_id", f"sess_{uuid.uuid4().hex[:8]}")
-        from datetime import datetime, timezone
-        write_shared_state({
-            "active_session": {
-                "session_id": session_id,
-                "status": "completed",
-                "ended_at": datetime.now(timezone.utc).isoformat()
-            }
-        })
-        return OrchestrationResult(
-            cycle_id=f"orc_end_{uuid.uuid4().hex[:8]}",
-            next_action=NextAction(
-                priority="low",
-                grade="all",
-                subject="all",
-                action_type="normal_progression",
-                reason=f"Classroom session {session_id} ended successfully. Today's progress saved.",
-                resolved_conflicts=[]
-            ),
-            state_updates=[],
-            specialist_evaluations={}
-        )
-
-    cycle_id = f"orc_{uuid.uuid4().hex[:8]}"
-
-    # STEP 1: Candidate filtering via get_active_grades (cheap deterministic filter, non-LLM)
-    active_res = get_active_grades(session)
-    active_evals = active_res.get("active_evaluations", [])
-    skipped_evals = active_res.get("skipped_grades", [])
-
-    proposals = {}
-    state_update_entries = []
-    resolved_conflicts = []
-    teacher_action_candidates = []
-
-    # Record skipped grades (Orchestrator confirms no full cycle required)
-    for s_item in skipped_evals:
-        g_key = s_item["grade_key"]
-        g_str, subj_str = parse_grade_key(g_key)
-        state_update_entries.append(StateUpdateEntry(
-            grade=g_str,
-            subject=subj_str,
-            status="skipped",
-            decided_topic=None,
-            pacing_decision=None,
-            recommended_resource=None,
-            activity_status="skipped_no_change"
-        ))
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -301,7 +260,11 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
         recommendation_direction=direction,
         recommended_resource=rec_resource,
         needs_generation=needs_gen,
-        available_time_minutes=avail_time
+        available_time_minutes=avail_time,
+        progress_diagnosis=progress_diag,
+        curriculum_decision=curriculum_dec,
+        resource_recommendation=resource_rec,
+        session_constraints=session_con
     )
 
     attempts = 0
@@ -346,7 +309,11 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
                     recommendation_direction=direction,
                     recommended_resource=rec_resource,
                     needs_generation=True,
-                    available_time_minutes=avail_time
+                    available_time_minutes=avail_time,
+                    progress_diagnosis=progress_diag,
+                    curriculum_decision=curriculum_dec,
+                    resource_recommendation=resource_rec,
+                    session_constraints=session_con
                 )
 
     prop = {
@@ -362,20 +329,24 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
     return g_key, prop
 
 
+orchestrator_agent = Agent(
+    model=LocalOrchestratorModel(),
+    system_prompt=SYSTEM_PROMPT,
+    tools=[read_shared_state, write_shared_state, get_active_grades],
+    structured_output_model=OrchestrationResult,
+    name="OrchestratorAgent",
+    description="SAARTHI Orchestrator Agent sequencing active grades, resolving conflicts, surfacing one next action, and acting as single state writer."
+)
+
+
 def run_orchestration_cycle(session: dict) -> OrchestrationResult:
     """
     Executes a complete Orchestration Cycle:
     1. get_active_grades(session) acts as a cheap candidate filter to identify candidate grades.
-    2. Orchestrator decides whether candidate grades require full specialist evaluation.
-    3. Runs specialist pipeline for active grades concurrently.
-    4. Handles Safety Gate retries (max 2 attempts).
-    5. Resolves cross-grade resource conflicts using evidence:
-       - Blocking prerequisite: +10 pts
-       - Struggling mastery: +6 pts
-       - Declining trend: +4 pts
-       - Waiting time: +1 pt/day
-    6. Prioritizes EXACTLY ONE teacher-facing next_action.
-    7. SINGLE WRITER: Commits finalized state to data/classroom_state.json via write_shared_state.
+    2. Runs specialist pipeline for active candidate grades concurrently.
+    3. Invokes Strands OrchestratorAgent (Ollama/Qwen3:8b) with real runtime context to reason about cross-grade priorities and conflicts.
+    4. Applies deterministic guardrails (Safety Gate overrides, state integrity).
+    5. SINGLE WRITER: Commits finalized state to data/classroom_state.json via write_shared_state.
     """
     if session.get("end_session"):
         session_id = session.get("session_id", f"sess_{uuid.uuid4().hex[:8]}")
@@ -410,8 +381,6 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
 
     proposals = {}
     state_update_entries = []
-    resolved_conflicts = []
-    teacher_action_candidates = []
 
     # Record skipped grades (Orchestrator confirms no full cycle required)
     for s_item in skipped_evals:
@@ -435,134 +404,97 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
                 g_key, prop = future.result()
                 proposals[g_key] = prop
 
-    # STEP 3: Resolve Resource Conflicts across Active Grades using Evidence Scoring
-    resource_requests = {}
-    for g_key, prop in proposals.items():
-        rec_r = prop["resource_rec"].get("recommended_resource")
-        if rec_r:
-            resource_requests.setdefault(rec_r, []).append(g_key)
+    # STEP 3: Route actual orchestration decision through existing Strands Agent (Ollama Qwen3:8b)
+    shared_state = read_shared_state()
 
-    for r_name, requesting_grades in resource_requests.items():
-        if len(requesting_grades) > 1 and ("tablet" in r_name.lower() or "printable" in r_name.lower() or "tv" in r_name.lower()):
-            ranked_grades = []
-            for g_k in requesting_grades:
-                p = proposals[g_k]
-                is_blocking = p["curriculum_dec"].get("is_blocking_prerequisite", False)
-                mastery = p["progress_diag"].get("mastery_estimate", "developing")
-                trend = p["progress_diag"].get("trend", "stagnant")
-                waiting_days = session.get("waiting_days", {}).get(g_k, 0)
+    # Serialize specialist outputs for context prompt
+    specialist_summary = {}
+    for g_k, prop in proposals.items():
+        s_v = prop.get("safety_verdict")
+        specialist_summary[g_k] = {
+            "grade": prop.get("grade"),
+            "subject": prop.get("subject"),
+            "progress_diagnosis": prop.get("progress_diag"),
+            "curriculum_decision": prop.get("curriculum_dec"),
+            "resource_recommendation": prop.get("resource_rec"),
+            "activity_design": {
+                "activity_type": prop.get("activity_design", {}).get("activity_type"),
+                "topic": prop.get("activity_design", {}).get("topic"),
+                "estimated_time_minutes": prop.get("activity_design", {}).get("estimated_time_minutes"),
+            },
+            "safety_verdict": {
+                "passed": s_v.passed if s_v else True,
+                "action": s_v.action if s_v else "pass",
+                "explanation": s_v.explanation if s_v else ""
+            }
+        }
 
-                # Evidence score calculation:
-                # 1. Blocking prerequisite: +10 pts
-                # 2. Mastery severity: struggling (+6 pts)
-                # 3. Performance trend: declining (+4 pts)
-                # 4. Waiting time: +1 pt per day waiting
-                score = (10 if is_blocking else 0) + (6 if mastery == "struggling" else 0) + (4 if trend == "declining" else 0) + waiting_days
-                ranked_grades.append((score, g_k, is_blocking, mastery, trend, waiting_days))
-
-            # Sort descending by evidence score
-            ranked_grades.sort(key=lambda x: x[0], reverse=True)
-            winner_key = ranked_grades[0][1]
-
-            for score, g_k, is_b, mast, tr, w_days in ranked_grades:
-                p = proposals[g_k]
-                if g_k == winner_key:
-                    res_msg = (
-                        f"Resource contention resolved for '{r_name}': "
-                        f"WINNER = Grade {p['grade']} (Evidence Score: {score} | BlockingPrereq: {is_b}, Mastery: '{mast}', Trend: '{tr}', WaitingDays: {w_days}). "
-                        f"Reason: Highest evidence score based on learning urgency."
-                    )
-                    resolved_conflicts.append(res_msg)
-                else:
-                    alt_resource = "printable_worksheet" if r_name != "printable_worksheet" else "whiteboard_activity"
-                    p["resource_rec"]["recommended_resource"] = alt_resource
-                    p["activity_design"]["activity_type"] = alt_resource
-                    res_msg = (
-                        f"Resource contention resolved for '{r_name}': "
-                        f"LOSER = Grade {p['grade']} (Evidence Score: {score} | BlockingPrereq: {is_b}, Mastery: '{mast}', Trend: '{tr}', WaitingDays: {w_days}). "
-                        f"Reason: Lower evidence score. Assigned alternative resource: '{alt_resource}'."
-                    )
-                    resolved_conflicts.append(res_msg)
-
-    # STEP 4: Surface Teacher Attention Candidates & Prioritize EXACTLY ONE next_action
-    for g_key, prop in proposals.items():
-        g_str = prop["grade"]
-        subj_str = prop["subject"]
-        p_diag = prop["progress_diag"]
-        c_dec = prop["curriculum_dec"]
-        r_rec = prop["resource_rec"]
-        s_verdict = prop["safety_verdict"]
-
-        if s_verdict and (s_verdict.action == "escalate_to_teacher" or (not s_verdict.passed and prop["safety_attempts"] >= 2)):
-            teacher_action_candidates.append({
-                "priority_rank": 1,
-                "priority": "critical",
-                "grade": g_str,
-                "subject": subj_str,
-                "action_type": "teacher_needed",
-                "reason": f"Safety Gate flagged activity for Grade {g_str} ({s_verdict.explanation}); manual teacher intervention required."
-            })
-
-        elif c_dec.get("is_blocking_prerequisite") and p_diag.get("mastery_estimate") == "struggling":
-            teacher_action_candidates.append({
-                "priority_rank": 2,
-                "priority": "high",
-                "grade": g_str,
-                "subject": subj_str,
-                "action_type": "blocking_prerequisite_review",
-                "reason": f"Grade {g_str} struggling on foundational prerequisite '{c_dec.get('decided_topic', 'prerequisite')}'; holding syllabus pacing."
-            })
-
-        elif p_diag.get("attention_flag"):
-            teacher_action_candidates.append({
-                "priority_rank": 3,
-                "priority": "high",
-                "grade": g_str,
-                "subject": subj_str,
-                "action_type": "progress_monitoring",
-                "reason": f"Grade {g_str} progress trend is '{p_diag.get('trend')}' with trouble spot '{p_diag.get('trouble_spots', [''])[0]}'."
-            })
-
-        elif r_rec.get("contention_flag"):
-            teacher_action_candidates.append({
-                "priority_rank": 4,
-                "priority": "medium",
-                "grade": g_str,
-                "subject": subj_str,
-                "action_type": "resource_contention",
-                "reason": f"Grade {g_str} experienced resource contention ({r_rec.get('contention_detail')})."
-            })
-
-        else:
-            teacher_action_candidates.append({
-                "priority_rank": 5,
-                "priority": "low",
-                "grade": g_str,
-                "subject": subj_str,
-                "action_type": "normal_progression",
-                "reason": f"Grade {g_str} is progressing normally on topic '{c_dec.get('decided_topic')}'; advancing as planned."
-            })
-
-    teacher_action_candidates.sort(key=lambda x: x["priority_rank"])
-
-    top_candidate = teacher_action_candidates[0] if teacher_action_candidates else {
-        "priority": "low",
-        "grade": "3",
-        "subject": "Math",
-        "action_type": "normal_progression",
-        "reason": "All active grades evaluated with zero pending issues."
-    }
-
-    selected_next_action = NextAction(
-        priority=top_candidate["priority"],
-        grade=top_candidate["grade"],
-        subject=top_candidate["subject"],
-        action_type=top_candidate["action_type"],
-        reason=top_candidate["reason"],
-        resolved_conflicts=resolved_conflicts
+    orchestrator_user_prompt = (
+        f"You are evaluating live classroom orchestration cycle {cycle_id}.\n\n"
+        f"Ground-Truth Shared Classroom State:\n{json.dumps(shared_state, indent=2)}\n\n"
+        f"Active Session Constraints & Resources:\n{json.dumps(session, indent=2)}\n\n"
+        f"Candidate Grades Evaluated ({len(proposals)}): {list(proposals.keys())}\n"
+        f"Skipped Grades ({len(skipped_evals)}): {[item['grade_key'] for item in skipped_evals]}\n\n"
+        f"Specialist Agent Pipeline Outputs per Active Grade:\n{json.dumps(specialist_summary, indent=2)}\n\n"
+        f"INSTRUCTIONS:\n"
+        f"1. Analyze progress trends, curriculum issues, and physical resource constraints across all active grades.\n"
+        f"2. Resolve any cross-grade resource conflicts or priority competition based on evidence urgency.\n"
+        f"3. Surface EXACTLY ONE prioritized teacher-facing `next_action` (priority: 'critical'|'high'|'medium'|'low', "
+        f"action_type: 'teacher_needed'|'resource_contention'|'blocking_prerequisite_review'|'progress_monitoring'|'normal_progression').\n"
+        f"4. Provide state_updates entries for all active grades.\n"
+        f"5. Document resolved_conflicts in next_action if applicable."
     )
 
+    print(f"\n[STRANDS AGENT] Invoking OrchestratorAgent (Ollama Qwen3:8b) for cycle {cycle_id}...")
+    agent_result = orchestrator_agent(orchestrator_user_prompt)
+
+    if hasattr(agent_result, "structured_output") and agent_result.structured_output:
+        raw_llm_result = agent_result.structured_output
+    elif hasattr(agent_result, "message") and agent_result.message:
+        raw_llm_result = OrchestrationResult.model_validate_json(agent_result.message.content)
+    else:
+        raise ValueError(f"OrchestratorAgent failed to return structured output: {agent_result}")
+
+    # Extract LLM decisions
+    llm_next_action = raw_llm_result.next_action
+    llm_state_updates = raw_llm_result.state_updates or []
+
+    # STEP 4: Deterministic Guardrails (Safety Gate Override & State Integrity)
+    # Guardrail 1: Safety Gate Override — if any active grade has an unpassed safety verdict / teacher escalation, force critical action
+    safety_escalations = []
+    for g_k, prop in proposals.items():
+        s_v = prop.get("safety_verdict")
+        if s_v and (s_v.action == "escalate_to_teacher" or (not s_v.passed and prop.get("safety_attempts", 0) >= 2)):
+            safety_escalations.append((prop["grade"], prop["subject"], s_v.explanation))
+
+    if safety_escalations:
+        esc_grade, esc_subj, esc_reason = safety_escalations[0]
+        final_next_action = NextAction(
+            priority="critical",
+            grade=str(esc_grade),
+            subject=esc_subj,
+            action_type="teacher_needed",
+            reason=f"Safety Gate flagged activity for Grade {esc_grade} ({esc_reason}); manual teacher intervention required.",
+            resolved_conflicts=llm_next_action.resolved_conflicts
+        )
+    else:
+        clean_g = str(llm_next_action.grade).replace("Grade", "").replace("_", " ").strip()
+        parts = clean_g.split()
+        final_g = parts[0] if parts else "3"
+
+        final_next_action = NextAction(
+            priority=llm_next_action.priority,
+            grade=final_g,
+            subject=llm_next_action.subject or "Math",
+            action_type=llm_next_action.action_type,
+            reason=llm_next_action.reason,
+            resolved_conflicts=llm_next_action.resolved_conflicts
+        )
+
+    # Reconstruct state update entries ensuring all candidate active & skipped grades are included
+    final_state_updates = list(state_update_entries)  # Start with skipped grades
     state_updates_dict = {}
+
     for g_key, prop in proposals.items():
         g_str = prop["grade"]
         subj_str = prop["subject"]
@@ -572,28 +504,32 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
 
         act_status = "passed_safety_gate" if s_verdict.passed else f"failed_{s_verdict.layer_failed}"
 
+        # Match LLM update if present for this grade
+        llm_entry = next((u for u in llm_state_updates if str(u.grade).replace("Grade", "").strip() == str(g_str)), None)
+        recommended_r = (llm_entry.recommended_resource if llm_entry and llm_entry.recommended_resource else None) or r_rec.get("recommended_resource")
+
         entry = StateUpdateEntry(
             grade=g_str,
             subject=subj_str,
             status="reconciled",
             decided_topic=c_dec.get("decided_topic"),
             pacing_decision=c_dec.get("pacing_decision"),
-            recommended_resource=r_rec.get("recommended_resource"),
+            recommended_resource=recommended_r,
             activity_status=act_status
         )
-        state_update_entries.append(entry)
+        final_state_updates.append(entry)
 
         state_updates_dict[f"Grade_{g_str}_{subj_str}"] = {
             "current_topic": c_dec.get("decided_topic"),
             "pacing_decision": c_dec.get("pacing_decision"),
             "mastery_estimate": prop["progress_diag"].get("mastery_estimate"),
             "attention_flag": prop["progress_diag"].get("attention_flag"),
-            "recommended_resource": r_rec.get("recommended_resource"),
+            "recommended_resource": recommended_r,
             "activity_status": act_status,
             "last_evaluation_date": "2026-09-04T00:00:00Z"
         }
 
-    # STEP 5: STATE COMMIT (SINGLE WRITER tool call)
+    # STEP 5: Single-Writer State Commit (write_shared_state)
     write_shared_state({"grades": state_updates_dict})
 
     formatted_evaluations = {}
@@ -611,17 +547,7 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
 
     return OrchestrationResult(
         cycle_id=cycle_id,
-        next_action=selected_next_action,
-        state_updates=state_update_entries,
+        next_action=final_next_action,
+        state_updates=final_state_updates,
         specialist_evaluations=formatted_evaluations
     )
-
-
-orchestrator_agent = Agent(
-    model=LocalOrchestratorModel(),
-    system_prompt=SYSTEM_PROMPT,
-    tools=[read_shared_state, write_shared_state, get_active_grades],
-    structured_output_model=OrchestrationResult,
-    name="OrchestratorAgent",
-    description="SAARTHI Orchestrator Agent sequencing active grades, resolving conflicts, surfacing one next action, and acting as single state writer."
-)
