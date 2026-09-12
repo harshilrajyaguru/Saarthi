@@ -5,6 +5,10 @@ import time
 import traceback
 from typing import Any, AsyncGenerator, Literal, Optional
 from pydantic import BaseModel, Field
+import openai
+
+COMPACT = ("\n\nOUTPUT RULES: Keep JSON compact. Max 4 items, "
+           "one-sentence instructions, no markdown.")
 
 from strands import Agent
 from strands.models import Model
@@ -260,12 +264,17 @@ class Layer3AdversarialModel(Model):
         yield {"messageStop": {"stopReason": "tool_use"}}
 
 
+from agents.strands_trace import make_trace_handler
+
+
 def evaluate_safety_gate(
     activity: dict,
     decided_topic: str,
     targets_trouble_spot: str,
     available_time_minutes: int,
-    activity_id: str = "act_101"
+    activity_id: str = "act_101",
+    session_id: Optional[str] = None,
+    grade: Optional[str] = None
 ) -> SafetyGateResult:
     """
     Executes the 3-Layer Safety/Quality Gate Pipeline in order.
@@ -301,7 +310,7 @@ def evaluate_safety_gate(
         )
 
     # LAYER 3: Separate Adversarial LLM Judgment
-    l3_issues = run_layer_3_checks(activity)
+    l3_issues = run_layer_3_checks(activity, session_id=session_id, grade=grade)
     if l3_issues:
         return SafetyGateResult(
             activity_id=activity_id,
@@ -323,7 +332,7 @@ def evaluate_safety_gate(
     )
 
 
-def run_layer_3_checks(activity: dict) -> list[SafetyIssue]:
+def run_layer_3_checks(activity: dict, session_id: Optional[str] = None, grade: Optional[str] = None) -> list[SafetyIssue]:
     """
     Invokes the separate Adversarial LLM model for Layer 3 subjective judgment.
     """
@@ -336,9 +345,24 @@ def run_layer_3_checks(activity: dict) -> list[SafetyIssue]:
 Review the following activity for subjective nuance issues, grade inappropriateness, or cultural insensitivity:
 {content_text}
 """
-    model = Layer3AdversarialModel()
+    callback_handler = make_trace_handler(session_id, "SafetyGate", str(grade)) if session_id else None
+    agent = Agent(
+        model=Layer3AdversarialModel(),
+        system_prompt=SYSTEM_PROMPT_LAYER3,
+        name="SafetyGate",
+        description="SAARTHI Safety Gate Layer 3 Adversarial Checker",
+        callback_handler=callback_handler
+    )
 
     try:
+        try:
+            agent(prompt)
+        except Exception as e:
+            if "Failed to parse tool call arguments" in str(e) or "Parsing failed" in str(e):
+                print("[RETRY] Malformed tool-call JSON — retrying with compact-output rules")
+                agent(prompt + COMPACT)
+            else:
+                raise
         rules = get_safety_rules()
         nuance_triggers = rules.get("nuance_triggers", [])
         activity_lower = content_text.lower()

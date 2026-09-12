@@ -5,7 +5,7 @@ from tools.activity_tools import (
     get_activity_templates,
     get_recent_activity_history
 )
-from agents.activity_agent import design_activity, activity_agent
+from agents.activity_agent import design_activity
 
 
 CLASSROOM_STATE_PATH = (

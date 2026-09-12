@@ -22,11 +22,48 @@ def load_resource_data() -> dict:
 def get_resource_inventory(session: dict) -> dict:
     """
     Returns today's actual classroom resource inventory and environmental constraints.
-    Reads from the local resource data store and overlays session-specific conditions.
+    Reads from state["grades"][g]["resources"] and roster_size in shared state.
     Does NOT perform resource evaluation or call LLMs.
     """
+    from tools.orchestrator_tools import read_shared_state
+    state = read_shared_state()
     data = load_resource_data()
     inv = dict(data.get("inventory", {}))
+
+    # Look up per-grade resources from shared state if available in session
+    g_str = str(session.get("grade") or session.get("grade_key") or "5").replace("Grade_", "").split("_")[0]
+    grades = state.get("grades", {})
+    g_data = grades.get(g_str) or grades.get(f"Grade_{g_str}_Math") or {}
+    g_resources = g_data.get("resources", {})
+    roster_size = g_data.get("roster_size", session.get("roster_size", 30))
+
+    tablets = g_resources.get("tablets", session.get("tablets", inv.get("tablets_free", 12)))
+    printer_paper = g_resources.get("printer_paper_sheets", session.get("printer_paper_sheets", 500))
+    tv_avail = g_resources.get("tv", inv.get("tv_available", True))
+    internet_avail = g_resources.get("internet", inv.get("internet_available", False))
+
+    tablets_available = tablets
+    tablets_insufficient = (tablets < roster_size)
+    low_printer = (printer_paper < roster_size * 4)
+
+    feasible_resources = []
+    feasible_resources.append("whiteboard_activity")
+    if not low_printer:
+        feasible_resources.append("printable_worksheet")
+    if tv_avail:
+        feasible_resources.append("tv_video")
+    if not tablets_insufficient and internet_avail:
+        feasible_resources.append("digital_tablets")
+        feasible_resources.append("tablet_quiz")
+
+    inv["tablets"] = tablets
+    inv["tablets_available"] = tablets_available
+    inv["tablets_free"] = tablets if not tablets_insufficient else 0
+    inv["tablets_insufficient"] = tablets_insufficient
+    inv["printer_paper_sheets"] = printer_paper
+    inv["low_printer"] = low_printer
+    inv["roster_size"] = roster_size
+    inv["feasible_resources"] = feasible_resources
 
     # Apply session-specific overrides if provided in input session
     if isinstance(session, dict):
@@ -36,6 +73,17 @@ def get_resource_inventory(session: dict) -> dict:
                     inv[s_key] = s_val
             elif key != "concurrent_demand":
                 inv[key] = val
+
+    # Re-evaluate tablets_insufficient after session overrides
+    cur_tablets = inv.get("tablets", inv.get("tablets_available", 12))
+    cur_roster = inv.get("roster_size", 30)
+    inv["tablets_insufficient"] = (cur_tablets < cur_roster)
+    if inv["tablets_insufficient"]:
+        inv["tablets_free"] = 0
+        if "digital_tablets" in inv.get("feasible_resources", []):
+            inv["feasible_resources"].remove("digital_tablets")
+        if "tablet_quiz" in inv.get("feasible_resources", []):
+            inv["feasible_resources"].remove("tablet_quiz")
 
     return inv
 

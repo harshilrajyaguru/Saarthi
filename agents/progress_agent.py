@@ -74,7 +74,7 @@ HARD BOUNDARIES:
 """
 
 from agents.model_factory import get_saarthi_model
-_PROGRESS_MODEL = get_saarthi_model(tier="smart")
+_PROGRESS_MODEL = get_saarthi_model(tier="smart", max_tokens=2000)
 
 
 def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:
@@ -120,12 +120,16 @@ def apply_hard_guardrails(diagnosis_data: dict, history_count: int) -> dict:
     return d
 
 
+from agents.strands_trace import make_trace_handler
+
+
 def analyze_progress(
     grade: Union[int, str],
     subject: str,
     current_topic: str,
     latest_signals: dict,
-    activity_metadata: Optional[dict] = None
+    activity_metadata: Optional[dict] = None,
+    session_id: Optional[str] = None
 ) -> dict:
     """
     Executes the Progress Agent diagnosis for a given Grade x Subject with latest signals.
@@ -154,6 +158,7 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
     model_id = getattr(_PROGRESS_MODEL, "model_id", getattr(_PROGRESS_MODEL, "model_name", "unknown"))
     print(f"\n[STRANDS AGENT] Invoking ProgressAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException when multiple grades run concurrently.
+    callback_handler = make_trace_handler(session_id, "ProgressAgent", str(grade)) if session_id else None
     agent = Agent(
         model=_PROGRESS_MODEL,
         system_prompt=SYSTEM_PROMPT,
@@ -161,10 +166,20 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
         structured_output_model=ProgressDiagnosis,
         name="ProgressAgent",
         description="SAARTHI Progress Agent diagnosing learning state from evidence.",
+        callback_handler=callback_handler,
     )
     import time
+    COMPACT = ("\n\nOUTPUT RULES: Keep JSON compact. Max 4 items, "
+               "one-sentence instructions, no markdown.")
     t0 = time.time()
-    result = agent(prompt)
+    try:
+        result = agent(prompt)
+    except Exception as e:
+        if "Failed to parse tool call arguments" in str(e) or "Parsing failed" in str(e):
+            print("[RETRY] Malformed tool-call JSON — retrying with compact-output rules")
+            result = agent(prompt + COMPACT)
+        else:
+            raise
     elapsed = time.time() - t0
     print(f"[TIMING] ProgressAgent Grade {grade}: {elapsed:.1f}s")
 

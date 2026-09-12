@@ -1,6 +1,7 @@
 import os
 import time
 import traceback
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,10 +12,23 @@ from dataclasses import asdict
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from datetime import datetime, timezone
 
 from classroom_loop import ClassroomSession, ClassroomLoopRunner
 from tools.orchestrator_tools import read_shared_state
+from agents.event_bus import get_events
+
+# Optional startup guard: run smoke test ONLY if explicit RUN_SMOKE_TEST=1 env var is set
+if os.getenv("RUN_SMOKE_TEST") == "1":
+    try:
+        import concurrent.futures
+        from scratch.smoke_real_classroom import run_smoke_test
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(run_smoke_test)
+            future.result(timeout=30)
+    except Exception as _st_err:
+        print(f"[WARN] smoke test skipped: {_st_err}")
 
 app = FastAPI(
     title="Saarthi Autonomous Classroom OS API",
@@ -31,6 +45,9 @@ app.add_middleware(
 
 # Global in-memory session registry mapping session_id -> ClassroomLoopRunner
 SESSIONS: Dict[str, ClassroomLoopRunner] = {}
+
+# Global in-memory job registry mapping session_id -> Job dict
+JOBS: Dict[str, Dict[str, Any]] = {}
 
 
 import re
@@ -312,21 +329,12 @@ ANSI_BOLD = "\033[1m"
 ANSI_RESET = "\033[0m"
 
 
-@app.post("/api/classroom/start")
-@app.post("/api/start-session")
-def start_classroom_session(payload: Dict[str, Any] = Body(...)):
-    """
-    Accepts real teacher input, initializes a ClassroomSession,
-    and executes the cold-start multi-agent Orchestrator cycle.
-    No hardcoded decisions are generated; actual agent outputs flow through.
-    """
+def _run_pipeline_sync(session_id: str, payload: Dict[str, Any], job: Dict[str, Any]):
     try:
         active_grades, subjects, duration_minutes, resources, constraints = parse_teacher_input(payload)
 
-        session_id = f"sess_{uuid.uuid4().hex[:8]}"
-
         print(f"\n{ANSI_BOLD}{ANSI_CYAN}======================================================================{ANSI_RESET}")
-        print(f"{ANSI_BOLD}{ANSI_GREEN}[API] /api/classroom/start Request Received{ANSI_RESET}")
+        print(f"{ANSI_BOLD}{ANSI_GREEN}[API] /api/classroom/start Async Pipeline Started{ANSI_RESET}")
         print(f"   {ANSI_CYAN}Session ID:{ANSI_RESET} {session_id}")
         print(f"   {ANSI_CYAN}Active Grades:{ANSI_RESET} {active_grades} | {ANSI_CYAN}Duration:{ANSI_RESET} {duration_minutes} min")
         print(f"   {ANSI_CYAN}Resources Available:{ANSI_RESET} {resources}")
@@ -385,7 +393,7 @@ def start_classroom_session(payload: Dict[str, Any] = Body(...)):
         })
         shared_state = read_shared_state()
 
-        return {
+        result = {
             "session_id": session_id,
             "status": session.status,
             "duration_minutes": duration_minutes,
@@ -397,12 +405,133 @@ def start_classroom_session(payload: Dict[str, Any] = Body(...)):
             "shared_state": shared_state,
             "delivered_activities": delivered_acts_serialized
         }
-    except HTTPException:
-        raise
+        job["status"] = "ready"
+        job["result"] = result
     except Exception as e:
         traceback.print_exc()
         print(f"[API Error] Failed to start classroom session: {e}")
-        raise HTTPException(status_code=500, detail=f"Agent orchestration failed: {str(e)}")
+        job["status"] = "error"
+        job["error"] = traceback.format_exc()
+
+
+@app.post("/api/classroom/start")
+@app.post("/api/start-session")
+def start_classroom_session(payload: Dict[str, Any] = Body(...)):
+    """
+    Accepts real teacher input, initializes a ClassroomSession,
+    and executes the cold-start multi-agent Orchestrator cycle asynchronously in a daemon thread.
+    Returns immediately ({"session_id": session_id, "status": "running"}).
+    """
+    active_grades, subjects, duration_minutes, resources, constraints = parse_teacher_input(payload)
+    session_id = f"sess_{uuid.uuid4().hex[:8]}"
+
+    job = {
+        "session_id": session_id,
+        "status": "running",
+        "result": None,
+        "error": None
+    }
+    JOBS[session_id] = job
+
+    t = threading.Thread(target=_run_pipeline_sync, args=(session_id, payload, job), daemon=True)
+    t.start()
+
+    return {
+        "session_id": session_id,
+        "status": "running"
+    }
+
+
+@app.get("/api/session/{session_id}/status")
+async def get_session_job_status(session_id: str):
+    """
+    Returns the job status for a given session_id.
+    Includes fallback to read_shared_state when backend restarted.
+    """
+    job = JOBS.get(session_id)
+    if job:
+        return job
+
+    try:
+        shared_state = read_shared_state()
+        active_info = shared_state.get("active_session", {})
+        if active_info and active_info.get("session_id") == session_id:
+            csg = active_info.get("current_session_grades", [])
+            delivered = active_info.get("delivered_activities", [])
+            orch_res = active_info.get("cycle_record")
+            restored_result = {
+                "session_id": session_id,
+                "status": active_info.get("status", "active"),
+                "duration_minutes": active_info.get("duration_minutes", 40),
+                "active_grades": active_info.get("active_grades", []),
+                "grade_selection": active_info.get("grade_selection", []),
+                "resources": active_info.get("resources", {}),
+                "current_session_grades": csg,
+                "cycle_record": orch_res,
+                "shared_state": shared_state,
+                "delivered_activities": delivered
+            }
+            fallback_job = {
+                "session_id": session_id,
+                "status": "ready",
+                "result": restored_result,
+                "error": None
+            }
+            JOBS[session_id] = fallback_job
+            return fallback_job
+    except Exception as e:
+        traceback.print_exc()
+
+    raise HTTPException(status_code=404, detail=f"Job for session '{session_id}' not found")
+
+
+@app.get("/api/session/{session_id}/events")
+async def session_events(session_id: str):
+    """
+    Server-Sent Events streaming endpoint yielding new events from agents.event_bus.
+    """
+    def gen():
+        idx = 0
+        while True:
+            evs = get_events(session_id)
+            while idx < len(evs):
+                yield f"data: {json.dumps(evs[idx])}\n\n"
+                idx += 1
+            job = JOBS.get(session_id)
+            if not job:
+                try:
+                    shared_state = read_shared_state()
+                    active_info = shared_state.get("active_session", {})
+                    if active_info and active_info.get("session_id") == session_id:
+                        csg = active_info.get("current_session_grades", [])
+                        delivered = active_info.get("delivered_activities", [])
+                        orch_res = active_info.get("cycle_record")
+                        restored_result = {
+                            "session_id": session_id,
+                            "status": active_info.get("status", "active"),
+                            "duration_minutes": active_info.get("duration_minutes", 40),
+                            "active_grades": active_info.get("active_grades", []),
+                            "grade_selection": active_info.get("grade_selection", []),
+                            "resources": active_info.get("resources", {}),
+                            "current_session_grades": csg,
+                            "cycle_record": orch_res,
+                            "shared_state": shared_state,
+                            "delivered_activities": delivered
+                        }
+                        job = {
+                            "session_id": session_id,
+                            "status": "ready",
+                            "result": restored_result,
+                            "error": None
+                        }
+                        JOBS[session_id] = job
+                except Exception:
+                    pass
+            if job and job["status"] in ("ready", "error") and idx >= len(evs):
+                yield f"data: {json.dumps({'event': 'done', 'status': job['status'], 'result': job['result'], 'error': job['error']})}\n\n"
+                return
+            time.sleep(0.5)
+    return StreamingResponse(gen(), media_type="text/event-stream")
 
 
 @app.get("/api/classroom/{session_id}")

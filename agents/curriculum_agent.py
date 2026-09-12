@@ -91,7 +91,7 @@ REASONING WORKFLOW:
 """
 
 from agents.model_factory import get_saarthi_model
-_CURRICULUM_MODEL = get_saarthi_model(tier="smart")
+_CURRICULUM_MODEL = get_saarthi_model(tier="smart", max_tokens=2000)
 
 
 def apply_curriculum_guardrails(
@@ -480,13 +480,17 @@ class LocalCurriculumModel(Model):
         }
 
 
+from agents.strands_trace import make_trace_handler
+
+
 def reconcile_curriculum(
     grade: Union[int, str],
     subject: str,
     current_topic: str,
     progress_diagnosis: dict,
     session_constraints: dict,
-    teacher_constraints: Optional[dict] = None
+    teacher_constraints: Optional[dict] = None,
+    session_id: Optional[str] = None
 ) -> dict:
     """
     Executes the Curriculum Agent reconciliation for a Grade x Subject.
@@ -514,6 +518,7 @@ First call get_syllabus_position and get_prerequisite_map to inspect syllabus po
     model_id = getattr(_CURRICULUM_MODEL, "model_id", getattr(_CURRICULUM_MODEL, "model_name", "unknown"))
     print(f"\n[STRANDS AGENT] Invoking CurriculumAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
+    callback_handler = make_trace_handler(session_id, "CurriculumAgent", str(grade)) if session_id else None
     agent = Agent(
         model=_CURRICULUM_MODEL,
         system_prompt=SYSTEM_PROMPT,
@@ -521,10 +526,20 @@ First call get_syllabus_position and get_prerequisite_map to inspect syllabus po
         structured_output_model=CurriculumDecision,
         name="CurriculumAgent",
         description="SAARTHI Curriculum Agent reconciling syllabus, progress diagnosis, and constraints.",
+        callback_handler=callback_handler,
     )
     import time
+    COMPACT = ("\n\nOUTPUT RULES: Keep JSON compact. Max 4 items, "
+               "one-sentence instructions, no markdown.")
     t0 = time.time()
-    result = agent(prompt)
+    try:
+        result = agent(prompt)
+    except Exception as e:
+        if "Failed to parse tool call arguments" in str(e) or "Parsing failed" in str(e):
+            print("[RETRY] Malformed tool-call JSON — retrying with compact-output rules")
+            result = agent(prompt + COMPACT)
+        else:
+            raise
     elapsed = time.time() - t0
     print(f"[TIMING] CurriculumAgent Grade {grade}: {elapsed:.1f}s")
 

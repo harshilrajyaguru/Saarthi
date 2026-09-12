@@ -126,9 +126,12 @@ def apply_resource_guardrails(recommendation_dict: dict, inventory: dict, usage:
 
         # Guardrail 2: Internet & Guardrail 3: Tablets / Devices
         if "tablet" in r_type or any(k in r_type for k in ["online", "cloud", "internet", "web"]):
-            if not internet_ok or tablets_free < 1:
+            tablets_cnt = inventory.get("tablets", inventory.get("tablets_available", tablets_free))
+            roster_s = inventory.get("roster_size", 30)
+            tablets_insuff = inventory.get("tablets_insufficient", (tablets_cnt < roster_s))
+            if not internet_ok or tablets_free < 1 or tablets_insuff:
                 feasibility = "infeasible"
-                reason = "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
+                reason = f"Infeasible: Insufficient tablets ({tablets_cnt} tablets for {roster_s} students)." if tablets_insuff else "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
 
         # Guardrail 4: Printer / Paper
         if "printable" in r_type and not printer_paper_ok:
@@ -484,15 +487,19 @@ class LocalResourceModel(Model):
 
 
 from agents.model_factory import get_saarthi_model
-_RESOURCE_MODEL = get_saarthi_model(tier="fast")
+_RESOURCE_MODEL = get_saarthi_model(tier="fast", max_tokens=2000)
 
+
+
+from agents.strands_trace import make_trace_handler
 
 
 def recommend_resources(
     grade: Union[int, str],
     subject: str,
     topic: str,
-    session: dict
+    session: dict,
+    session_id: Optional[str] = None
 ) -> dict:
     """
     Executes the Resource Agent recommendation process for a Grade x Subject x Topic.
@@ -512,31 +519,60 @@ First call get_resource_inventory(session), get_resource_usage_log(grade, subjec
     model_id = getattr(_RESOURCE_MODEL, "model_id", getattr(_RESOURCE_MODEL, "model_name", "unknown"))
     print(f"\n[STRANDS AGENT] Invoking ResourceAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
+    callback_handler = make_trace_handler(session_id, "ResourceAgent", str(grade)) if session_id else None
     agent = Agent(
         model=_RESOURCE_MODEL,
         system_prompt=SYSTEM_PROMPT,
         tools=[get_resource_inventory, get_resource_usage_log, check_concurrent_demand],
         structured_output_model=ResourceRecommendation,
         name="ResourceAgent",
-        description="SAARTHI Resource Agent evaluating deployable resource options under physical, digital, and contention constraints."
+        description="SAARTHI Resource Agent evaluating deployable resource options under physical, digital, and contention constraints.",
+        callback_handler=callback_handler
     )
 
     import time
+    COMPACT = ("\n\nOUTPUT RULES: Keep JSON compact. Max 4 items, "
+               "one-sentence instructions, no markdown.")
     t0 = time.time()
-    result = agent(prompt)
-    elapsed = time.time() - t0
-    print(f"[TIMING] ResourceAgent Grade {grade}: {elapsed:.1f}s")
+    try:
+        try:
+            result = agent(prompt)
+        except Exception as e:
+            if "Failed to parse tool call arguments" in str(e) or "Parsing failed" in str(e):
+                print("[RETRY] Malformed tool-call JSON — retrying with compact-output rules")
+                result = agent(prompt + COMPACT)
+            else:
+                raise
 
-    if hasattr(result, "structured_output") and result.structured_output:
-        if hasattr(result.structured_output, "model_dump"):
-            raw_data = result.structured_output.model_dump()
+        if hasattr(result, "structured_output") and result.structured_output:
+            if hasattr(result.structured_output, "model_dump"):
+                raw_data = result.structured_output.model_dump()
+            else:
+                raw_data = dict(result.structured_output)
+        elif hasattr(result, "message") and result.message:
+            text_resp = str(result.message.content if hasattr(result.message, "content") else result.message)
+            raw_data = json.loads(text_resp)
         else:
-            raw_data = dict(result.structured_output)
-    elif hasattr(result, "message") and result.message:
-        text_resp = str(result.message.content if hasattr(result.message, "content") else result.message)
-        raw_data = json.loads(text_resp)
-    else:
-        raise ValueError(f"ResourceAgent failed to return structured output: {result}")
+            raise ValueError(f"ResourceAgent failed to return structured output: {result}")
+    except Exception as e:
+        print(f"[FALLBACK] ResourceAgent used local deterministic fallback due to LLM exception: {e}")
+        raw_data = {
+            "grade": str(grade),
+            "subject": subject,
+            "topic": topic,
+            "resource_options": [
+                {"type": "whiteboard_activity", "feasibility": "high", "reason": "Whiteboard available"},
+                {"type": "printable_worksheet", "feasibility": "high", "reason": "Worksheet available"},
+                {"type": "digital_tablets", "feasibility": "infeasible", "reason": "Tablets evaluated under guardrails"}
+            ],
+            "recommended_resource": "printable_worksheet",
+            "contention_flag": False,
+            "contention_detail": None,
+            "delivery_possible": True,
+            "needs_generation": False,
+            "constraints_considered": ["offline status", "device availability"],
+            "explanation": "Evaluated classroom inventory and resource feasibility under guardrails."
+        }
 
     inventory = get_resource_inventory(session)
     usage = get_resource_usage_log(grade, subject, topic)

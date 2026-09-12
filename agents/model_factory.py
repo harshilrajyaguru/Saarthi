@@ -13,6 +13,12 @@ def get_saarthi_model(tier: str = "smart", **kwargs):
     """Returns either Groq or Bedrock based on cloud environment variables and requested tier ('smart' or 'fast')."""
     provider = os.getenv("LLM_PROVIDER", "groq").lower()
 
+    max_tokens = kwargs.pop("max_tokens", None)
+    if max_tokens is not None:
+        params = dict(kwargs.get("params", {}))
+        params["max_tokens"] = max_tokens
+        kwargs["params"] = params
+
     if provider == "bedrock":
         # Keep Bedrock setup intact for both tiers
         if tier == "fast":

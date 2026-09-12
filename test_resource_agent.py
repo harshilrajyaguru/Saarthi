@@ -6,7 +6,7 @@ from tools.resource_tools import (
     get_resource_usage_log,
     check_concurrent_demand
 )
-from agents.resource_agent import recommend_resources, resource_agent
+from agents.resource_agent import recommend_resources
 
 
 CLASSROOM_STATE_PATH = (

@@ -53,6 +53,28 @@ export async function startSession(payload) {
 export const startClassroomSession = startSession;
 
 /**
+ * Streams real-time Server-Sent Events for a session.
+ * GET /api/session/{sessionId}/events
+ */
+export function streamSessionEvents(sessionId, onEvent) {
+  const url = `${API_BASE_URL}/api/session/${sessionId}/events`;
+  const es = new EventSource(url);
+  es.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      if (onEvent) onEvent(data);
+    } catch (err) {
+      console.error('Failed to parse SSE event:', err);
+    }
+  };
+  es.onerror = (err) => {
+    console.error('SSE Error:', err);
+  };
+  return es;
+}
+
+
+/**
  * Fetches current session state fallback from /api/session-state
  * GET /api/session-state
  */

@@ -144,7 +144,10 @@ def apply_activity_guardrails(
 
 
 from agents.model_factory import get_saarthi_model
-_ACTIVITY_MODEL = get_saarthi_model(tier="fast")
+_ACTIVITY_MODEL = get_saarthi_model(tier="fast", max_tokens=2000)
+
+
+from agents.strands_trace import make_trace_handler
 
 
 def design_activity(
@@ -162,7 +165,8 @@ def design_activity(
     curriculum_decision: Optional[dict] = None,
     resource_recommendation: Optional[dict] = None,
     session_constraints: Optional[dict] = None,
-    recent_history: Optional[list] = None
+    recent_history: Optional[list] = None,
+    session_id: Optional[str] = None
 ) -> dict:
     """
     Executes the Activity Agent design process using Strands + Ollama Qwen3:8b.
@@ -212,18 +216,29 @@ INSTRUCTIONS:
     model_id = getattr(_ACTIVITY_MODEL, "model_id", getattr(_ACTIVITY_MODEL, "model_name", "unknown"))
     print(f"\n[STRANDS AGENT] Invoking ActivityAgent ({model_id}) for Grade {grade} {subject} topic '{decided_topic}'...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
+    callback_handler = make_trace_handler(session_id, "ActivityAgent", str(grade)) if session_id else None
     agent = Agent(
         model=_ACTIVITY_MODEL,
         system_prompt=SYSTEM_PROMPT,
         tools=[get_activity_templates, get_recent_activity_history],
         structured_output_model=ActivityDesign,
         name="ActivityAgent",
-        description="SAARTHI Activity Agent designing student-facing activities targeting specific trouble spots."
+        description="SAARTHI Activity Agent designing student-facing activities targeting specific trouble spots.",
+        callback_handler=callback_handler
     )
 
     import time
+    COMPACT = ("\n\nOUTPUT RULES: Keep JSON compact. Max 4 items, "
+               "one-sentence instructions, no markdown.")
     t0 = time.time()
-    result = agent(prompt)
+    try:
+        result = agent(prompt)
+    except Exception as e:
+        if "Failed to parse tool call arguments" in str(e) or "Parsing failed" in str(e):
+            print("[RETRY] Malformed tool-call JSON — retrying with compact-output rules")
+            result = agent(prompt + COMPACT)
+        else:
+            raise
     elapsed = time.time() - t0
     print(f"[TIMING] ActivityAgent Grade {grade}: {elapsed:.1f}s")
 

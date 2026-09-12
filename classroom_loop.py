@@ -91,6 +91,9 @@ ANSI_BOLD = "\033[1m"
 ANSI_RESET = "\033[0m"
 
 
+from agents.event_bus import emit
+
+
 class ClassroomLoopRunner:
     """
     Workflow runner for the Saarthi Continuous Classroom Loop.
@@ -142,13 +145,16 @@ class ClassroomLoopRunner:
 
         self.session.current_cycle += 1
         cycle_num = self.session.current_cycle
+        session_id = self.session.session_id
+
+        emit(session_id, "ClassroomLoop", "cycle_start", payload={"cycle_number": cycle_num, "trigger_type": trigger_type, "active_grades": self.session.active_grades})
 
         print(f"\n{ANSI_BOLD}{ANSI_MAGENTA}--- SAARTHI CLASSROOM LOOP CYCLE {cycle_num} (Trigger: {trigger_type.upper()}) ---{ANSI_RESET}")
 
         signals = override_signals if override_signals is not None else self.session.latest_signals
 
         session_config = {
-            "session_id": self.session.session_id,
+            "session_id": session_id,
             "active_grades": self.session.active_grades,
             "trigger_type": trigger_type,
             "is_initial_session": (trigger_type == "initial" or cycle_num == 1),
@@ -171,6 +177,8 @@ class ClassroomLoopRunner:
         active_filter = get_active_grades(session_config)
         active_evals = [item["grade_key"] for item in active_filter.get("active_evaluations", [])]
         skipped_evals = [item["grade_key"] for item in active_filter.get("skipped_grades", [])]
+
+        emit(session_id, "ClassroomLoop", "candidate_filter", payload={"active_evaluations": active_evals, "skipped_grades": skipped_evals})
 
         print(f"\n{ANSI_BOLD}{ANSI_CYAN}[Candidate Filter]{ANSI_RESET} Active Candidate Grades ({len(active_evals)}): {ANSI_GREEN}{active_evals}{ANSI_RESET}")
         if skipped_evals:
@@ -240,6 +248,8 @@ class ClassroomLoopRunner:
             self.session.status = "active"
 
         self.session.cycle_history.append(cycle_record)
+        next_action_payload = orch_result.next_action.model_dump() if hasattr(orch_result.next_action, "model_dump") else (orch_result.next_action.dict() if hasattr(orch_result.next_action, "dict") else orch_result.next_action)
+        emit(session_id, "ClassroomLoop", "cycle_complete", payload={"cycle_number": cycle_num, "decision": cycle_record.decision, "next_action": next_action_payload})
         return cycle_record
 
     def process_new_signals(self, new_signals: dict) -> CycleRecord:

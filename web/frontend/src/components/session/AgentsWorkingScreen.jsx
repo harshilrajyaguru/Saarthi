@@ -1,313 +1,257 @@
-import React, { useState, useEffect } from 'react';
-import { Check, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertCircle, RefreshCw, Sparkles, Terminal } from 'lucide-react';
 import { useTranslation } from '../../i18n/i18n';
-import { startSession, normalizeCycle } from '../../services/saarthiApi';
+import { startSession, normalizeCycle, streamSessionEvents } from '../../services/saarthiApi';
 
-export default function AgentsWorkingScreen({ sessionPayload, onComplete, onCancel }) {
+export default function AgentsWorkingScreen({ sessionPayload, onComplete, onReady, onCancel }) {
   const { t } = useTranslation();
+  const [events, setEvents] = useState([]);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [errorTraceback, setErrorTraceback] = useState(null);
+  const feedEndRef = useRef(null);
 
-  // Selected grades from teacher input payload
-  const gradeSelection = sessionPayload?.grade_selection || [
-    { grade: '3', subject: 'Mathematics' },
-    { grade: '4', subject: 'Mathematics' },
-    { grade: '5', subject: 'Mathematics' },
-  ];
+  const handleReadyCallback = onReady || onComplete;
 
-  // 4 Sequential Agent Steps
-  const STATUS_STEPS = [
-    {
-      id: 'progress',
-      messageKey: 'session.status_step_1',
-      defaultMessage: 'Reviewing where each grade left off...',
-      agentKey: 'session.agent_step_1',
-      defaultAgent: 'Progress',
-    },
-    {
-      id: 'resources',
-      messageKey: 'session.status_step_2',
-      defaultMessage: "Checking what's available today...",
-      agentKey: 'session.agent_step_2',
-      defaultAgent: 'Resources',
-    },
-    {
-      id: 'curriculum_activity',
-      messageKey: 'session.status_step_3',
-      defaultMessage: "Planning today's activities...",
-      agentKey: 'session.agent_step_3',
-      defaultAgent: 'Curriculum · Activity',
-    },
-    {
-      id: 'safety',
-      messageKey: 'session.status_step_4',
-      defaultMessage: "Double-checking everything's ready for students...",
-      agentKey: 'session.agent_step_4',
-      defaultAgent: 'Safety',
-    },
-  ];
+  const startSessionFlow = async () => {
+    setEvents([]);
+    setErrorTraceback(null);
+    setElapsedSeconds(0);
 
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isReadyState, setIsReadyState] = useState(false);
-  const [apiResult, setApiResult] = useState(null);
-  const [apiError, setApiError] = useState(null);
-  const [isApiLoading, setIsApiLoading] = useState(true);
-
-  // Trigger real backend API call
-  const triggerApiCall = async () => {
-    setIsApiLoading(true);
-    setApiError(null);
     try {
-      const rawResult = await startSession(sessionPayload);
-      const normalized = normalizeCycle(rawResult);
-      const enriched = {
-        ...normalized,
-        duration_minutes: sessionPayload.duration_minutes || normalized.duration_minutes || 40,
-        grade_selection: sessionPayload.grade_selection || normalized.grade_selection || [],
-        resources: sessionPayload.resources || normalized.resources || {},
-        included_gov_sessions: sessionPayload.included_gov_sessions || {},
-        started_at: Date.now(),
-      };
-      setApiResult(enriched);
-      setIsApiLoading(false);
+      // 1. POST start session (returns instantly with { session_id, status: "running" })
+      const res = await startSession(sessionPayload);
+      const sid = res.session_id;
+      if (!sid) {
+        throw new Error('Backend failed to return a session_id');
+      }
+
+      // 2. Open SSE stream
+      const es = streamSessionEvents(sid, (data) => {
+        if (data.event === 'done') {
+          es.close();
+          if (data.status === 'ready' && data.result) {
+            const normalized = normalizeCycle(data.result);
+            const enriched = {
+              ...normalized,
+              duration_minutes: sessionPayload?.duration_minutes || normalized?.duration_minutes || 40,
+              grade_selection: sessionPayload?.grade_selection || normalized?.grade_selection || [],
+              resources: sessionPayload?.resources || normalized?.resources || {},
+              started_at: Date.now(),
+            };
+            if (handleReadyCallback) {
+              handleReadyCallback(enriched);
+            }
+          } else {
+            setErrorTraceback(data.error || 'Agent orchestration encountered an unhandled error.');
+          }
+        } else {
+          setEvents((prev) => [...prev, data]);
+        }
+      });
+
+      return es;
     } catch (err) {
-      console.error('Failed to start session via backend:', err);
-      setApiError(err.message || 'Agent orchestration failed. Please verify backend service.');
-      setIsApiLoading(false);
+      console.error('Failed to start session:', err);
+      setErrorTraceback(err.message || 'Failed to connect to Saarthi backend.');
+      return null;
     }
   };
 
   useEffect(() => {
-    triggerApiCall();
-  }, []);
+    let esInstance = null;
+    let timer = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
 
-  // Sequential progression timer
-  useEffect(() => {
-    let timer;
-    let completionTimer;
-
-    if (!apiError) {
-      if (currentStepIndex < STATUS_STEPS.length) {
-        timer = setTimeout(() => {
-          setCurrentStepIndex((prev) => prev + 1);
-        }, 500);
-      } else if (currentStepIndex >= STATUS_STEPS.length && !isApiLoading && apiResult && !isReadyState) {
-        setIsReadyState(true);
-      }
-    }
-
-    if (isReadyState && apiResult) {
-      completionTimer = setTimeout(() => {
-        if (onComplete) {
-          onComplete(apiResult);
-        }
-      }, 600);
-    }
+    startSessionFlow().then((es) => {
+      esInstance = es;
+    });
 
     return () => {
-      if (timer) clearTimeout(timer);
-      if (completionTimer) clearTimeout(completionTimer);
+      clearInterval(timer);
+      if (esInstance) esInstance.close();
     };
-  }, [currentStepIndex, isReadyState, isApiLoading, apiResult, apiError, onComplete]);
+  }, []);
 
-  // Compute grade status ('ready', 'working', 'pending') for each grade dynamically
-  const getGradeStatus = (index) => {
-    if (isReadyState || currentStepIndex >= STATUS_STEPS.length) return 'ready';
-    const totalGrades = gradeSelection.length;
-    const workingGradeIndex = Math.min(
-      totalGrades - 1,
-      Math.floor((currentStepIndex * totalGrades) / STATUS_STEPS.length)
-    );
-    if (index < workingGradeIndex) return 'ready';
-    if (index === workingGradeIndex) return 'working';
-    return 'pending';
+  // Auto-scroll feed to bottom when new events arrive
+  useEffect(() => {
+    feedEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [events]);
+
+  const getAgentBadgeColor = (agent) => {
+    switch (agent) {
+      case 'ProgressAgent':
+        return 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/20';
+      case 'CurriculumAgent':
+        return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20';
+      case 'ResourceAgent':
+        return 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20';
+      case 'ActivityAgent':
+        return 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20';
+      case 'SafetyGate':
+        return 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20';
+      case 'OrchestratorAgent':
+      case 'Orchestrator':
+        return 'bg-amber-500/10 text-amber-800 dark:text-amber-200 border-amber-500/30 font-bold';
+      default:
+        return 'bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20';
+    }
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 py-4 sm:py-8 px-2 sm:px-4">
-      {apiError ? (
-        <div className="liquid-glass-card rounded-[24px] p-8 sm:p-12 text-center space-y-5 max-w-xl mx-auto border border-red-500/30 bg-red-500/[0.03]">
-          <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-600 dark:text-red-400 shadow-md">
-            <AlertCircle className="w-7 h-7" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A] dark:text-[#F5F5F5] font-heading">
+    <div className="w-full max-w-4xl mx-auto space-y-6 py-4 sm:py-6 px-2 sm:px-4 animate-fade-in-up">
+      {errorTraceback ? (
+        <div className="liquid-glass-card rounded-[24px] p-6 sm:p-8 space-y-4 max-w-3xl mx-auto border border-red-500/30 bg-red-500/[0.03]">
+          <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
+            <AlertCircle className="w-6 h-6 shrink-0" />
+            <h2 className="text-lg font-bold font-heading text-[#0A0A0A] dark:text-[#F5F5F5]">
               Classroom Preparation Failed
             </h2>
-            <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 font-medium leading-relaxed">
-              {apiError}
-            </p>
           </div>
-          <div className="pt-2 flex items-center justify-center gap-3">
+          <div className="bg-black/90 text-red-300 font-mono text-xs p-4 rounded-xl max-h-72 overflow-y-auto whitespace-pre-wrap select-text border border-red-900/50">
+            {errorTraceback}
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
             {onCancel && (
               <button
                 type="button"
                 onClick={onCancel}
-                className="liquid-glass-btn-secondary px-5 py-2.5 rounded-xl text-xs font-semibold cursor-pointer"
+                className="liquid-glass-btn-secondary px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer"
               >
                 Back to Setup
               </button>
             )}
             <button
               type="button"
-              onClick={triggerApiCall}
-              className="liquid-glass-btn-primary px-5 py-2.5 rounded-xl text-xs font-semibold inline-flex items-center gap-2 cursor-pointer"
+              onClick={startSessionFlow}
+              className="liquid-glass-btn-primary px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-2 cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Retry Session Setup</span>
             </button>
           </div>
         </div>
-      ) : isReadyState ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-6 animate-fade-in-up">
-          {/* Subtle Liquid Glass Checkmark Disc */}
-          <div className="w-16 h-16 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shadow-lg text-emerald-600 dark:text-emerald-400">
-            <Check className="w-8 h-8 stroke-[2.5]" />
-          </div>
-
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight text-[#0A0A0A] dark:text-[#F5F5F5] font-heading">
-              {t('session.ready_heading', 'Ready')}
-            </h2>
-            <p className="text-sm text-[#6E6E6E] dark:text-[#A3A3A3]">
-              {t('session.ready_subtitle', 'Your classroom is prepared.')}
-            </p>
-          </div>
-        </div>
       ) : (
-        /* AGENTS WORKING ORCHESTRATION VIEW */
-        <div className="space-y-8 animate-fade-in-up">
-          {/* Header */}
-          <div className="space-y-1.5 border-b border-black/[0.06] dark:border-white/[0.08] pb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0A0A0A] dark:text-[#F5F5F5] font-heading">
-              {t('session.working_heading', "Preparing today's classroom")}
-            </h1>
-            <p className="text-sm text-[#6E6E6E] dark:text-[#A3A3A3]">
-              {t('session.working_subtitle', 'Saarthi is coordinating the first plan for each grade.')}
-            </p>
-          </div>
-
-          {/* Grid Layout: Left Column (Status Sequence) | Right Column (Liquid Glass Multi-Grade Panel) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            {/* Sequential Agent Status Column */}
-            <div className="md:col-span-7 space-y-4">
-              {STATUS_STEPS.map((step, index) => {
-                const isCompleted = index < currentStepIndex;
-                const isActive = index === currentStepIndex;
-
-                return (
-                  <div
-                    key={step.id}
-                    className={`flex items-start gap-4 p-4 rounded-2xl transition-all duration-300 border ${
-                      isActive
-                        ? 'liquid-glass-card border-black/15 dark:border-white/20 bg-white/70 dark:bg-white/[0.08] shadow-md'
-                        : isCompleted
-                        ? 'border-transparent bg-black/[0.02] dark:bg-white/[0.02] opacity-90'
-                        : 'border-transparent opacity-40'
-                    }`}
-                  >
-                    {/* Status Indicator Disc */}
-                    <div className="mt-0.5 shrink-0">
-                      {isCompleted ? (
-                        <div className="w-5 h-5 rounded-full bg-[#0A0A0A] dark:bg-white text-white dark:text-[#0A0A0A] flex items-center justify-center text-[10px] font-bold shadow-xs">
-                          ✓
-                        </div>
-                      ) : isActive ? (
-                        <div className="w-5 h-5 rounded-full border border-black/30 dark:border-white/40 flex items-center justify-center">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#0A0A0A] dark:bg-white animate-subtle-pulse" />
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-black/20 dark:border-white/20 flex items-center justify-center">
-                          <span className="w-1.5 h-1.5 rounded-full bg-black/20 dark:bg-white/20" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Message & Agent Label */}
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span
-                          className={`text-sm leading-snug ${
-                            isActive
-                              ? 'font-semibold text-[#0A0A0A] dark:text-[#F5F5F5]'
-                              : isCompleted
-                              ? 'font-medium text-[#0A0A0A] dark:text-[#F5F5F5]'
-                              : 'text-[#6E6E6E] dark:text-[#A3A3A3]'
-                          }`}
-                        >
-                          {t(step.messageKey, step.defaultMessage)}
-                        </span>
-                        {isCompleted && (
-                          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 shrink-0 flex items-center gap-1">
-                            ✓ {t('session.status_completed', 'Completed')}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] font-normal">
-                        {t(step.agentKey, step.defaultAgent)}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+        <div className="space-y-6">
+          {/* Header Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/[0.08] pb-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0A0A0A] dark:text-[#F5F5F5] font-heading flex items-center gap-2.5">
+                <span>{t('session.working_heading', "Preparing today's classroom")}</span>
+                <Sparkles className="w-5 h-5 text-amber-500 animate-subtle-pulse" />
+              </h1>
+              <p className="text-xs sm:text-sm text-[#6E6E6E] dark:text-[#A3A3A3]">
+                {t('session.working_subtitle', 'Saarthi multi-agent orchestration engine is reasoning live.')}
+              </p>
             </div>
 
-            {/* Multi-Grade Liquid Glass Panel Column */}
-            <div className="md:col-span-5">
-              <div className="liquid-glass-card rounded-[24px] p-6 space-y-5 border border-black/[0.08] dark:border-white/[0.12] shadow-lg">
-                {/* Panel Header */}
-                <div className="border-b border-black/[0.06] dark:border-white/[0.08] pb-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[#6E6E6E] dark:text-[#A3A3A3]">
-                    {t('session.panel_title', 'Classroom preparation')}
-                  </h3>
-                </div>
+            {/* Live Counter Badge */}
+            <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>Agents reasoning… {elapsedSeconds}s</span>
+            </div>
+          </div>
 
-                {/* Selected Grades Rows */}
-                <div className="space-y-2.5">
-                  {gradeSelection.map((item, idx) => {
-                    const status = getGradeStatus(idx);
+          {/* Live Agent Event Stream Container */}
+          <div className="liquid-glass-card rounded-[24px] p-4 sm:p-6 space-y-3 border border-black/[0.08] dark:border-white/[0.12] shadow-lg">
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] pb-3 text-xs font-semibold text-[#6E6E6E] dark:text-[#A3A3A3]">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-sky-500" />
+                <span>LIVE AGENT REASONING FEED</span>
+              </div>
+              <span className="text-[11px] font-normal font-mono text-[#6E6E6E] dark:text-[#A3A3A3]">
+                {events.length} events logged
+              </span>
+            </div>
+
+            {/* Event List Feed */}
+            <div className="h-[420px] overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+              {events.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-xs text-[#6E6E6E] dark:text-[#A3A3A3] italic gap-2">
+                  <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+                  <span>Connecting to live agent trace stream...</span>
+                </div>
+              ) : (
+                events.map((ev, index) => {
+                  const isOrchestratorDecision = ev.event === 'orchestrator_decision';
+                  const timeStr = ev.ts ? new Date(ev.ts * 1000).toLocaleTimeString() : '';
+
+                  if (isOrchestratorDecision) {
                     return (
                       <div
-                        key={item.grade}
-                        className="flex items-center justify-between p-3.5 rounded-xl bg-white/40 dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] text-xs transition-all duration-300"
+                        key={ev.id || index}
+                        className="my-2 p-3 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-900 dark:text-amber-100 text-xs shadow-xs space-y-1"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5]">
-                            Grade {item.grade}
+                        <div className="flex items-center justify-between font-bold text-[11px] uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                          <span className="flex items-center gap-1.5">
+                            ⚡ Orchestrator Priority Action
                           </span>
-                          <span className="text-[#6E6E6E] dark:text-[#A3A3A3]">
-                            {item.subject}
-                          </span>
+                          <span className="font-mono text-[10px] opacity-75">{timeStr}</span>
                         </div>
-
-                        {/* Status Icon */}
-                        <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                          {status === 'ready' ? (
-                            <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                              ✓
-                            </span>
-                          ) : status === 'working' ? (
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#0A0A0A] dark:bg-white animate-subtle-pulse" />
-                          ) : (
-                            <span className="text-[#6E6E6E] dark:text-[#A3A3A3] text-sm">
-                              ○
-                            </span>
-                          )}
-                        </div>
+                        <p className="font-medium leading-relaxed">{ev.message}</p>
                       </div>
                     );
-                  })}
-                </div>
+                  }
 
-                {/* Panel Footer */}
-                <div className="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3]">
-                  {gradeSelection.length === 1
-                    ? t('session.panel_coordinating_single', 'Coordinating 1 grade')
-                    : t('session.panel_coordinating', `Coordinating ${gradeSelection.length} grades`).replace(
-                        '{count}',
-                        gradeSelection.length
+                  return (
+                    <div
+                      key={ev.id || index}
+                      className="flex items-start gap-2 text-xs py-1.5 px-2.5 rounded-lg border-b border-black/[0.03] dark:border-white/[0.04] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
+                    >
+                      {/* Timestamp */}
+                      <span className="text-[10px] font-mono text-[#6E6E6E] dark:text-[#A3A3A3] shrink-0 pt-0.5">
+                        {timeStr}
+                      </span>
+
+                      {/* Agent Badge */}
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border shrink-0 ${getAgentBadgeColor(
+                          ev.agent
+                        )}`}
+                      >
+                        {ev.agent}
+                      </span>
+
+                      {/* Grade Badge */}
+                      {ev.grade && (
+                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded shrink-0">
+                          G{ev.grade}
+                        </span>
                       )}
-                </div>
-              </div>
+
+                      {/* Event Content & Icon */}
+                      <span
+                        className={`flex-1 min-w-0 leading-relaxed ${
+                          ev.event === 'reasoning'
+                            ? 'italic text-[#6E6E6E] dark:text-[#A3A3A3]'
+                            : ev.event === 'tool_call'
+                            ? 'font-mono text-sky-600 dark:text-sky-400'
+                            : ev.event === 'tool_result'
+                            ? 'font-mono text-slate-500 dark:text-slate-400 text-[11px]'
+                            : ev.event === 'completed'
+                            ? 'font-medium text-emerald-700 dark:text-emerald-300'
+                            : ev.event === 'started'
+                            ? 'font-medium text-indigo-600 dark:text-indigo-400'
+                            : 'text-[#0A0A0A] dark:text-[#F5F5F5]'
+                        }`}
+                      >
+                        {ev.event === 'tool_call'
+                          ? '🔧 '
+                          : ev.event === 'completed'
+                          ? '✅ '
+                          : ev.event === 'started'
+                          ? '▶ '
+                          : ev.event === 'reasoning'
+                          ? '💭 '
+                          : '💬 '}
+                        {ev.message}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={feedEndRef} />
             </div>
           </div>
         </div>

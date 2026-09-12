@@ -301,6 +301,42 @@ export default function ActiveSessionView({ session, onEndSession, onUpdateSessi
             const delAct = sup.delivered_activity;
             const govSess = sup.gov_session;
 
+            const specEvals = cycle_record?.specialist_evaluations || {};
+            const gk = sup.grade_key || `Grade_${sup.grade}_${normSubj(sup.subject)}`;
+            let specEval = specEvals[gk];
+            if (!specEval) {
+              const matchedKey = Object.keys(specEvals).find((k) => {
+                const ev = specEvals[k];
+                return String(ev?.grade) === String(sup.grade) || k.includes(`_${sup.grade}_`) || k.includes(`Grade_${sup.grade}`);
+              });
+              specEval = matchedKey ? specEvals[matchedKey] : null;
+            }
+
+            const pDiag = specEval?.progress_diag;
+            const cDec = specEval?.curriculum_dec;
+            const rRec = specEval?.resource_rec;
+            const aDes = specEval?.activity_design;
+            const sVerd = specEval?.safety_verdict;
+            const gradesState = shared_state?.grades || {};
+            const gData = gradesState[gk] || gradesState[String(sup.grade)] || gradesState[`Grade_${sup.grade}_Math`] || {};
+            const rosterSize = gData?.roster_size ?? '—';
+            const hist = gData?.history || [];
+            const lastSess = hist.length > 0 ? hist[hist.length - 1] : null;
+            const avgCorrPct = lastSess?.avg_correctness != null ? Math.round(lastSess.avg_correctness * 100) : '—';
+            const below60Count = lastSess?.below_60_count ?? '—';
+
+            const aggErrs = {};
+            hist.forEach((s) => {
+              if (s.error_tags && typeof s.error_tags === 'object') {
+                Object.entries(s.error_tags).forEach(([k, v]) => {
+                  aggErrs[k] = (aggErrs[k] || 0) + (typeof v === 'number' ? v : 1);
+                });
+              }
+            });
+            const topErrEntries = Object.entries(aggErrs).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const tabletsAvail = gData?.resources?.tablets ?? '—';
+            const tabletsInsuff = typeof tabletsAvail === 'number' && typeof rosterSize === 'number' && tabletsAvail < rosterSize;
+
             return (
               <div
                 key={idx}
@@ -324,7 +360,46 @@ export default function ActiveSessionView({ session, onEndSession, onUpdateSessi
                     )}
                   </div>
 
-                  <div className="space-y-1 text-xs">
+                  <div className="space-y-1.5 text-xs">
+                    {/* 👥 Roster row */}
+                    <div className="flex items-center justify-between text-[#6E6E6E] dark:text-[#A3A3A3]">
+                      <span>👥 Roster:</span>
+                      <span className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5]">
+                        {rosterSize !== '—' ? `${rosterSize} students` : '—'}
+                      </span>
+                    </div>
+
+                    {/* 📊 Last session row */}
+                    <div className="flex items-center justify-between text-[#6E6E6E] dark:text-[#A3A3A3]">
+                      <span>📊 Last session:</span>
+                      <span className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5]">
+                        {avgCorrPct !== '—' ? `avg ${avgCorrPct}%, ${below60Count}/${rosterSize} below 60%` : '—'}
+                      </span>
+                    </div>
+
+                    {/* ⚠️ Top error tags row */}
+                    <div className="flex items-start justify-between text-[#6E6E6E] dark:text-[#A3A3A3] gap-2">
+                      <span className="shrink-0">⚠️ Top error tags:</span>
+                      <span className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5] text-right truncate max-w-[200px]" title={topErrEntries.map(([spot, cnt]) => `${spot}: ${cnt}`).join(', ')}>
+                        {topErrEntries.length > 0 ? topErrEntries.map(([spot, cnt]) => `${spot}: ${cnt}`).join(', ') : '—'}
+                      </span>
+                    </div>
+
+                    {/* 📦 Resources row */}
+                    <div className="flex items-center justify-between text-[#6E6E6E] dark:text-[#A3A3A3]">
+                      <span>📦 Resources:</span>
+                      <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                        <span className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5]">
+                          {tabletsAvail !== '—' ? `${tabletsAvail} tablets vs ${rosterSize}` : '—'}
+                        </span>
+                        {tabletsInsuff && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30">
+                            ⚠️ Insufficient tablets
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <span className="text-[#6E6E6E] dark:text-[#A3A3A3]">
                         {govSess ? 'Government Session:' : 'Decided Topic:'}
@@ -362,6 +437,118 @@ export default function ActiveSessionView({ session, onEndSession, onUpdateSessi
                     </div>
                   </div>
                 )}
+
+                {/* Agent Reasoning Trail Collapsible Section */}
+                <details className="group mt-3 pt-3 border-t border-black/[0.05] dark:border-white/[0.08] text-xs transition-all duration-200">
+                  <summary className="font-semibold text-[#0A0A0A] dark:text-[#F5F5F5] cursor-pointer hover:text-amber-500 transition-colors flex items-center justify-between select-none py-1">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Agent Reasoning Trail</span>
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 text-[#6E6E6E] dark:text-[#A3A3A3] group-open:rotate-180 transition-transform" />
+                  </summary>
+
+                  <div className="mt-2.5 space-y-2.5 pl-1">
+                    {/* 1. Progress Agent */}
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-[11px] text-cyan-600 dark:text-cyan-400">
+                          Progress Agent
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap text-[10px]">
+                          <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                            Mastery: {pDiag?.mastery_estimate ?? 'developing'}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium">
+                            Trend: {pDiag?.trend ?? 'insufficient_data'}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-600 dark:text-gray-400 font-medium">
+                            Conf: {pDiag?.confidence ?? 'medium'}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] leading-relaxed">
+                        {pDiag?.explanation ?? 'No diagnosis detail provided.'}
+                      </p>
+                    </div>
+
+                    {/* 2. Curriculum Agent */}
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-[11px] text-amber-600 dark:text-amber-400">
+                          Curriculum Agent
+                        </span>
+                        <div className="flex items-center gap-1.5 text-[10px]">
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+                            Pacing: {cDec?.pacing_decision ?? 'hold'}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium truncate max-w-[120px]">
+                            {cDec?.decided_topic ?? sup.decided_topic ?? 'Standard Topic'}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] leading-relaxed">
+                        {cDec?.reasoning ?? cDec?.explanation ?? 'No curriculum reasoning provided.'}
+                      </p>
+                    </div>
+
+                    {/* 3. Resource Agent */}
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-[11px] text-indigo-600 dark:text-indigo-400">
+                          Resource Agent
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium text-[10px]">
+                          {rRec?.recommended_resource ?? sup.recommended_resource ?? 'Printable Worksheet'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] leading-relaxed">
+                        {rRec?.rationale ?? rRec?.reasoning ?? rRec?.explanation ?? 'No resource rationale provided.'}
+                      </p>
+                    </div>
+
+                    {/* 4. Activity Agent */}
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
+                          Activity Agent
+                        </span>
+                        <div className="flex items-center gap-1.5 text-[10px]">
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+                            {aDes?.activity_type ?? 'printable_worksheet'}
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-gray-500/10 text-gray-600 dark:text-gray-400 font-medium">
+                            {aDes?.estimated_time_minutes ? `${aDes.estimated_time_minutes} min` : '10 min'}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] leading-relaxed">
+                        {aDes?.design_rationale ?? aDes?.explanation ?? aDes?.content?.instructions ?? 'Interactive practice activity.'}
+                      </p>
+                    </div>
+
+                    {/* 5. Safety Gate */}
+                    <div className="p-2.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-[11px] text-rose-600 dark:text-rose-400">
+                          Safety Gate
+                        </span>
+                        {isPassed ? (
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
+                            APPROVED
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded bg-red-500/15 text-red-600 dark:text-red-400 font-semibold text-[10px]">
+                            REJECTED ({sVerd?.action ?? 'Failed'})
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#6E6E6E] dark:text-[#A3A3A3] leading-relaxed">
+                        {sVerd?.explanation ?? 'Passed all safety and pedagogical quality checks.'}
+                      </p>
+                    </div>
+                  </div>
+                </details>
               </div>
             );
           })}

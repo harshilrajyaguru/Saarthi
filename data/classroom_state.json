@@ -256,51 +256,2268 @@
   ],
   "grades": {
     "Grade_3_Math": {
-      "current_topic": "Fractions - introduction",
-      "pacing_decision": "advance",
-      "mastery_estimate": "developing",
-      "attention_flag": false,
-      "recommended_resource": "printable_worksheet",
-      "activity_status": "passed_safety_gate",
-      "last_evaluation_date": "2026-09-04T00:00:00Z"
+      "grade": "3",
+      "subject": "Math",
+      "current_topic": "Equivalent fractions",
+      "roster_size": 25,
+      "mastery_level": "developing",
+      "curriculum_position": "Chapter 3: Fractions",
+      "history": [
+        {
+          "date": "2026-08-20",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.65,
+          "avg_completion": 0.8,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 3
+          },
+          "below_60_count": 3,
+          "per_student_scores": {
+            "s3_1": 65,
+            "s3_2": 65,
+            "s3_3": 65,
+            "s3_4": 65,
+            "s3_5": 65,
+            "s3_6": 65,
+            "s3_7": 65,
+            "s3_8": 65,
+            "s3_9": 65,
+            "s3_10": 65,
+            "s3_11": 65,
+            "s3_12": 65,
+            "s3_13": 65,
+            "s3_14": 65,
+            "s3_15": 65,
+            "s3_16": 65,
+            "s3_17": 65,
+            "s3_18": 65,
+            "s3_19": 65,
+            "s3_20": 65,
+            "s3_21": 65,
+            "s3_22": 65,
+            "s3_23": 65,
+            "s3_24": 65,
+            "s3_25": 65
+          }
+        },
+        {
+          "date": "2026-08-23",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.66,
+          "avg_completion": 0.82,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 3
+          },
+          "below_60_count": 3,
+          "per_student_scores": {
+            "s3_1": 66,
+            "s3_2": 66,
+            "s3_3": 66,
+            "s3_4": 66,
+            "s3_5": 66,
+            "s3_6": 66,
+            "s3_7": 66,
+            "s3_8": 66,
+            "s3_9": 66,
+            "s3_10": 66,
+            "s3_11": 66,
+            "s3_12": 66,
+            "s3_13": 66,
+            "s3_14": 66,
+            "s3_15": 66,
+            "s3_16": 66,
+            "s3_17": 66,
+            "s3_18": 66,
+            "s3_19": 66,
+            "s3_20": 66,
+            "s3_21": 66,
+            "s3_22": 66,
+            "s3_23": 66,
+            "s3_24": 66,
+            "s3_25": 66
+          }
+        },
+        {
+          "date": "2026-08-26",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.67,
+          "avg_completion": 0.85,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 67,
+            "s3_2": 67,
+            "s3_3": 67,
+            "s3_4": 67,
+            "s3_5": 67,
+            "s3_6": 67,
+            "s3_7": 67,
+            "s3_8": 67,
+            "s3_9": 67,
+            "s3_10": 67,
+            "s3_11": 67,
+            "s3_12": 67,
+            "s3_13": 67,
+            "s3_14": 67,
+            "s3_15": 67,
+            "s3_16": 67,
+            "s3_17": 67,
+            "s3_18": 67,
+            "s3_19": 67,
+            "s3_20": 67,
+            "s3_21": 67,
+            "s3_22": 67,
+            "s3_23": 67,
+            "s3_24": 67,
+            "s3_25": 67
+          }
+        },
+        {
+          "date": "2026-08-29",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.68,
+          "avg_completion": 0.88,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 68,
+            "s3_2": 68,
+            "s3_3": 68,
+            "s3_4": 68,
+            "s3_5": 68,
+            "s3_6": 68,
+            "s3_7": 68,
+            "s3_8": 68,
+            "s3_9": 68,
+            "s3_10": 68,
+            "s3_11": 68,
+            "s3_12": 68,
+            "s3_13": 68,
+            "s3_14": 68,
+            "s3_15": 68,
+            "s3_16": 68,
+            "s3_17": 68,
+            "s3_18": 68,
+            "s3_19": 68,
+            "s3_20": 68,
+            "s3_21": 68,
+            "s3_22": 68,
+            "s3_23": 68,
+            "s3_24": 68,
+            "s3_25": 68
+          }
+        },
+        {
+          "date": "2026-09-01",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.7,
+          "avg_completion": 0.9,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 70,
+            "s3_2": 70,
+            "s3_3": 70,
+            "s3_4": 70,
+            "s3_5": 70,
+            "s3_6": 70,
+            "s3_7": 70,
+            "s3_8": 70,
+            "s3_9": 70,
+            "s3_10": 70,
+            "s3_11": 70,
+            "s3_12": 70,
+            "s3_13": 70,
+            "s3_14": 70,
+            "s3_15": 70,
+            "s3_16": 70,
+            "s3_17": 70,
+            "s3_18": 70,
+            "s3_19": 70,
+            "s3_20": 70,
+            "s3_21": 70,
+            "s3_22": 70,
+            "s3_23": 70,
+            "s3_24": 70,
+            "s3_25": 70
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "confusing numerator/denominator when scaling",
+          "first_seen": "2026-08-15",
+          "last_seen": "2026-09-01",
+          "affected_students": 8,
+          "occurrences": 12
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s3_1",
+          "name": "Student 3_1",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_2",
+          "name": "Student 3_2",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_3",
+          "name": "Student 3_3",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_4",
+          "name": "Student 3_4",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_5",
+          "name": "Student 3_5",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_6",
+          "name": "Student 3_6",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_7",
+          "name": "Student 3_7",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_8",
+          "name": "Student 3_8",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_9",
+          "name": "Student 3_9",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_10",
+          "name": "Student 3_10",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_11",
+          "name": "Student 3_11",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_12",
+          "name": "Student 3_12",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_13",
+          "name": "Student 3_13",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_14",
+          "name": "Student 3_14",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_15",
+          "name": "Student 3_15",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_16",
+          "name": "Student 3_16",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_17",
+          "name": "Student 3_17",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_18",
+          "name": "Student 3_18",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_19",
+          "name": "Student 3_19",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_20",
+          "name": "Student 3_20",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_21",
+          "name": "Student 3_21",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_22",
+          "name": "Student 3_22",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_23",
+          "name": "Student 3_23",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_24",
+          "name": "Student 3_24",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_25",
+          "name": "Student 3_25",
+          "ability": "developing"
+        }
+      ],
+      "resources": {
+        "tablets": 25,
+        "printer_paper_sheets": 500,
+        "tv": true,
+        "internet": true
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
+    },
+    "3": {
+      "grade": "3",
+      "subject": "Math",
+      "current_topic": "Equivalent fractions",
+      "roster_size": 25,
+      "mastery_level": "developing",
+      "curriculum_position": "Chapter 3: Fractions",
+      "history": [
+        {
+          "date": "2026-08-20",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.65,
+          "avg_completion": 0.8,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 3
+          },
+          "below_60_count": 3,
+          "per_student_scores": {
+            "s3_1": 65,
+            "s3_2": 65,
+            "s3_3": 65,
+            "s3_4": 65,
+            "s3_5": 65,
+            "s3_6": 65,
+            "s3_7": 65,
+            "s3_8": 65,
+            "s3_9": 65,
+            "s3_10": 65,
+            "s3_11": 65,
+            "s3_12": 65,
+            "s3_13": 65,
+            "s3_14": 65,
+            "s3_15": 65,
+            "s3_16": 65,
+            "s3_17": 65,
+            "s3_18": 65,
+            "s3_19": 65,
+            "s3_20": 65,
+            "s3_21": 65,
+            "s3_22": 65,
+            "s3_23": 65,
+            "s3_24": 65,
+            "s3_25": 65
+          }
+        },
+        {
+          "date": "2026-08-23",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.66,
+          "avg_completion": 0.82,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 3
+          },
+          "below_60_count": 3,
+          "per_student_scores": {
+            "s3_1": 66,
+            "s3_2": 66,
+            "s3_3": 66,
+            "s3_4": 66,
+            "s3_5": 66,
+            "s3_6": 66,
+            "s3_7": 66,
+            "s3_8": 66,
+            "s3_9": 66,
+            "s3_10": 66,
+            "s3_11": 66,
+            "s3_12": 66,
+            "s3_13": 66,
+            "s3_14": 66,
+            "s3_15": 66,
+            "s3_16": 66,
+            "s3_17": 66,
+            "s3_18": 66,
+            "s3_19": 66,
+            "s3_20": 66,
+            "s3_21": 66,
+            "s3_22": 66,
+            "s3_23": 66,
+            "s3_24": 66,
+            "s3_25": 66
+          }
+        },
+        {
+          "date": "2026-08-26",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.67,
+          "avg_completion": 0.85,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 67,
+            "s3_2": 67,
+            "s3_3": 67,
+            "s3_4": 67,
+            "s3_5": 67,
+            "s3_6": 67,
+            "s3_7": 67,
+            "s3_8": 67,
+            "s3_9": 67,
+            "s3_10": 67,
+            "s3_11": 67,
+            "s3_12": 67,
+            "s3_13": 67,
+            "s3_14": 67,
+            "s3_15": 67,
+            "s3_16": 67,
+            "s3_17": 67,
+            "s3_18": 67,
+            "s3_19": 67,
+            "s3_20": 67,
+            "s3_21": 67,
+            "s3_22": 67,
+            "s3_23": 67,
+            "s3_24": 67,
+            "s3_25": 67
+          }
+        },
+        {
+          "date": "2026-08-29",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.68,
+          "avg_completion": 0.88,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 68,
+            "s3_2": 68,
+            "s3_3": 68,
+            "s3_4": 68,
+            "s3_5": 68,
+            "s3_6": 68,
+            "s3_7": 68,
+            "s3_8": 68,
+            "s3_9": 68,
+            "s3_10": 68,
+            "s3_11": 68,
+            "s3_12": 68,
+            "s3_13": 68,
+            "s3_14": 68,
+            "s3_15": 68,
+            "s3_16": 68,
+            "s3_17": 68,
+            "s3_18": 68,
+            "s3_19": 68,
+            "s3_20": 68,
+            "s3_21": 68,
+            "s3_22": 68,
+            "s3_23": 68,
+            "s3_24": 68,
+            "s3_25": 68
+          }
+        },
+        {
+          "date": "2026-09-01",
+          "topic": "Equivalent fractions",
+          "avg_correctness": 0.7,
+          "avg_completion": 0.9,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "confusing numerator/denominator when scaling": 2
+          },
+          "below_60_count": 2,
+          "per_student_scores": {
+            "s3_1": 70,
+            "s3_2": 70,
+            "s3_3": 70,
+            "s3_4": 70,
+            "s3_5": 70,
+            "s3_6": 70,
+            "s3_7": 70,
+            "s3_8": 70,
+            "s3_9": 70,
+            "s3_10": 70,
+            "s3_11": 70,
+            "s3_12": 70,
+            "s3_13": 70,
+            "s3_14": 70,
+            "s3_15": 70,
+            "s3_16": 70,
+            "s3_17": 70,
+            "s3_18": 70,
+            "s3_19": 70,
+            "s3_20": 70,
+            "s3_21": 70,
+            "s3_22": 70,
+            "s3_23": 70,
+            "s3_24": 70,
+            "s3_25": 70
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "confusing numerator/denominator when scaling",
+          "first_seen": "2026-08-15",
+          "last_seen": "2026-09-01",
+          "affected_students": 8,
+          "occurrences": 12
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s3_1",
+          "name": "Student 3_1",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_2",
+          "name": "Student 3_2",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_3",
+          "name": "Student 3_3",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_4",
+          "name": "Student 3_4",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_5",
+          "name": "Student 3_5",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_6",
+          "name": "Student 3_6",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_7",
+          "name": "Student 3_7",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_8",
+          "name": "Student 3_8",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_9",
+          "name": "Student 3_9",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_10",
+          "name": "Student 3_10",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_11",
+          "name": "Student 3_11",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_12",
+          "name": "Student 3_12",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_13",
+          "name": "Student 3_13",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_14",
+          "name": "Student 3_14",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_15",
+          "name": "Student 3_15",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_16",
+          "name": "Student 3_16",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_17",
+          "name": "Student 3_17",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_18",
+          "name": "Student 3_18",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_19",
+          "name": "Student 3_19",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_20",
+          "name": "Student 3_20",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_21",
+          "name": "Student 3_21",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_22",
+          "name": "Student 3_22",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_23",
+          "name": "Student 3_23",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_24",
+          "name": "Student 3_24",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s3_25",
+          "name": "Student 3_25",
+          "ability": "developing"
+        }
+      ],
+      "resources": {
+        "tablets": 25,
+        "printer_paper_sheets": 500,
+        "tv": true,
+        "internet": true
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
+    },
+    "4": {
+      "grade": "4",
+      "subject": "Math",
+      "current_topic": "Multiplying fractions",
+      "roster_size": 28,
+      "mastery_level": "struggling",
+      "curriculum_position": "Chapter 4: Advanced Fractions",
+      "history": [
+        {
+          "date": "2026-08-21",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.55,
+          "avg_completion": 0.75,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 4
+          },
+          "below_60_count": 6,
+          "per_student_scores": {
+            "s4_1": 55,
+            "s4_2": 55,
+            "s4_3": 55,
+            "s4_4": 55,
+            "s4_5": 55,
+            "s4_6": 55,
+            "s4_7": 55,
+            "s4_8": 55,
+            "s4_9": 55,
+            "s4_10": 55,
+            "s4_11": 55,
+            "s4_12": 55,
+            "s4_13": 55,
+            "s4_14": 55,
+            "s4_15": 55,
+            "s4_16": 55,
+            "s4_17": 55,
+            "s4_18": 55,
+            "s4_19": 55,
+            "s4_20": 55,
+            "s4_21": 55,
+            "s4_22": 55,
+            "s4_23": 55,
+            "s4_24": 55,
+            "s4_25": 55,
+            "s4_26": 55,
+            "s4_27": 55,
+            "s4_28": 55
+          }
+        },
+        {
+          "date": "2026-08-24",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.56,
+          "avg_completion": 0.78,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s4_1": 56,
+            "s4_2": 56,
+            "s4_3": 56,
+            "s4_4": 56,
+            "s4_5": 56,
+            "s4_6": 56,
+            "s4_7": 56,
+            "s4_8": 56,
+            "s4_9": 56,
+            "s4_10": 56,
+            "s4_11": 56,
+            "s4_12": 56,
+            "s4_13": 56,
+            "s4_14": 56,
+            "s4_15": 56,
+            "s4_16": 56,
+            "s4_17": 56,
+            "s4_18": 56,
+            "s4_19": 56,
+            "s4_20": 56,
+            "s4_21": 56,
+            "s4_22": 56,
+            "s4_23": 56,
+            "s4_24": 56,
+            "s4_25": 56,
+            "s4_26": 56,
+            "s4_27": 56,
+            "s4_28": 56
+          }
+        },
+        {
+          "date": "2026-08-27",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.58,
+          "avg_completion": 0.8,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s4_1": 58,
+            "s4_2": 58,
+            "s4_3": 58,
+            "s4_4": 58,
+            "s4_5": 58,
+            "s4_6": 58,
+            "s4_7": 58,
+            "s4_8": 58,
+            "s4_9": 58,
+            "s4_10": 58,
+            "s4_11": 58,
+            "s4_12": 58,
+            "s4_13": 58,
+            "s4_14": 58,
+            "s4_15": 58,
+            "s4_16": 58,
+            "s4_17": 58,
+            "s4_18": 58,
+            "s4_19": 58,
+            "s4_20": 58,
+            "s4_21": 58,
+            "s4_22": 58,
+            "s4_23": 58,
+            "s4_24": 58,
+            "s4_25": 58,
+            "s4_26": 58,
+            "s4_27": 58,
+            "s4_28": 58
+          }
+        },
+        {
+          "date": "2026-08-30",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.6,
+          "avg_completion": 0.82,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 4,
+          "per_student_scores": {
+            "s4_1": 60,
+            "s4_2": 60,
+            "s4_3": 60,
+            "s4_4": 60,
+            "s4_5": 60,
+            "s4_6": 60,
+            "s4_7": 60,
+            "s4_8": 60,
+            "s4_9": 60,
+            "s4_10": 60,
+            "s4_11": 60,
+            "s4_12": 60,
+            "s4_13": 60,
+            "s4_14": 60,
+            "s4_15": 60,
+            "s4_16": 60,
+            "s4_17": 60,
+            "s4_18": 60,
+            "s4_19": 60,
+            "s4_20": 60,
+            "s4_21": 60,
+            "s4_22": 60,
+            "s4_23": 60,
+            "s4_24": 60,
+            "s4_25": 60,
+            "s4_26": 60,
+            "s4_27": 60,
+            "s4_28": 60
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.62,
+          "avg_completion": 0.85,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "simplifying final fraction result": 2
+          },
+          "below_60_count": 4,
+          "per_student_scores": {
+            "s4_1": 62,
+            "s4_2": 62,
+            "s4_3": 62,
+            "s4_4": 62,
+            "s4_5": 62,
+            "s4_6": 62,
+            "s4_7": 62,
+            "s4_8": 62,
+            "s4_9": 62,
+            "s4_10": 62,
+            "s4_11": 62,
+            "s4_12": 62,
+            "s4_13": 62,
+            "s4_14": 62,
+            "s4_15": 62,
+            "s4_16": 62,
+            "s4_17": 62,
+            "s4_18": 62,
+            "s4_19": 62,
+            "s4_20": 62,
+            "s4_21": 62,
+            "s4_22": 62,
+            "s4_23": 62,
+            "s4_24": 62,
+            "s4_25": 62,
+            "s4_26": 62,
+            "s4_27": 62,
+            "s4_28": 62
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "simplifying final fraction result",
+          "first_seen": "2026-08-18",
+          "last_seen": "2026-09-02",
+          "affected_students": 10,
+          "occurrences": 15
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s4_1",
+          "name": "Student 4_1",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_2",
+          "name": "Student 4_2",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_3",
+          "name": "Student 4_3",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_4",
+          "name": "Student 4_4",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_5",
+          "name": "Student 4_5",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_6",
+          "name": "Student 4_6",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_7",
+          "name": "Student 4_7",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_8",
+          "name": "Student 4_8",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_9",
+          "name": "Student 4_9",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_10",
+          "name": "Student 4_10",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_11",
+          "name": "Student 4_11",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_12",
+          "name": "Student 4_12",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_13",
+          "name": "Student 4_13",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_14",
+          "name": "Student 4_14",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_15",
+          "name": "Student 4_15",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_16",
+          "name": "Student 4_16",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_17",
+          "name": "Student 4_17",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_18",
+          "name": "Student 4_18",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_19",
+          "name": "Student 4_19",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_20",
+          "name": "Student 4_20",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_21",
+          "name": "Student 4_21",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_22",
+          "name": "Student 4_22",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_23",
+          "name": "Student 4_23",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_24",
+          "name": "Student 4_24",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_25",
+          "name": "Student 4_25",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_26",
+          "name": "Student 4_26",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_27",
+          "name": "Student 4_27",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_28",
+          "name": "Student 4_28",
+          "ability": "developing"
+        }
+      ],
+      "resources": {
+        "tablets": 28,
+        "printer_paper_sheets": 400,
+        "tv": true,
+        "internet": true
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
     },
     "Grade_4_Math": {
-      "current_topic": "Fractions - equivalent fractions (reinforcement)",
-      "pacing_decision": "hold",
-      "mastery_estimate": "developing",
-      "attention_flag": true,
-      "recommended_resource": "whiteboard_activity",
-      "activity_status": "passed_safety_gate",
-      "last_evaluation_date": "2026-09-04T00:00:00Z"
+      "grade": "4",
+      "subject": "Math",
+      "current_topic": "Multiplying fractions",
+      "roster_size": 28,
+      "mastery_level": "struggling",
+      "curriculum_position": "Chapter 4: Advanced Fractions",
+      "history": [
+        {
+          "date": "2026-08-21",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.55,
+          "avg_completion": 0.75,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 4
+          },
+          "below_60_count": 6,
+          "per_student_scores": {
+            "s4_1": 55,
+            "s4_2": 55,
+            "s4_3": 55,
+            "s4_4": 55,
+            "s4_5": 55,
+            "s4_6": 55,
+            "s4_7": 55,
+            "s4_8": 55,
+            "s4_9": 55,
+            "s4_10": 55,
+            "s4_11": 55,
+            "s4_12": 55,
+            "s4_13": 55,
+            "s4_14": 55,
+            "s4_15": 55,
+            "s4_16": 55,
+            "s4_17": 55,
+            "s4_18": 55,
+            "s4_19": 55,
+            "s4_20": 55,
+            "s4_21": 55,
+            "s4_22": 55,
+            "s4_23": 55,
+            "s4_24": 55,
+            "s4_25": 55,
+            "s4_26": 55,
+            "s4_27": 55,
+            "s4_28": 55
+          }
+        },
+        {
+          "date": "2026-08-24",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.56,
+          "avg_completion": 0.78,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s4_1": 56,
+            "s4_2": 56,
+            "s4_3": 56,
+            "s4_4": 56,
+            "s4_5": 56,
+            "s4_6": 56,
+            "s4_7": 56,
+            "s4_8": 56,
+            "s4_9": 56,
+            "s4_10": 56,
+            "s4_11": 56,
+            "s4_12": 56,
+            "s4_13": 56,
+            "s4_14": 56,
+            "s4_15": 56,
+            "s4_16": 56,
+            "s4_17": 56,
+            "s4_18": 56,
+            "s4_19": 56,
+            "s4_20": 56,
+            "s4_21": 56,
+            "s4_22": 56,
+            "s4_23": 56,
+            "s4_24": 56,
+            "s4_25": 56,
+            "s4_26": 56,
+            "s4_27": 56,
+            "s4_28": 56
+          }
+        },
+        {
+          "date": "2026-08-27",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.58,
+          "avg_completion": 0.8,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s4_1": 58,
+            "s4_2": 58,
+            "s4_3": 58,
+            "s4_4": 58,
+            "s4_5": 58,
+            "s4_6": 58,
+            "s4_7": 58,
+            "s4_8": 58,
+            "s4_9": 58,
+            "s4_10": 58,
+            "s4_11": 58,
+            "s4_12": 58,
+            "s4_13": 58,
+            "s4_14": 58,
+            "s4_15": 58,
+            "s4_16": 58,
+            "s4_17": 58,
+            "s4_18": 58,
+            "s4_19": 58,
+            "s4_20": 58,
+            "s4_21": 58,
+            "s4_22": 58,
+            "s4_23": 58,
+            "s4_24": 58,
+            "s4_25": 58,
+            "s4_26": 58,
+            "s4_27": 58,
+            "s4_28": 58
+          }
+        },
+        {
+          "date": "2026-08-30",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.6,
+          "avg_completion": 0.82,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "simplifying final fraction result": 3
+          },
+          "below_60_count": 4,
+          "per_student_scores": {
+            "s4_1": 60,
+            "s4_2": 60,
+            "s4_3": 60,
+            "s4_4": 60,
+            "s4_5": 60,
+            "s4_6": 60,
+            "s4_7": 60,
+            "s4_8": 60,
+            "s4_9": 60,
+            "s4_10": 60,
+            "s4_11": 60,
+            "s4_12": 60,
+            "s4_13": 60,
+            "s4_14": 60,
+            "s4_15": 60,
+            "s4_16": 60,
+            "s4_17": 60,
+            "s4_18": 60,
+            "s4_19": 60,
+            "s4_20": 60,
+            "s4_21": 60,
+            "s4_22": 60,
+            "s4_23": 60,
+            "s4_24": 60,
+            "s4_25": 60,
+            "s4_26": 60,
+            "s4_27": 60,
+            "s4_28": 60
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "topic": "Multiplying fractions",
+          "avg_correctness": 0.62,
+          "avg_completion": 0.85,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "simplifying final fraction result": 2
+          },
+          "below_60_count": 4,
+          "per_student_scores": {
+            "s4_1": 62,
+            "s4_2": 62,
+            "s4_3": 62,
+            "s4_4": 62,
+            "s4_5": 62,
+            "s4_6": 62,
+            "s4_7": 62,
+            "s4_8": 62,
+            "s4_9": 62,
+            "s4_10": 62,
+            "s4_11": 62,
+            "s4_12": 62,
+            "s4_13": 62,
+            "s4_14": 62,
+            "s4_15": 62,
+            "s4_16": 62,
+            "s4_17": 62,
+            "s4_18": 62,
+            "s4_19": 62,
+            "s4_20": 62,
+            "s4_21": 62,
+            "s4_22": 62,
+            "s4_23": 62,
+            "s4_24": 62,
+            "s4_25": 62,
+            "s4_26": 62,
+            "s4_27": 62,
+            "s4_28": 62
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "simplifying final fraction result",
+          "first_seen": "2026-08-18",
+          "last_seen": "2026-09-02",
+          "affected_students": 10,
+          "occurrences": 15
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s4_1",
+          "name": "Student 4_1",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_2",
+          "name": "Student 4_2",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_3",
+          "name": "Student 4_3",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_4",
+          "name": "Student 4_4",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_5",
+          "name": "Student 4_5",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_6",
+          "name": "Student 4_6",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_7",
+          "name": "Student 4_7",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_8",
+          "name": "Student 4_8",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_9",
+          "name": "Student 4_9",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_10",
+          "name": "Student 4_10",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_11",
+          "name": "Student 4_11",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_12",
+          "name": "Student 4_12",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_13",
+          "name": "Student 4_13",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_14",
+          "name": "Student 4_14",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_15",
+          "name": "Student 4_15",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_16",
+          "name": "Student 4_16",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_17",
+          "name": "Student 4_17",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_18",
+          "name": "Student 4_18",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_19",
+          "name": "Student 4_19",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_20",
+          "name": "Student 4_20",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_21",
+          "name": "Student 4_21",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_22",
+          "name": "Student 4_22",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_23",
+          "name": "Student 4_23",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_24",
+          "name": "Student 4_24",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_25",
+          "name": "Student 4_25",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_26",
+          "name": "Student 4_26",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_27",
+          "name": "Student 4_27",
+          "ability": "developing"
+        },
+        {
+          "student_id": "s4_28",
+          "name": "Student 4_28",
+          "ability": "developing"
+        }
+      ],
+      "resources": {
+        "tablets": 28,
+        "printer_paper_sheets": 400,
+        "tv": true,
+        "internet": true
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
+    },
+    "5": {
+      "grade": "5",
+      "subject": "Math",
+      "current_topic": "Decimals - multiplication",
+      "roster_size": 30,
+      "mastery_level": "declining",
+      "curriculum_position": "Chapter 5: Decimals",
+      "history": [
+        {
+          "date": "2026-08-20",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.75,
+          "avg_completion": 0.9,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "decimal point alignment": 4
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s5_1": 75,
+            "s5_2": 75,
+            "s5_3": 75,
+            "s5_4": 75,
+            "s5_5": 75,
+            "s5_6": 75,
+            "s5_7": 75,
+            "s5_8": 75,
+            "s5_9": 75,
+            "s5_10": 75,
+            "s5_11": 75,
+            "s5_12": 75,
+            "s5_13": 75,
+            "s5_14": 75,
+            "s5_15": 75,
+            "s5_16": 75,
+            "s5_17": 75,
+            "s5_18": 75,
+            "s5_19": 75,
+            "s5_20": 75,
+            "s5_21": 75,
+            "s5_22": 75,
+            "s5_23": 75,
+            "s5_24": 75,
+            "s5_25": 75,
+            "s5_26": 75,
+            "s5_27": 75,
+            "s5_28": 75,
+            "s5_29": 75,
+            "s5_30": 75
+          }
+        },
+        {
+          "date": "2026-08-23",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.7,
+          "avg_completion": 0.85,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "decimal point alignment": 6
+          },
+          "below_60_count": 7,
+          "per_student_scores": {
+            "s5_1": 70,
+            "s5_2": 70,
+            "s5_3": 70,
+            "s5_4": 70,
+            "s5_5": 70,
+            "s5_6": 70,
+            "s5_7": 70,
+            "s5_8": 70,
+            "s5_9": 70,
+            "s5_10": 70,
+            "s5_11": 70,
+            "s5_12": 70,
+            "s5_13": 70,
+            "s5_14": 70,
+            "s5_15": 70,
+            "s5_16": 70,
+            "s5_17": 70,
+            "s5_18": 70,
+            "s5_19": 70,
+            "s5_20": 70,
+            "s5_21": 70,
+            "s5_22": 70,
+            "s5_23": 70,
+            "s5_24": 70,
+            "s5_25": 70,
+            "s5_26": 70,
+            "s5_27": 70,
+            "s5_28": 70,
+            "s5_29": 70,
+            "s5_30": 70
+          }
+        },
+        {
+          "date": "2026-08-26",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.65,
+          "avg_completion": 0.8,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "decimal point alignment": 8
+          },
+          "below_60_count": 9,
+          "per_student_scores": {
+            "s5_1": 65,
+            "s5_2": 65,
+            "s5_3": 65,
+            "s5_4": 65,
+            "s5_5": 65,
+            "s5_6": 65,
+            "s5_7": 65,
+            "s5_8": 65,
+            "s5_9": 65,
+            "s5_10": 65,
+            "s5_11": 65,
+            "s5_12": 65,
+            "s5_13": 65,
+            "s5_14": 65,
+            "s5_15": 65,
+            "s5_16": 65,
+            "s5_17": 65,
+            "s5_18": 65,
+            "s5_19": 65,
+            "s5_20": 65,
+            "s5_21": 65,
+            "s5_22": 65,
+            "s5_23": 65,
+            "s5_24": 65,
+            "s5_25": 65,
+            "s5_26": 65,
+            "s5_27": 65,
+            "s5_28": 65,
+            "s5_29": 65,
+            "s5_30": 65
+          }
+        },
+        {
+          "date": "2026-08-29",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.58,
+          "avg_completion": 0.75,
+          "teacher_signal": "declining",
+          "error_tags": {
+            "decimal point alignment": 12
+          },
+          "below_60_count": 11,
+          "per_student_scores": {
+            "s5_1": 58,
+            "s5_2": 58,
+            "s5_3": 58,
+            "s5_4": 58,
+            "s5_5": 58,
+            "s5_6": 58,
+            "s5_7": 58,
+            "s5_8": 58,
+            "s5_9": 58,
+            "s5_10": 58,
+            "s5_11": 58,
+            "s5_12": 58,
+            "s5_13": 58,
+            "s5_14": 58,
+            "s5_15": 58,
+            "s5_16": 58,
+            "s5_17": 58,
+            "s5_18": 58,
+            "s5_19": 58,
+            "s5_20": 58,
+            "s5_21": 58,
+            "s5_22": 58,
+            "s5_23": 58,
+            "s5_24": 58,
+            "s5_25": 58,
+            "s5_26": 58,
+            "s5_27": 58,
+            "s5_28": 58,
+            "s5_29": 58,
+            "s5_30": 58
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.5,
+          "avg_completion": 0.7,
+          "teacher_signal": "declining",
+          "error_tags": {
+            "decimal point alignment": 16,
+            "multiplying without decimal": 5
+          },
+          "below_60_count": 15,
+          "per_student_scores": {
+            "s5_1": 50,
+            "s5_2": 50,
+            "s5_3": 50,
+            "s5_4": 50,
+            "s5_5": 50,
+            "s5_6": 50,
+            "s5_7": 50,
+            "s5_8": 50,
+            "s5_9": 50,
+            "s5_10": 50,
+            "s5_11": 50,
+            "s5_12": 50,
+            "s5_13": 50,
+            "s5_14": 50,
+            "s5_15": 50,
+            "s5_16": 50,
+            "s5_17": 50,
+            "s5_18": 50,
+            "s5_19": 50,
+            "s5_20": 50,
+            "s5_21": 50,
+            "s5_22": 50,
+            "s5_23": 50,
+            "s5_24": 50,
+            "s5_25": 50,
+            "s5_26": 50,
+            "s5_27": 50,
+            "s5_28": 50,
+            "s5_29": 50,
+            "s5_30": 50
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "decimal point alignment",
+          "first_seen": "2026-08-20",
+          "last_seen": "2026-09-02",
+          "affected_students": 16,
+          "occurrences": 46
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s5_1",
+          "name": "Student 5_1",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_2",
+          "name": "Student 5_2",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_3",
+          "name": "Student 5_3",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_4",
+          "name": "Student 5_4",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_5",
+          "name": "Student 5_5",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_6",
+          "name": "Student 5_6",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_7",
+          "name": "Student 5_7",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_8",
+          "name": "Student 5_8",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_9",
+          "name": "Student 5_9",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_10",
+          "name": "Student 5_10",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_11",
+          "name": "Student 5_11",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_12",
+          "name": "Student 5_12",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_13",
+          "name": "Student 5_13",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_14",
+          "name": "Student 5_14",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_15",
+          "name": "Student 5_15",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_16",
+          "name": "Student 5_16",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_17",
+          "name": "Student 5_17",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_18",
+          "name": "Student 5_18",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_19",
+          "name": "Student 5_19",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_20",
+          "name": "Student 5_20",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_21",
+          "name": "Student 5_21",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_22",
+          "name": "Student 5_22",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_23",
+          "name": "Student 5_23",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_24",
+          "name": "Student 5_24",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_25",
+          "name": "Student 5_25",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_26",
+          "name": "Student 5_26",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_27",
+          "name": "Student 5_27",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_28",
+          "name": "Student 5_28",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_29",
+          "name": "Student 5_29",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_30",
+          "name": "Student 5_30",
+          "ability": "struggling"
+        }
+      ],
+      "resources": {
+        "tablets": 12,
+        "printer_paper_sheets": 500,
+        "tv": true,
+        "internet": false
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
     },
     "Grade_5_Math": {
+      "grade": "5",
+      "subject": "Math",
       "current_topic": "Decimals - multiplication",
-      "pacing_decision": "advance",
-      "mastery_estimate": "developing",
-      "attention_flag": true,
-      "recommended_resource": "whiteboard_activity",
-      "activity_status": "passed_safety_gate",
-      "last_evaluation_date": "2026-09-04T00:00:00Z"
+      "roster_size": 30,
+      "mastery_level": "declining",
+      "curriculum_position": "Chapter 5: Decimals",
+      "history": [
+        {
+          "date": "2026-08-20",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.75,
+          "avg_completion": 0.9,
+          "teacher_signal": "developing",
+          "error_tags": {
+            "decimal point alignment": 4
+          },
+          "below_60_count": 5,
+          "per_student_scores": {
+            "s5_1": 75,
+            "s5_2": 75,
+            "s5_3": 75,
+            "s5_4": 75,
+            "s5_5": 75,
+            "s5_6": 75,
+            "s5_7": 75,
+            "s5_8": 75,
+            "s5_9": 75,
+            "s5_10": 75,
+            "s5_11": 75,
+            "s5_12": 75,
+            "s5_13": 75,
+            "s5_14": 75,
+            "s5_15": 75,
+            "s5_16": 75,
+            "s5_17": 75,
+            "s5_18": 75,
+            "s5_19": 75,
+            "s5_20": 75,
+            "s5_21": 75,
+            "s5_22": 75,
+            "s5_23": 75,
+            "s5_24": 75,
+            "s5_25": 75,
+            "s5_26": 75,
+            "s5_27": 75,
+            "s5_28": 75,
+            "s5_29": 75,
+            "s5_30": 75
+          }
+        },
+        {
+          "date": "2026-08-23",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.7,
+          "avg_completion": 0.85,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "decimal point alignment": 6
+          },
+          "below_60_count": 7,
+          "per_student_scores": {
+            "s5_1": 70,
+            "s5_2": 70,
+            "s5_3": 70,
+            "s5_4": 70,
+            "s5_5": 70,
+            "s5_6": 70,
+            "s5_7": 70,
+            "s5_8": 70,
+            "s5_9": 70,
+            "s5_10": 70,
+            "s5_11": 70,
+            "s5_12": 70,
+            "s5_13": 70,
+            "s5_14": 70,
+            "s5_15": 70,
+            "s5_16": 70,
+            "s5_17": 70,
+            "s5_18": 70,
+            "s5_19": 70,
+            "s5_20": 70,
+            "s5_21": 70,
+            "s5_22": 70,
+            "s5_23": 70,
+            "s5_24": 70,
+            "s5_25": 70,
+            "s5_26": 70,
+            "s5_27": 70,
+            "s5_28": 70,
+            "s5_29": 70,
+            "s5_30": 70
+          }
+        },
+        {
+          "date": "2026-08-26",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.65,
+          "avg_completion": 0.8,
+          "teacher_signal": "struggling",
+          "error_tags": {
+            "decimal point alignment": 8
+          },
+          "below_60_count": 9,
+          "per_student_scores": {
+            "s5_1": 65,
+            "s5_2": 65,
+            "s5_3": 65,
+            "s5_4": 65,
+            "s5_5": 65,
+            "s5_6": 65,
+            "s5_7": 65,
+            "s5_8": 65,
+            "s5_9": 65,
+            "s5_10": 65,
+            "s5_11": 65,
+            "s5_12": 65,
+            "s5_13": 65,
+            "s5_14": 65,
+            "s5_15": 65,
+            "s5_16": 65,
+            "s5_17": 65,
+            "s5_18": 65,
+            "s5_19": 65,
+            "s5_20": 65,
+            "s5_21": 65,
+            "s5_22": 65,
+            "s5_23": 65,
+            "s5_24": 65,
+            "s5_25": 65,
+            "s5_26": 65,
+            "s5_27": 65,
+            "s5_28": 65,
+            "s5_29": 65,
+            "s5_30": 65
+          }
+        },
+        {
+          "date": "2026-08-29",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.58,
+          "avg_completion": 0.75,
+          "teacher_signal": "declining",
+          "error_tags": {
+            "decimal point alignment": 12
+          },
+          "below_60_count": 11,
+          "per_student_scores": {
+            "s5_1": 58,
+            "s5_2": 58,
+            "s5_3": 58,
+            "s5_4": 58,
+            "s5_5": 58,
+            "s5_6": 58,
+            "s5_7": 58,
+            "s5_8": 58,
+            "s5_9": 58,
+            "s5_10": 58,
+            "s5_11": 58,
+            "s5_12": 58,
+            "s5_13": 58,
+            "s5_14": 58,
+            "s5_15": 58,
+            "s5_16": 58,
+            "s5_17": 58,
+            "s5_18": 58,
+            "s5_19": 58,
+            "s5_20": 58,
+            "s5_21": 58,
+            "s5_22": 58,
+            "s5_23": 58,
+            "s5_24": 58,
+            "s5_25": 58,
+            "s5_26": 58,
+            "s5_27": 58,
+            "s5_28": 58,
+            "s5_29": 58,
+            "s5_30": 58
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "topic": "Decimals - multiplication",
+          "avg_correctness": 0.5,
+          "avg_completion": 0.7,
+          "teacher_signal": "declining",
+          "error_tags": {
+            "decimal point alignment": 16,
+            "multiplying without decimal": 5
+          },
+          "below_60_count": 15,
+          "per_student_scores": {
+            "s5_1": 50,
+            "s5_2": 50,
+            "s5_3": 50,
+            "s5_4": 50,
+            "s5_5": 50,
+            "s5_6": 50,
+            "s5_7": 50,
+            "s5_8": 50,
+            "s5_9": 50,
+            "s5_10": 50,
+            "s5_11": 50,
+            "s5_12": 50,
+            "s5_13": 50,
+            "s5_14": 50,
+            "s5_15": 50,
+            "s5_16": 50,
+            "s5_17": 50,
+            "s5_18": 50,
+            "s5_19": 50,
+            "s5_20": 50,
+            "s5_21": 50,
+            "s5_22": 50,
+            "s5_23": 50,
+            "s5_24": 50,
+            "s5_25": 50,
+            "s5_26": 50,
+            "s5_27": 50,
+            "s5_28": 50,
+            "s5_29": 50,
+            "s5_30": 50
+          }
+        }
+      ],
+      "trouble_spot_log": [
+        {
+          "spot": "decimal point alignment",
+          "first_seen": "2026-08-20",
+          "last_seen": "2026-09-02",
+          "affected_students": 16,
+          "occurrences": 46
+        }
+      ],
+      "roster": [
+        {
+          "student_id": "s5_1",
+          "name": "Student 5_1",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_2",
+          "name": "Student 5_2",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_3",
+          "name": "Student 5_3",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_4",
+          "name": "Student 5_4",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_5",
+          "name": "Student 5_5",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_6",
+          "name": "Student 5_6",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_7",
+          "name": "Student 5_7",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_8",
+          "name": "Student 5_8",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_9",
+          "name": "Student 5_9",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_10",
+          "name": "Student 5_10",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_11",
+          "name": "Student 5_11",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_12",
+          "name": "Student 5_12",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_13",
+          "name": "Student 5_13",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_14",
+          "name": "Student 5_14",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_15",
+          "name": "Student 5_15",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_16",
+          "name": "Student 5_16",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_17",
+          "name": "Student 5_17",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_18",
+          "name": "Student 5_18",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_19",
+          "name": "Student 5_19",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_20",
+          "name": "Student 5_20",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_21",
+          "name": "Student 5_21",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_22",
+          "name": "Student 5_22",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_23",
+          "name": "Student 5_23",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_24",
+          "name": "Student 5_24",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_25",
+          "name": "Student 5_25",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_26",
+          "name": "Student 5_26",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_27",
+          "name": "Student 5_27",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_28",
+          "name": "Student 5_28",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_29",
+          "name": "Student 5_29",
+          "ability": "struggling"
+        },
+        {
+          "student_id": "s5_30",
+          "name": "Student 5_30",
+          "ability": "struggling"
+        }
+      ],
+      "resources": {
+        "tablets": 12,
+        "printer_paper_sheets": 500,
+        "tv": true,
+        "internet": false
+      },
+      "available_resources": [
+        "tablets",
+        "printable_worksheet",
+        "tv"
+      ]
     }
   },
-  "last_updated": "2026-09-11T09:48:36.079985+00:00",
+  "last_updated": "2026-09-12T19:27:45.225023+00:00",
   "active_session": {
-    "session_id": "sess_0f135b06",
+    "session_id": "sess_9dd83caa",
     "status": "escalated",
     "active_grades": [
-      "Grade_3_Math",
-      "Grade_4_Math",
-      "Grade_5_Math"
+      "Grade_3_Social studies",
+      "Grade_5_Math",
+      "Grade_8_Math"
     ],
     "subjects": [
-      "Math",
+      "Social studies",
       "Math",
       "Math"
     ],
     "duration_minutes": 40,
     "remaining_time_minutes": 0,
     "current_cycle": 1,
-    "started_at": "2026-09-11T09:48:36.059326+00:00",
+    "started_at": "2026-09-12T19:26:10.617294+00:00",
     "classroom_resources": {
       "tablets_free": 2,
       "tv_available": true,
@@ -311,15 +2528,15 @@
       "available_time": "40m",
       "connectivity": "online",
       "teacher_constraints": {
-        "Grade_3_Math": {
-          "constraints": [],
-          "notes": ""
-        },
-        "Grade_4_Math": {
+        "Grade_3_Social studies": {
           "constraints": [],
           "notes": ""
         },
         "Grade_5_Math": {
+          "constraints": [],
+          "notes": ""
+        },
+        "Grade_8_Math": {
           "constraints": [],
           "notes": ""
         }
@@ -332,76 +2549,63 @@
     },
     "delivered_activities": [
       {
-        "activity_id": "act_7f7a7d",
-        "grade": "3",
-        "subject": "Math",
-        "topic": "Fractions - introduction",
-        "activity_type": "printable_worksheet",
-        "content": {
-          "instructions": "Use the fraction circles or drawings below to complete the worksheet. Label each part as 'numerator' or 'denominator'. Draw and label your own fractions to show equal parts.",
-          "items": [
-            "Circle the numerator in 2/4 and underline the denominator. Explain what each number means in 1-2 sentences.",
-            "Draw a circle divided into 3 equal parts. Shade 2 parts and write the fraction: _______/_______",
-            "Label the shaded part of this rectangle as a fraction. Is the shaded part more than, less than, or equal to 1/2? Explain.",
-            "Create your own fraction drawing: Divide a shape into ______ equal parts. Shade ______ parts. Write the fraction: _______/_______"
-          ],
-          "answer_key": [
-            "Numerator = 2 (parts we have), Denominator = 4 (total parts). Example explanation: Numerator shows how many parts are shaded, denominator shows how many equal parts make the whole.",
-            "Drawing of 3-part circle with 2 shaded. Fraction: 2/3",
-            "Drawing of rectangle with 3/4 shaded. Answer: More than 1/2 (since 3/4 = 0.75 > 0.5).",
-            "Student-created drawing with correct labeling. Fraction format: [number]/[total parts]"
-          ]
-        },
-        "estimated_time_minutes": 35,
-        "delivery_status": "delivered",
-        "delivered_at_cycle": 1
-      },
-      {
-        "activity_id": "act_010281",
-        "grade": "4",
-        "subject": "Math",
-        "topic": "Fractions - equivalent fractions (reinforcement)",
-        "activity_type": "whiteboard_activity",
-        "content": {
-          "instructions": "Use whiteboard markers to complete these fraction scaling exercises. Label all numerators (top numbers) in red and denominators (bottom numbers) in blue. Explain in 1-2 words why both numbers change when scaling.",
-          "items": [
-            "Draw 1/2 and 2/4 on whiteboard: circle top as numerator (red) and box bottom as denominator (blue).",
-            "Scale 1/3 to 2/6: show how numerator (1\u21922) and denominator (3\u21926) both multiply by 2.",
-            "Create your own example: scale 1/4 to 3/12. Label and explain the pattern.",
-            "Compare 1/2 vs 2/4: use arrows to show how the fraction bar grows and label parts."
-          ],
-          "answer_key": [
-            "1/2 (red numerator) and 2/4 (red numerator) with blue denominators; scaling doubles both parts",
-            "Numerator 1\u00d72=2, denominator 3\u00d72=6; scaling factor of 2 maintains equivalence",
-            "Numerator 1\u00d73=3, denominator 4\u00d73=12; scaling factor of 3 preserves value",
-            "Arrows show fraction bar length doubles; numerator and denominator both increase proportionally"
-          ]
-        },
-        "estimated_time_minutes": 35,
-        "delivery_status": "delivered",
-        "delivered_at_cycle": 1
-      },
-      {
-        "activity_id": "act_c40514",
+        "activity_id": "act_26c105",
         "grade": "5",
         "subject": "Math",
-        "topic": "Decimals - multiplication",
+        "topic": "Decimals - addition",
         "activity_type": "whiteboard_activity",
         "content": {
-          "instructions": "Use your whiteboard to solve these decimal multiplication problems. Focus on aligning decimal points correctly. Show all steps. After solving, compare your answers with a partner and discuss any differences in alignment.",
+          "instructions": "You will be working with your whiteboard and marker to practice adding decimals while making sure the decimal points line up correctly. Follow the steps below:\n\n1. **Set up a column**: Write a space for the whole number part and a space for the decimal part on the board. For example, draw two columns side by side, one for the whole number and one for the decimal.\n2. **Place the numbers**: Write the first decimal on the left column, then the second decimal below it. Use a small dot to mark the decimal point and keep the dot in the same vertical line for both numbers.\n3. **Align the decimal points**: If the decimals have different numbers of places after the decimal point, add zeros to the right of the number with fewer places so that both have the same number of decimal places.\n4. **Add the numbers**: Starting from the rightmost digit, add each column and carry over when you reach 10.\n5. **Write the answer**: Place the result in the same two-column format.\n6. **Check your work**: Make sure the decimal points are aligned in the answer and that you have carried over correctly.\n\nYou will do 10 practice problems. Work at your own pace but try to finish each within 3 minutes. The teacher will circulate to help if you get stuck.\n\nWhen you finish, share your final answers with the class for a quick check.",
           "items": [
-            "Problem 1: 2.5 x 3.2 (Align decimals vertically first)",
-            "Problem 2: 0.4 x 0.6 (Show how decimal places add up)",
-            "Problem 3: 1.25 x 0 (What happens when multiplying by zero?)",
-            "Problem 4: 0.75 x 0.4 (Place decimal in final answer)",
-            "Problem 5: 3.1 x 2.9 (Use estimation to check reasonableness)"
+            "5.2 + 3.75",
+            "12.08 + 7.4",
+            "9.5 + 0.03",
+            "0.06 + 0.009",
+            "23.1 + 4.02",
+            "1.2 + 5.3",
+            "7.99 + 2.01",
+            "3.4 + 0.005",
+            "8.01 + 6.9",
+            "12.3 + 9.89"
           ],
           "answer_key": [
-            "Problem 1: 8.0 (Align decimals: 2.5\n3.2\n-----\n8.0)",
-            "Problem 2: 0.24 (2 decimal places total; 0.4\n0.6\n-----\n0.24)",
-            "Problem 3: 0.0 (Multiplying by zero always gives zero)",
-            "Problem 4: 0.30 (2 decimal places total; 0.75\n0.4\n-----\n0.30)",
-            "Problem 5: 8.99 (Estimate: 3 x 3 = 9; exact: 3.1\n2.9\n-----\n8.99)"
+            "8.95",
+            "19.48",
+            "9.53",
+            "0.069",
+            "27.12",
+            "6.5",
+            "10.00",
+            "3.405",
+            "14.91",
+            "22.19"
+          ]
+        },
+        "estimated_time_minutes": 40,
+        "delivery_status": "delivered",
+        "delivered_at_cycle": 1
+      },
+      {
+        "activity_id": "act_d60863",
+        "grade": "8",
+        "subject": "Math",
+        "topic": "Math Concepts",
+        "activity_type": "whiteboard_activity",
+        "content": {
+          "instructions": "You will work in pairs on a large whiteboard. 1\ufe0f\u20e3 Write the fraction that represents the problem on the board. 2\ufe0f\u20e3 Show step\u2011by\u2011step how you would multiply or divide that fraction by a whole number or another fraction, being careful to keep the numerator and denominator in sync. 3\ufe0f\u20e3 After each step, shout out the new fraction and explain why the numerator or denominator changed the way it did. 4\ufe0f\u20e3 If you make a mistake, the partner will point it out and you will fix it together. 5\ufe0f\u20e3 When you finish, each pair will present their final fraction to the class. 6\ufe0f\u20e3 The teacher will ask a quick question about why the fraction changed the way it did to check understanding.",
+          "items": [
+            "Task 1: Scale 3/4 by 2. Write the original fraction and the scaled fraction. Show each intermediate step.",
+            "Task 2: Scale 5/6 by 3/2. Write the original fraction, the scaled fraction, and the steps.",
+            "Task 3: Scale 7/8 by 1/3. Write the original fraction, the scaled fraction, and the steps.",
+            "Task 4: Scale 9/10 by 0.5 (write as 1/2). Write the original fraction, the scaled fraction, and the steps.",
+            "Task 5 (Challenge): Scale 2/5 by 4. Write the original fraction, the scaled fraction, and the steps."
+          ],
+          "answer_key": [
+            "Task 1 Answer: 3/4 \u00d7 2 = 6/4 = 3/2",
+            "Task 2 Answer: 5/6 \u00d7 3/2 = (5\u00d73)/(6\u00d72) = 15/12 = 5/4",
+            "Task 3 Answer: 7/8 \u00d7 1/3 = (7\u00d71)/(8\u00d73) = 7/24",
+            "Task 4 Answer: 9/10 \u00d7 1/2 = (9\u00d71)/(10\u00d72) = 9/20",
+            "Task 5 Answer: 2/5 \u00d7 4 = 8/5 = 1 3/5"
           ]
         },
         "estimated_time_minutes": 35,
@@ -412,101 +2616,89 @@
     "current_session_grades": [
       {
         "grade": "3",
-        "subject": "Math",
-        "grade_key": "Grade_3_Math",
+        "subject": "Social studies",
+        "grade_key": "Grade_3_Social studies",
         "status": "reconciled",
-        "decided_topic": "Fractions - introduction",
+        "decided_topic": "Social studies Concepts",
         "recommended_resource": "printable_worksheet",
-        "activity_status": "passed_safety_gate",
-        "delivered_activity": {
-          "activity_id": "act_7f7a7d",
-          "grade": "3",
-          "subject": "Math",
-          "topic": "Fractions - introduction",
-          "activity_type": "printable_worksheet",
-          "content": {
-            "instructions": "Use the fraction circles or drawings below to complete the worksheet. Label each part as 'numerator' or 'denominator'. Draw and label your own fractions to show equal parts.",
-            "items": [
-              "Circle the numerator in 2/4 and underline the denominator. Explain what each number means in 1-2 sentences.",
-              "Draw a circle divided into 3 equal parts. Shade 2 parts and write the fraction: _______/_______",
-              "Label the shaded part of this rectangle as a fraction. Is the shaded part more than, less than, or equal to 1/2? Explain.",
-              "Create your own fraction drawing: Divide a shape into ______ equal parts. Shade ______ parts. Write the fraction: _______/_______"
-            ],
-            "answer_key": [
-              "Numerator = 2 (parts we have), Denominator = 4 (total parts). Example explanation: Numerator shows how many parts are shaded, denominator shows how many equal parts make the whole.",
-              "Drawing of 3-part circle with 2 shaded. Fraction: 2/3",
-              "Drawing of rectangle with 3/4 shaded. Answer: More than 1/2 (since 3/4 = 0.75 > 0.5).",
-              "Student-created drawing with correct labeling. Fraction format: [number]/[total parts]"
-            ]
-          },
-          "estimated_time_minutes": 35,
-          "delivery_status": "delivered",
-          "delivered_at_cycle": 1
-        }
-      },
-      {
-        "grade": "4",
-        "subject": "Math",
-        "grade_key": "Grade_4_Math",
-        "status": "reconciled",
-        "decided_topic": "Fractions - equivalent fractions (reinforcement)",
-        "recommended_resource": "whiteboard_activity",
-        "activity_status": "passed_safety_gate",
-        "delivered_activity": {
-          "activity_id": "act_010281",
-          "grade": "4",
-          "subject": "Math",
-          "topic": "Fractions - equivalent fractions (reinforcement)",
-          "activity_type": "whiteboard_activity",
-          "content": {
-            "instructions": "Use whiteboard markers to complete these fraction scaling exercises. Label all numerators (top numbers) in red and denominators (bottom numbers) in blue. Explain in 1-2 words why both numbers change when scaling.",
-            "items": [
-              "Draw 1/2 and 2/4 on whiteboard: circle top as numerator (red) and box bottom as denominator (blue).",
-              "Scale 1/3 to 2/6: show how numerator (1\u21922) and denominator (3\u21926) both multiply by 2.",
-              "Create your own example: scale 1/4 to 3/12. Label and explain the pattern.",
-              "Compare 1/2 vs 2/4: use arrows to show how the fraction bar grows and label parts."
-            ],
-            "answer_key": [
-              "1/2 (red numerator) and 2/4 (red numerator) with blue denominators; scaling doubles both parts",
-              "Numerator 1\u00d72=2, denominator 3\u00d72=6; scaling factor of 2 maintains equivalence",
-              "Numerator 1\u00d73=3, denominator 4\u00d73=12; scaling factor of 3 preserves value",
-              "Arrows show fraction bar length doubles; numerator and denominator both increase proportionally"
-            ]
-          },
-          "estimated_time_minutes": 35,
-          "delivery_status": "delivered",
-          "delivered_at_cycle": 1
-        }
+        "activity_status": "failed_layer_1",
+        "delivered_activity": null
       },
       {
         "grade": "5",
         "subject": "Math",
         "grade_key": "Grade_5_Math",
         "status": "reconciled",
-        "decided_topic": "Decimals - multiplication",
+        "decided_topic": "Decimals - addition",
         "recommended_resource": "whiteboard_activity",
         "activity_status": "passed_safety_gate",
         "delivered_activity": {
-          "activity_id": "act_c40514",
+          "activity_id": "act_26c105",
           "grade": "5",
           "subject": "Math",
-          "topic": "Decimals - multiplication",
+          "topic": "Decimals - addition",
           "activity_type": "whiteboard_activity",
           "content": {
-            "instructions": "Use your whiteboard to solve these decimal multiplication problems. Focus on aligning decimal points correctly. Show all steps. After solving, compare your answers with a partner and discuss any differences in alignment.",
+            "instructions": "You will be working with your whiteboard and marker to practice adding decimals while making sure the decimal points line up correctly. Follow the steps below:\n\n1. **Set up a column**: Write a space for the whole number part and a space for the decimal part on the board. For example, draw two columns side by side, one for the whole number and one for the decimal.\n2. **Place the numbers**: Write the first decimal on the left column, then the second decimal below it. Use a small dot to mark the decimal point and keep the dot in the same vertical line for both numbers.\n3. **Align the decimal points**: If the decimals have different numbers of places after the decimal point, add zeros to the right of the number with fewer places so that both have the same number of decimal places.\n4. **Add the numbers**: Starting from the rightmost digit, add each column and carry over when you reach 10.\n5. **Write the answer**: Place the result in the same two-column format.\n6. **Check your work**: Make sure the decimal points are aligned in the answer and that you have carried over correctly.\n\nYou will do 10 practice problems. Work at your own pace but try to finish each within 3 minutes. The teacher will circulate to help if you get stuck.\n\nWhen you finish, share your final answers with the class for a quick check.",
             "items": [
-              "Problem 1: 2.5 x 3.2 (Align decimals vertically first)",
-              "Problem 2: 0.4 x 0.6 (Show how decimal places add up)",
-              "Problem 3: 1.25 x 0 (What happens when multiplying by zero?)",
-              "Problem 4: 0.75 x 0.4 (Place decimal in final answer)",
-              "Problem 5: 3.1 x 2.9 (Use estimation to check reasonableness)"
+              "5.2 + 3.75",
+              "12.08 + 7.4",
+              "9.5 + 0.03",
+              "0.06 + 0.009",
+              "23.1 + 4.02",
+              "1.2 + 5.3",
+              "7.99 + 2.01",
+              "3.4 + 0.005",
+              "8.01 + 6.9",
+              "12.3 + 9.89"
             ],
             "answer_key": [
-              "Problem 1: 8.0 (Align decimals: 2.5\n3.2\n-----\n8.0)",
-              "Problem 2: 0.24 (2 decimal places total; 0.4\n0.6\n-----\n0.24)",
-              "Problem 3: 0.0 (Multiplying by zero always gives zero)",
-              "Problem 4: 0.30 (2 decimal places total; 0.75\n0.4\n-----\n0.30)",
-              "Problem 5: 8.99 (Estimate: 3 x 3 = 9; exact: 3.1\n2.9\n-----\n8.99)"
+              "8.95",
+              "19.48",
+              "9.53",
+              "0.069",
+              "27.12",
+              "6.5",
+              "10.00",
+              "3.405",
+              "14.91",
+              "22.19"
+            ]
+          },
+          "estimated_time_minutes": 40,
+          "delivery_status": "delivered",
+          "delivered_at_cycle": 1
+        }
+      },
+      {
+        "grade": "8",
+        "subject": "Math",
+        "grade_key": "Grade_8_Math",
+        "status": "reconciled",
+        "decided_topic": "Math Concepts",
+        "recommended_resource": "whiteboard_activity",
+        "activity_status": "passed_safety_gate",
+        "delivered_activity": {
+          "activity_id": "act_d60863",
+          "grade": "8",
+          "subject": "Math",
+          "topic": "Math Concepts",
+          "activity_type": "whiteboard_activity",
+          "content": {
+            "instructions": "You will work in pairs on a large whiteboard. 1\ufe0f\u20e3 Write the fraction that represents the problem on the board. 2\ufe0f\u20e3 Show step\u2011by\u2011step how you would multiply or divide that fraction by a whole number or another fraction, being careful to keep the numerator and denominator in sync. 3\ufe0f\u20e3 After each step, shout out the new fraction and explain why the numerator or denominator changed the way it did. 4\ufe0f\u20e3 If you make a mistake, the partner will point it out and you will fix it together. 5\ufe0f\u20e3 When you finish, each pair will present their final fraction to the class. 6\ufe0f\u20e3 The teacher will ask a quick question about why the fraction changed the way it did to check understanding.",
+            "items": [
+              "Task 1: Scale 3/4 by 2. Write the original fraction and the scaled fraction. Show each intermediate step.",
+              "Task 2: Scale 5/6 by 3/2. Write the original fraction, the scaled fraction, and the steps.",
+              "Task 3: Scale 7/8 by 1/3. Write the original fraction, the scaled fraction, and the steps.",
+              "Task 4: Scale 9/10 by 0.5 (write as 1/2). Write the original fraction, the scaled fraction, and the steps.",
+              "Task 5 (Challenge): Scale 2/5 by 4. Write the original fraction, the scaled fraction, and the steps."
+            ],
+            "answer_key": [
+              "Task 1 Answer: 3/4 \u00d7 2 = 6/4 = 3/2",
+              "Task 2 Answer: 5/6 \u00d7 3/2 = (5\u00d73)/(6\u00d72) = 15/12 = 5/4",
+              "Task 3 Answer: 7/8 \u00d7 1/3 = (7\u00d71)/(8\u00d73) = 7/24",
+              "Task 4 Answer: 9/10 \u00d7 1/2 = (9\u00d71)/(10\u00d72) = 9/20",
+              "Task 5 Answer: 2/5 \u00d7 4 = 8/5 = 1 3/5"
             ]
           },
           "estimated_time_minutes": 35,
@@ -518,14 +2710,14 @@
     "grade_selection": [
       {
         "grade": "3",
-        "subject": "Mathematics"
-      },
-      {
-        "grade": "4",
-        "subject": "Mathematics"
+        "subject": "Social Studies"
       },
       {
         "grade": "5",
+        "subject": "Mathematics"
+      },
+      {
+        "grade": "8",
         "subject": "Mathematics"
       }
     ],
@@ -536,16 +2728,34 @@
       "internet": true
     },
     "cycle_record": {
-      "cycle_id": "orc_39dafb93",
+      "cycle_id": "orc_b137b3a0",
       "next_action": {
         "priority": "critical",
         "grade": "3",
-        "subject": "math",
-        "action_type": "resource_contention",
-        "reason": "Printable worksheet contention between Grade 3 (fractions) and Grade 5 (decimals) requires immediate resolution. Grade 3's foundational prerequisite status blocks Grade 5's advanced topic progression.",
+        "subject": "Social studies",
+        "action_type": "teacher_needed",
+        "reason": "Safety Gate flagged activity for Grade 3 (Activity rejected in Layer 1 (Hard Deterministic Checks): Item 11 word count (44) exceeds Grade 3 limit (25).); manual teacher intervention required.",
         "resolved_conflicts": []
       },
       "state_updates": [
+        {
+          "grade": "3",
+          "subject": "Math",
+          "status": "skipped",
+          "decided_topic": null,
+          "pacing_decision": null,
+          "recommended_resource": null,
+          "activity_status": "skipped_no_change"
+        },
+        {
+          "grade": "4",
+          "subject": "Math",
+          "status": "skipped",
+          "decided_topic": null,
+          "pacing_decision": null,
+          "recommended_resource": null,
+          "activity_status": "skipped_no_change"
+        },
         {
           "grade": "4",
           "subject": "English",
@@ -574,80 +2784,203 @@
           "activity_status": "skipped_no_change"
         },
         {
-          "grade": "3",
+          "grade": "5",
           "subject": "Math",
           "status": "reconciled",
-          "decided_topic": "Fractions - introduction",
-          "pacing_decision": "advance",
-          "recommended_resource": "printable_worksheet",
-          "activity_status": "passed_safety_gate"
-        },
-        {
-          "grade": "4",
-          "subject": "Math",
-          "status": "reconciled",
-          "decided_topic": "Fractions - equivalent fractions (reinforcement)",
+          "decided_topic": "Decimals - addition",
           "pacing_decision": "hold",
           "recommended_resource": "whiteboard_activity",
           "activity_status": "passed_safety_gate"
         },
         {
-          "grade": "5",
+          "grade": "3",
+          "subject": "Social studies",
+          "status": "reconciled",
+          "decided_topic": "Social studies Concepts",
+          "pacing_decision": "hold",
+          "recommended_resource": "printable_worksheet",
+          "activity_status": "failed_layer_1"
+        },
+        {
+          "grade": "8",
           "subject": "Math",
           "status": "reconciled",
-          "decided_topic": "Decimals - multiplication",
-          "pacing_decision": "advance",
+          "decided_topic": "Math Concepts",
+          "pacing_decision": "hold",
           "recommended_resource": "whiteboard_activity",
           "activity_status": "passed_safety_gate"
         }
       ],
       "specialist_evaluations": {
-        "Grade_3_Math": {
-          "grade": "3",
+        "Grade_5_Math": {
+          "grade": "5",
           "subject": "Math",
           "progress_diag": {
-            "grade": "3",
+            "grade": "5",
             "subject": "Math",
-            "topic": "Fractions - introduction",
+            "topic": "Decimals - addition",
             "mastery_estimate": "developing",
-            "trend": "stagnant",
+            "trend": "insufficient_data",
             "confidence": "low",
             "trouble_spots": [
-              "conceptual gap"
+              "decimal point alignment"
             ],
             "attention_flag": false,
-            "recommendation_direction": "reinforce",
-            "explanation": "Diagnostic analysis based on 1 historical sessions and latest signals for Grade 3 Math."
+            "recommendation_direction": "insufficient_data",
+            "explanation": "No current session data were provided; historical sessions show improvement from 60% to 88% correctness, but without new evidence confidence remains low."
           },
           "curriculum_dec": {
-            "grade": "3",
+            "grade": "5",
             "subject": "Math",
-            "syllabus_topic": "Fractions - introduction",
-            "decided_topic": "Fractions - introduction",
-            "pacing_decision": "advance",
-            "is_blocking_prerequisite": false,
-            "explanation": "Trouble spot 'conceptual gap' is unrelated to target syllabus topic 'Fractions - introduction'; prerequisite check passes so advancing to syllabus target.",
-            "_execution_mode": "LOCAL_FALLBACK"
+            "syllabus_topic": "Decimals - multiplication",
+            "decided_topic": "Decimals - addition",
+            "pacing_decision": "hold",
+            "is_blocking_prerequisite": true,
+            "explanation": "The official syllabus shows that the next target topic is 'Decimals - multiplication', which has a prerequisite of 'Decimals - addition' (as confirmed by the prerequisite map). The Progress Agent reports the student's current mastery of 'Decimals - addition' as 'developing' with a specific trouble spot in 'decimal point alignment'. Because the prerequisite map explicitly requires addition for multiplication, and the student's weakness lies within that prerequisite, the trouble spot is a blocking prerequisite for moving forward. With 40 minutes available, the session can be used to focus on strengthening decimal point alignment and overall addition proficiency. Advancing to multiplication now would risk gaps in understanding, as the student has not yet achieved mastery of the required prerequisite. Therefore, the curriculum decision is to hold on the current topic until the student reaches proficiency.",
+            "_execution_mode": "GROQ",
+            "reasoning": "The official syllabus shows that the next target topic is 'Decimals - multiplication', which has a prerequisite of 'Decimals - addition' (as confirmed by the prerequisite map). The Progress Agent reports the student's current mastery of 'Decimals - addition' as 'developing' with a specific trouble spot in 'decimal point alignment'. Because the prerequisite map explicitly requires addition for multiplication, and the student's weakness lies within that prerequisite, the trouble spot is a blocking prerequisite for moving forward. With 40 minutes available, the session can be used to focus on strengthening decimal point alignment and overall addition proficiency. Advancing to multiplication now would risk gaps in understanding, as the student has not yet achieved mastery of the required prerequisite. Therefore, the curriculum decision is to hold on the current topic until the student reaches proficiency."
           },
           "resource_rec": {
-            "grade": "3",
+            "grade": "5",
             "subject": "Math",
-            "topic": "Fractions - introduction",
+            "topic": "Decimals - addition",
             "resource_options": [
               {
-                "type": "printable_worksheet",
+                "type": "whiteboard_activity",
                 "feasibility": "high",
-                "reason": "Works reliably offline without internet or device requirements."
+                "reason": "Whiteboard and markers available; no staleness; not contested"
               },
               {
-                "type": "whiteboard_activity",
+                "type": "textbook_exercise",
+                "feasibility": "high",
+                "reason": "Textbooks available; no staleness; not contested"
+              },
+              {
+                "type": "printable_worksheet",
                 "feasibility": "low",
-                "reason": "Whiteboard materials available with zero device or paper dependency. [Staleness penalty: used 3 times recently] [Staleness penalty: used 3 times recently]"
+                "reason": "Printer and paper available; no staleness; not contested [Contended with another grade]"
               },
               {
                 "type": "tv_video",
                 "feasibility": "low",
-                "reason": "Infeasible: TV display is unavailable. [Contended with another grade]"
+                "reason": "TV available; preloaded content; no staleness; not contested [Contended with another grade]"
+              },
+              {
+                "type": "tablet_quiz",
+                "feasibility": "infeasible",
+                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
+              }
+            ],
+            "recommended_resource": "whiteboard_activity",
+            "contention_flag": true,
+            "contention_detail": "Tablet requested by Grade5 and Grade3 concurrently.",
+            "delivery_possible": true,
+            "needs_generation": false,
+            "constraints_considered": [
+              "offline status",
+              "device availability",
+              "printer paper",
+              "TV access",
+              "staleness",
+              "concurrent demand"
+            ],
+            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints.",
+            "rationale": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
+          },
+          "activity_design": {
+            "grade": "5",
+            "subject": "Math",
+            "topic": "Decimals - addition",
+            "activity_type": "whiteboard_activity",
+            "targets_trouble_spot": "decimal point alignment",
+            "difficulty_level": "standard",
+            "content": {
+              "instructions": "You will be working with your whiteboard and marker to practice adding decimals while making sure the decimal points line up correctly. Follow the steps below:\n\n1. **Set up a column**: Write a space for the whole number part and a space for the decimal part on the board. For example, draw two columns side by side, one for the whole number and one for the decimal.\n2. **Place the numbers**: Write the first decimal on the left column, then the second decimal below it. Use a small dot to mark the decimal point and keep the dot in the same vertical line for both numbers.\n3. **Align the decimal points**: If the decimals have different numbers of places after the decimal point, add zeros to the right of the number with fewer places so that both have the same number of decimal places.\n4. **Add the numbers**: Starting from the rightmost digit, add each column and carry over when you reach 10.\n5. **Write the answer**: Place the result in the same two-column format.\n6. **Check your work**: Make sure the decimal points are aligned in the answer and that you have carried over correctly.\n\nYou will do 10 practice problems. Work at your own pace but try to finish each within 3 minutes. The teacher will circulate to help if you get stuck.\n\nWhen you finish, share your final answers with the class for a quick check.",
+              "items": [
+                "5.2 + 3.75",
+                "12.08 + 7.4",
+                "9.5 + 0.03",
+                "0.06 + 0.009",
+                "23.1 + 4.02",
+                "1.2 + 5.3",
+                "7.99 + 2.01",
+                "3.4 + 0.005",
+                "8.01 + 6.9",
+                "12.3 + 9.89"
+              ],
+              "answer_key": [
+                "8.95",
+                "19.48",
+                "9.53",
+                "0.069",
+                "27.12",
+                "6.5",
+                "10.00",
+                "3.405",
+                "14.91",
+                "22.19"
+              ]
+            },
+            "estimated_time_minutes": 40,
+            "explanation": "The activity is designed for a developing mastery level and focuses specifically on decimal point alignment, the identified trouble spot. A whiteboard format allows students to visualize column alignment and carry-over. Ten problems of moderate length fit within 40 minutes and provide ample practice. The answer key supports quick self-check and teacher verification."
+          },
+          "safety_verdict": {
+            "activity_id": "act_101",
+            "passed": true,
+            "layer_failed": null,
+            "issues": [],
+            "action": "pass",
+            "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
+          },
+          "safety_attempts": 1
+        },
+        "Grade_3_Social studies": {
+          "grade": "3",
+          "subject": "Social studies",
+          "progress_diag": {
+            "grade": "3",
+            "subject": "Social studies",
+            "topic": "Social studies Concepts",
+            "mastery_estimate": "developing",
+            "trend": "stagnant",
+            "confidence": "medium",
+            "trouble_spots": [
+              "confusing numerator/denominator when scaling"
+            ],
+            "attention_flag": false,
+            "recommendation_direction": "reinforce",
+            "explanation": "Local diagnosis for Grade 3 Social studies on topic 'Social studies Concepts'."
+          },
+          "curriculum_dec": {
+            "grade": "3",
+            "subject": "Social studies",
+            "syllabus_topic": "Social studies Concepts",
+            "decided_topic": "Social studies Concepts",
+            "pacing_decision": "hold",
+            "is_blocking_prerequisite": false,
+            "explanation": "The official syllabus store for Grade 3 Social studies returned only mathematics topics (Addition and Subtraction, Introduction to Multiplication, Fractions - introduction) which do not align with the requested Social studies context. The prerequisite map also indicates that 'Social studies Concepts' has no recorded prerequisites. Therefore, there is no authoritative syllabus target to advance toward for Social studies at this grade. \n\nProgress Agent diagnosis shows the student's mastery of the current Social studies Concepts is developing, with a stagnant trend and a medium confidence level. The only reported trouble spot ('confusing numerator/denominator when scaling') is a mathematics issue and is not listed as a prerequisite for Social studies Concepts, so it does not block progress in this subject. \n\nGiven the 40\u2011minute session length, the safest pacing is to **hold** on the current Social studies Concepts and provide reinforcement, as recommended by the Progress Agent. Advancing without an official target would be speculative and could risk misalignment with curriculum expectations. No blocking prerequisite is identified.",
+            "_execution_mode": "GROQ",
+            "reasoning": "The official syllabus store for Grade 3 Social studies returned only mathematics topics (Addition and Subtraction, Introduction to Multiplication, Fractions - introduction) which do not align with the requested Social studies context. The prerequisite map also indicates that 'Social studies Concepts' has no recorded prerequisites. Therefore, there is no authoritative syllabus target to advance toward for Social studies at this grade. \n\nProgress Agent diagnosis shows the student's mastery of the current Social studies Concepts is developing, with a stagnant trend and a medium confidence level. The only reported trouble spot ('confusing numerator/denominator when scaling') is a mathematics issue and is not listed as a prerequisite for Social studies Concepts, so it does not block progress in this subject. \n\nGiven the 40\u2011minute session length, the safest pacing is to **hold** on the current Social studies Concepts and provide reinforcement, as recommended by the Progress Agent. Advancing without an official target would be speculative and could risk misalignment with curriculum expectations. No blocking prerequisite is identified."
+          },
+          "resource_rec": {
+            "grade": "3",
+            "subject": "Social studies",
+            "topic": "Social studies Concepts",
+            "resource_options": [
+              {
+                "type": "printable_worksheet",
+                "feasibility": "high",
+                "reason": "Printer and paper available; no recent use of this topic; no contention."
+              },
+              {
+                "type": "textbook_exercise",
+                "feasibility": "high",
+                "reason": "Textbooks available for immediate use; no recent use; no contention."
+              },
+              {
+                "type": "tv_video",
+                "feasibility": "low",
+                "reason": "TV available but contested by Grade 4; would need scheduling. [Contended with another grade]"
               },
               {
                 "type": "tablet_quiz",
@@ -657,138 +2990,168 @@
             ],
             "recommended_resource": "printable_worksheet",
             "contention_flag": true,
-            "contention_detail": "Resource 'tablet_quiz' is simultaneously requested by Grade 5. Resource 'tv_video' is simultaneously requested by Grade 4.",
+            "contention_detail": "Tablet resource requested by Grade 5; TV resource requested by Grade 4. Grade 3 also requests tablet and printable worksheet.",
             "delivery_possible": true,
             "needs_generation": false,
             "constraints_considered": [
-              "no internet",
-              "0 tablet free"
+              "internet_available=false (offline constraint)",
+              "tablets_total=3, tablets_free=2",
+              "printer_available=true, printer_has_paper=true",
+              "tv_available=true",
+              "no recent usage of Social studies Concepts for Grade 3 (no staleness)",
+              "concurrent demand: Grade 5 wants tablet, Grade 4 wants TV, Grade 3 wants tablet & printable worksheet"
             ],
-            "explanation": "Recommended 'printable_worksheet' as the highest-feasibility deployable option under today's constraints."
+            "explanation": "Recommended 'printable_worksheet' as the highest-feasibility deployable option under today's constraints.",
+            "rationale": "Recommended 'printable_worksheet' as the highest-feasibility deployable option under today's constraints."
           },
           "activity_design": {
             "grade": "3",
-            "subject": "Math",
-            "topic": "Fractions - introduction",
+            "subject": "Social studies",
+            "topic": "Social studies Concepts",
             "activity_type": "printable_worksheet",
-            "targets_trouble_spot": "conceptual gap",
-            "difficulty_level": "scaffolded",
-            "content": {
-              "instructions": "Use the fraction circles or drawings below to complete the worksheet. Label each part as 'numerator' or 'denominator'. Draw and label your own fractions to show equal parts.",
-              "items": [
-                "Circle the numerator in 2/4 and underline the denominator. Explain what each number means in 1-2 sentences.",
-                "Draw a circle divided into 3 equal parts. Shade 2 parts and write the fraction: _______/_______",
-                "Label the shaded part of this rectangle as a fraction. Is the shaded part more than, less than, or equal to 1/2? Explain.",
-                "Create your own fraction drawing: Divide a shape into ______ equal parts. Shade ______ parts. Write the fraction: _______/_______"
-              ],
-              "answer_key": [
-                "Numerator = 2 (parts we have), Denominator = 4 (total parts). Example explanation: Numerator shows how many parts are shaded, denominator shows how many equal parts make the whole.",
-                "Drawing of 3-part circle with 2 shaded. Fraction: 2/3",
-                "Drawing of rectangle with 3/4 shaded. Answer: More than 1/2 (since 3/4 = 0.75 > 0.5).",
-                "Student-created drawing with correct labeling. Fraction format: [number]/[total parts]"
-              ]
-            },
-            "estimated_time_minutes": 35,
-            "explanation": "Scaffolded worksheet addresses conceptual gaps by focusing on foundational fraction concepts (parts of a whole, numerator/denominator meaning) through visual representations and labeling. Reinforces understanding without requiring prior knowledge of equivalent fractions."
-          },
-          "safety_verdict": {
-            "activity_id": "act_101",
-            "passed": true,
-            "layer_failed": null,
-            "issues": [],
-            "action": "pass",
-            "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
-          },
-          "safety_attempts": 1
-        },
-        "Grade_4_Math": {
-          "grade": "4",
-          "subject": "Math",
-          "progress_diag": {
-            "grade": "4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions",
-            "mastery_estimate": "developing",
-            "trend": "stagnant",
-            "confidence": "high",
-            "trouble_spots": [
-              "confusing numerator/denominator when scaling"
-            ],
-            "attention_flag": true,
-            "recommendation_direction": "reinforce",
-            "explanation": "Diagnostic analysis based on 3 historical sessions and latest signals for Grade 4 Math."
-          },
-          "curriculum_dec": {
-            "grade": "4",
-            "subject": "Math",
-            "syllabus_topic": "Multiplying fractions",
-            "decided_topic": "Fractions - equivalent fractions (reinforcement)",
-            "pacing_decision": "hold",
-            "is_blocking_prerequisite": true,
-            "explanation": "Current topic 'Fractions - equivalent fractions' with trouble spot 'confusing numerator/denominator when scaling' shows struggling mastery; holding syllabus pacing to provide targeted reinforcement on 'Fractions - equivalent fractions (reinforcement)'.",
-            "_execution_mode": "LOCAL_FALLBACK"
-          },
-          "resource_rec": {
-            "grade": "4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions (reinforcement)",
-            "resource_options": [
-              {
-                "type": "whiteboard_activity",
-                "feasibility": "high",
-                "reason": "Whiteboard materials available with zero device or paper dependency."
-              },
-              {
-                "type": "tv_video",
-                "feasibility": "high",
-                "reason": "Infeasible: TV display is unavailable."
-              },
-              {
-                "type": "printable_worksheet",
-                "feasibility": "low",
-                "reason": "Works reliably offline without internet or device requirements. [Contended with another grade]"
-              },
-              {
-                "type": "tablet_quiz",
-                "feasibility": "infeasible",
-                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
-              }
-            ],
-            "recommended_resource": "whiteboard_activity",
-            "contention_flag": true,
-            "contention_detail": "Resource 'printable_worksheet' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 5.",
-            "delivery_possible": true,
-            "needs_generation": false,
-            "constraints_considered": [
-              "no internet",
-              "0 tablet free"
-            ],
-            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
-          },
-          "activity_design": {
-            "grade": "/4",
-            "subject": "Math",
-            "topic": "Fractions - equivalent fractions (reinforcement)",
-            "activity_type": "whiteboard_activity",
             "targets_trouble_spot": "confusing numerator/denominator when scaling",
             "difficulty_level": "standard",
             "content": {
-              "instructions": "Use whiteboard markers to complete these fraction scaling exercises. Label all numerators (top numbers) in red and denominators (bottom numbers) in blue. Explain in 1-2 words why both numbers change when scaling.",
+              "instructions": "You are a young cartographer! On many maps the distance shown on the paper is a *scaled* version of the real distance. The scale is written as a fraction: the numerator is the distance on the paper (in centimeters), and the denominator is the real distance (in kilometers). Use the scale to find the real distance for each map line you see.\n\n1. Read each map scale.\n2. Multiply the number of centimeters drawn by the map by the real\u2011world distance in the denominator.\n3. Write your answer in kilometers.\n4. If a question asks which fraction is the correct scale, choose the one that matches the description.\n\nGood luck, cartographer!",
               "items": [
-                "Draw 1/2 and 2/4 on whiteboard: circle top as numerator (red) and box bottom as denominator (blue).",
-                "Scale 1/3 to 2/6: show how numerator (1\u21922) and denominator (3\u21926) both multiply by 2.",
-                "Create your own example: scale 1/4 to 3/12. Label and explain the pattern.",
-                "Compare 1/2 vs 2/4: use arrows to show how the fraction bar grows and label parts."
+                "Map Scale 1: 1\u202fcm\u202f:\u202f5\u202fkm. The line on the map is 4\u202fcm long. How many kilometers does this line represent?\n",
+                "Map Scale 2: 1\u202fcm\u202f:\u202f10\u202fkm. The line on the map is 2.5\u202fcm long. What is the real distance?\n",
+                "Map Scale 3: 1\u202fcm\u202f:\u202f3\u202fkm. The line on the map is 7\u202fcm long. Calculate the real distance.\n",
+                "Map Scale 4: 1\u202fcm\u202f:\u202f2\u202fkm. The map shows a line 3\u202fcm long. How many kilometers is it?\n",
+                "Map Scale 5: 1\u202fcm\u202f:\u202f8\u202fkm. The map shows a line 1.75\u202fcm long. Find the real distance.\n",
+                "Map Scale 6: 1\u202fcm\u202f:\u202f6\u202fkm. The map shows a line 5\u202fcm long. What real distance does this line represent?\n",
+                "Map Scale 7: 1\u202fcm\u202f:\u202f4\u202fkm. The map shows a line 6.5\u202fcm long. What is the real distance?\n",
+                "Map Scale 8: 1\u202fcm\u202f:\u202f12\u202fkm. The map shows a line 3.5\u202fcm long. Compute the real distance.\n",
+                "Map Scale 9: 1\u202fcm\u202f:\u202f7\u202fkm. The map shows a line 5\u202fcm long. What real distance is this?\n",
+                "Map Scale 10: 1\u202fcm\u202f:\u202f9\u202fkm. The map shows a line 2.8\u202fcm long. Calculate the real distance.\n",
+                "Question: Which fraction correctly describes the following scale: 1\u202fcm on the map equals 4\u202fkm in real life? \nOptions: (A) 1\u202fcm\u202f:\u202f4\u202fkm (B) 4\u202fcm\u202f:\u202f1\u202fkm (C) 1\u202fkm\u202f:\u202f4\u202fcm (D) 4\u202fkm\u202f:\u202f1\u202fcm"
               ],
               "answer_key": [
-                "1/2 (red numerator) and 2/4 (red numerator) with blue denominators; scaling doubles both parts",
-                "Numerator 1\u00d72=2, denominator 3\u00d72=6; scaling factor of 2 maintains equivalence",
-                "Numerator 1\u00d73=3, denominator 4\u00d73=12; scaling factor of 3 preserves value",
-                "Arrows show fraction bar length doubles; numerator and denominator both increase proportionally"
+                "20\u202fkm",
+                "25\u202fkm",
+                "21\u202fkm",
+                "6\u202fkm",
+                "14\u202fkm",
+                "30\u202fkm",
+                "26\u202fkm",
+                "42\u202fkm",
+                "35\u202fkm",
+                "25.2\u202fkm",
+                "A"
               ]
             },
             "estimated_time_minutes": 35,
-            "explanation": "This scaffolded whiteboard activity directly addresses numerator/denominator confusion through visual labeling and proportional reasoning. The red/blue color-coding reinforces part identification, while scaling examples build conceptual understanding within 35 minutes."
+            "explanation": "This printable worksheet uses map scales\u2014a real\u2011world Social Studies concept\u2014to practice numerator/denominator scaling. Each question requires students to multiply the paper distance (numerator) by the real\u2011world distance factor (denominator), directly targeting the \"confusing numerator/denominator when scaling\" trouble spot. The activity is scaffolded: clear step\u2011by\u2011step instructions, gradual increase in difficulty, and a final matching question that reinforces understanding of the fraction format. All items are designed for Grade\u202f3 learners and fit within a 40\u2011minute session. No previous templates exist for this topic\u2011resource combo, ensuring originality."
+          },
+          "safety_verdict": {
+            "activity_id": "act_101",
+            "passed": false,
+            "layer_failed": "layer_1",
+            "issues": [
+              {
+                "check": "excessive_reading_complexity",
+                "detail": "Item 11 word count (44) exceeds Grade 3 limit (25)."
+              }
+            ],
+            "action": "reject_and_regenerate",
+            "explanation": "Activity rejected in Layer 1 (Hard Deterministic Checks): Item 11 word count (44) exceeds Grade 3 limit (25)."
+          },
+          "safety_attempts": 2
+        },
+        "Grade_8_Math": {
+          "grade": "8",
+          "subject": "Math",
+          "progress_diag": {
+            "grade": "8",
+            "subject": "Math",
+            "topic": "Math Concepts",
+            "mastery_estimate": "struggling",
+            "trend": "insufficient_data",
+            "confidence": "low",
+            "trouble_spots": [],
+            "attention_flag": false,
+            "recommendation_direction": "insufficient_data",
+            "explanation": "No prior session data or current signals were available for Grade 8 Math Concepts, leading to insufficient evidence for a diagnosis."
+          },
+          "curriculum_dec": {
+            "grade": "8",
+            "subject": "Math",
+            "syllabus_topic": "Math Concepts",
+            "decided_topic": "Math Concepts",
+            "pacing_decision": "hold",
+            "is_blocking_prerequisite": false,
+            "explanation": "The official curriculum store returned no defined syllabus topics for Grade 8 Math, and the prerequisite map does not list any dependencies for the current topic \"Math Concepts\". The Progress Agent reports a struggling mastery estimate but cites insufficient data and low confidence, with no identified trouble spots. With 40 minutes available and no teacher constraints dictating a required shift, the safest approach is to remain on the current topic to gather more diagnostic information and provide targeted instruction that may improve mastery. Since no prerequisite is required for \"Math Concepts\", there is no blocking prerequisite. Holding the session on this topic balances the lack of curriculum guidance, the need for more data, and the available time.",
+            "_execution_mode": "GROQ",
+            "reasoning": "The official curriculum store returned no defined syllabus topics for Grade 8 Math, and the prerequisite map does not list any dependencies for the current topic \"Math Concepts\". The Progress Agent reports a struggling mastery estimate but cites insufficient data and low confidence, with no identified trouble spots. With 40 minutes available and no teacher constraints dictating a required shift, the safest approach is to remain on the current topic to gather more diagnostic information and provide targeted instruction that may improve mastery. Since no prerequisite is required for \"Math Concepts\", there is no blocking prerequisite. Holding the session on this topic balances the lack of curriculum guidance, the need for more data, and the available time."
+          },
+          "resource_rec": {
+            "grade": "8",
+            "subject": "Math",
+            "topic": "Math Concepts",
+            "resource_options": [
+              {
+                "type": "whiteboard_activity",
+                "feasibility": "high",
+                "reason": "whiteboard and materials available"
+              },
+              {
+                "type": "printable_worksheet",
+                "feasibility": "low",
+                "reason": "printer available, no prior use [Contended with another grade]"
+              },
+              {
+                "type": "tv_video",
+                "feasibility": "low",
+                "reason": "TV available, local media assumed [Contended with another grade]"
+              },
+              {
+                "type": "tablet",
+                "feasibility": "infeasible",
+                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
+              }
+            ],
+            "recommended_resource": "whiteboard_activity",
+            "contention_flag": true,
+            "contention_detail": "Tablet resource contested by Grade 5 and Grade 3",
+            "delivery_possible": true,
+            "needs_generation": false,
+            "constraints_considered": [
+              "offline status",
+              "device availability",
+              "printer availability",
+              "tv access",
+              "staleness",
+              "resource contention"
+            ],
+            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints.",
+            "rationale": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
+          },
+          "activity_design": {
+            "grade": "8",
+            "subject": "Math",
+            "topic": "Math Concepts",
+            "activity_type": "whiteboard_activity",
+            "targets_trouble_spot": "confusing numerator/denominator when scaling",
+            "difficulty_level": "scaffolded",
+            "content": {
+              "instructions": "You will work in pairs on a large whiteboard. 1\ufe0f\u20e3 Write the fraction that represents the problem on the board. 2\ufe0f\u20e3 Show step\u2011by\u2011step how you would multiply or divide that fraction by a whole number or another fraction, being careful to keep the numerator and denominator in sync. 3\ufe0f\u20e3 After each step, shout out the new fraction and explain why the numerator or denominator changed the way it did. 4\ufe0f\u20e3 If you make a mistake, the partner will point it out and you will fix it together. 5\ufe0f\u20e3 When you finish, each pair will present their final fraction to the class. 6\ufe0f\u20e3 The teacher will ask a quick question about why the fraction changed the way it did to check understanding.",
+              "items": [
+                "Task 1: Scale 3/4 by 2. Write the original fraction and the scaled fraction. Show each intermediate step.",
+                "Task 2: Scale 5/6 by 3/2. Write the original fraction, the scaled fraction, and the steps.",
+                "Task 3: Scale 7/8 by 1/3. Write the original fraction, the scaled fraction, and the steps.",
+                "Task 4: Scale 9/10 by 0.5 (write as 1/2). Write the original fraction, the scaled fraction, and the steps.",
+                "Task 5 (Challenge): Scale 2/5 by 4. Write the original fraction, the scaled fraction, and the steps."
+              ],
+              "answer_key": [
+                "Task 1 Answer: 3/4 \u00d7 2 = 6/4 = 3/2",
+                "Task 2 Answer: 5/6 \u00d7 3/2 = (5\u00d73)/(6\u00d72) = 15/12 = 5/4",
+                "Task 3 Answer: 7/8 \u00d7 1/3 = (7\u00d71)/(8\u00d73) = 7/24",
+                "Task 4 Answer: 9/10 \u00d7 1/2 = (9\u00d71)/(10\u00d72) = 9/20",
+                "Task 5 Answer: 2/5 \u00d7 4 = 8/5 = 1 3/5"
+              ]
+            },
+            "estimated_time_minutes": 35,
+            "explanation": "The activity uses a whiteboard for visual, collaborative scaling of fractions, directly targeting the identified trouble spot of confusing numerators/denominators.  Tasks progress from simple scaling by a whole number to multiplying by a fraction, allowing scaffolded practice.  Estimated 35 minutes allows time for explanation, correction, and a brief class check."
           },
           "safety_verdict": {
             "activity_id": "act_101",
@@ -799,107 +3162,6 @@
             "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
           },
           "safety_attempts": 1
-        },
-        "Grade_5_Math": {
-          "grade": "5",
-          "subject": "Math",
-          "progress_diag": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - addition",
-            "mastery_estimate": "developing",
-            "trend": "stagnant",
-            "confidence": "high",
-            "trouble_spots": [
-              "decimal point alignment"
-            ],
-            "attention_flag": true,
-            "recommendation_direction": "reinforce",
-            "explanation": "Diagnostic analysis based on 3 historical sessions and latest signals for Grade 5 Math."
-          },
-          "curriculum_dec": {
-            "grade": "5",
-            "subject": "Math",
-            "syllabus_topic": "Decimals - multiplication",
-            "decided_topic": "Decimals - multiplication",
-            "pacing_decision": "advance",
-            "is_blocking_prerequisite": false,
-            "explanation": "Students are developing with an stagnant trend; prerequisites satisfied, advancing to syllabus topic 'Decimals - multiplication'.",
-            "_execution_mode": "LOCAL_FALLBACK"
-          },
-          "resource_rec": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - multiplication",
-            "resource_options": [
-              {
-                "type": "whiteboard_activity",
-                "feasibility": "high",
-                "reason": "Whiteboard materials available with zero device or paper dependency."
-              },
-              {
-                "type": "printable_worksheet",
-                "feasibility": "low",
-                "reason": "Works reliably offline without internet or device requirements. [Contended with another grade]"
-              },
-              {
-                "type": "tv_video",
-                "feasibility": "low",
-                "reason": "Infeasible: TV display is unavailable. [Contended with another grade]"
-              },
-              {
-                "type": "tablet_quiz",
-                "feasibility": "infeasible",
-                "reason": "Infeasible: Internet access or online connectivity is unavailable or insufficient free tablets."
-              }
-            ],
-            "recommended_resource": "whiteboard_activity",
-            "contention_flag": true,
-            "contention_detail": "Resource 'printable_worksheet' is simultaneously requested by Grade 3. Resource 'tablet_quiz' is simultaneously requested by Grade 3. Resource 'tv_video' is simultaneously requested by Grade 4.",
-            "delivery_possible": true,
-            "needs_generation": false,
-            "constraints_considered": [
-              "no internet",
-              "0 tablet free"
-            ],
-            "explanation": "Recommended 'whiteboard_activity' as the highest-feasibility deployable option under today's constraints."
-          },
-          "activity_design": {
-            "grade": "5",
-            "subject": "Math",
-            "topic": "Decimals - multiplication",
-            "activity_type": "whiteboard_activity",
-            "targets_trouble_spot": "decimal point alignment",
-            "difficulty_level": "standard",
-            "content": {
-              "instructions": "Use your whiteboard to solve these decimal multiplication problems. Focus on aligning decimal points correctly. Show all steps. After solving, compare your answers with a partner and discuss any differences in alignment.",
-              "items": [
-                "Problem 1: 2.5 x 3.2 (Align decimals vertically first)",
-                "Problem 2: 0.4 x 0.6 (Show how decimal places add up)",
-                "Problem 3: 1.25 x 0 (What happens when multiplying by zero?)",
-                "Problem 4: 0.75 x 0.4 (Place decimal in final answer)",
-                "Problem 5: 3.1 x 2.9 (Use estimation to check reasonableness)"
-              ],
-              "answer_key": [
-                "Problem 1: 8.0 (Align decimals: 2.5\n3.2\n-----\n8.0)",
-                "Problem 2: 0.24 (2 decimal places total; 0.4\n0.6\n-----\n0.24)",
-                "Problem 3: 0.0 (Multiplying by zero always gives zero)",
-                "Problem 4: 0.30 (2 decimal places total; 0.75\n0.4\n-----\n0.30)",
-                "Problem 5: 8.99 (Estimate: 3 x 3 = 9; exact: 3.1\n2.9\n-----\n8.99)"
-              ]
-            },
-            "estimated_time_minutes": 35,
-            "explanation": "This standard-difficulty activity reinforces decimal alignment through scaffolded problems. The whiteboard format allows immediate visual checks of alignment, with problems progressing from simple to complex. The answer key includes alignment examples and estimation checks to address the identified trouble spot."
-          },
-          "safety_verdict": {
-            "activity_id": "act_101",
-            "passed": true,
-            "layer_failed": null,
-            "issues": [],
-            "action": "pass",
-            "explanation": "Activity passed all 3 Safety/Quality Gate layers and is ready for delivery."
-          },
-          "safety_attempts": 2
         }
       }
     }

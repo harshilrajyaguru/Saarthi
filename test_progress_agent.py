@@ -4,8 +4,7 @@ import traceback
 from tools.progress_tools import get_history, get_trouble_spot_log
 from agents.progress_agent import (
     apply_hard_guardrails,
-    analyze_progress,
-    progress_agent
+    analyze_progress
 )
 
 
