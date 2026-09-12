@@ -1,4 +1,7 @@
 import json
+import os
+import time
+import traceback
 from typing import Any, AsyncGenerator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -517,7 +520,11 @@ First call get_resource_inventory(session), get_resource_usage_log(grade, subjec
         description="SAARTHI Resource Agent evaluating deployable resource options under physical, digital, and contention constraints."
     )
 
+    import time
+    t0 = time.time()
     result = agent(prompt)
+    elapsed = time.time() - t0
+    print(f"[TIMING] ResourceAgent Grade {grade}: {elapsed:.1f}s")
 
     if hasattr(result, "structured_output") and result.structured_output:
         if hasattr(result.structured_output, "model_dump"):

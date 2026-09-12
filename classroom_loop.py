@@ -1,4 +1,7 @@
 import os
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -77,6 +80,17 @@ def parse_grade_subject(grade_key: str) -> tuple[str, str]:
     return clean if clean else "3", "Math"
 
 
+# ANSI Color Codes for Rich Terminal Logging
+ANSI_CYAN = "\033[96m"
+ANSI_GREEN = "\033[92m"
+ANSI_YELLOW = "\033[93m"
+ANSI_RED = "\033[91m"
+ANSI_MAGENTA = "\033[95m"
+ANSI_BLUE = "\033[94m"
+ANSI_BOLD = "\033[1m"
+ANSI_RESET = "\033[0m"
+
+
 class ClassroomLoopRunner:
     """
     Workflow runner for the Saarthi Continuous Classroom Loop.
@@ -93,9 +107,9 @@ class ClassroomLoopRunner:
         self.session = session
 
     def print_banner(self, text: str):
-        print("\n" + "=" * 70)
-        print(text)
-        print("=" * 70)
+        print("\n" + f"{ANSI_BOLD}{ANSI_CYAN}" + "=" * 70 + f"{ANSI_RESET}")
+        print(f"{ANSI_BOLD}{ANSI_GREEN}{text}{ANSI_RESET}")
+        print(f"{ANSI_BOLD}{ANSI_CYAN}" + "=" * 70 + f"{ANSI_RESET}")
 
     def start_session(self) -> CycleRecord:
         """
@@ -117,7 +131,7 @@ class ClassroomLoopRunner:
         """
         if self.session.remaining_time_minutes <= 0:
             self.session.status = "ended"
-            print("\n[Session End] Available session duration expired. No new cycles started.")
+            print(f"\n{ANSI_BOLD}{ANSI_RED}[Session End] Available session duration expired. No new cycles started.{ANSI_RESET}")
             rec = CycleRecord(
                 cycle_number=self.session.current_cycle,
                 trigger_type=trigger_type,
@@ -129,7 +143,7 @@ class ClassroomLoopRunner:
         self.session.current_cycle += 1
         cycle_num = self.session.current_cycle
 
-        print(f"\n--- CLASSROOM LOOP CYCLE {cycle_num} (Trigger: {trigger_type.upper()}) ---")
+        print(f"\n{ANSI_BOLD}{ANSI_MAGENTA}--- SAARTHI CLASSROOM LOOP CYCLE {cycle_num} (Trigger: {trigger_type.upper()}) ---{ANSI_RESET}")
 
         signals = override_signals if override_signals is not None else self.session.latest_signals
 
@@ -158,11 +172,12 @@ class ClassroomLoopRunner:
         active_evals = [item["grade_key"] for item in active_filter.get("active_evaluations", [])]
         skipped_evals = [item["grade_key"] for item in active_filter.get("skipped_grades", [])]
 
-        print(f"[Candidate Filter] Candidate Grades Requiring Evaluation ({len(active_evals)}): {active_evals}")
-        print(f"[Candidate Filter] Skipped Grades ({len(skipped_evals)}): {skipped_evals}")
+        print(f"\n{ANSI_BOLD}{ANSI_CYAN}[Candidate Filter]{ANSI_RESET} Active Candidate Grades ({len(active_evals)}): {ANSI_GREEN}{active_evals}{ANSI_RESET}")
+        if skipped_evals:
+            print(f"{ANSI_BOLD}{ANSI_CYAN}[Candidate Filter]{ANSI_RESET} Skipped Grades ({len(skipped_evals)}): {ANSI_YELLOW}{skipped_evals}{ANSI_RESET}")
 
         # STEP 2: Execute Orchestration Cycle (Specialist Agents run ONCE per candidate grade)
-        print("\n[Executing Specialist Pipeline & Orchestration Reconciliation]")
+        print(f"\n{ANSI_BOLD}{ANSI_BLUE}[Executing Specialist Pipeline & Multi-Agent Orchestration]{ANSI_RESET}")
         orch_result: OrchestrationResult = run_orchestration_cycle(session_config)
 
         # Build Cycle Record
@@ -173,24 +188,12 @@ class ClassroomLoopRunner:
             orchestration_result=orch_result.model_dump()
         )
 
-        print("\n[PASSED] Orchestrator Prioritized Next Action:")
-        print(json.dumps(orch_result.next_action.model_dump(), indent=2))
-
-        if orch_result.next_action.resolved_conflicts:
-            print("\n[PASSED] Cross-Grade Conflicts Resolved:")
-            for c_msg in orch_result.next_action.resolved_conflicts:
-                print(f"  - {c_msg}")
-
-        print("\n[PASSED] State Updates Committed to Shared Store (Single Writer):")
-        for sup in orch_result.state_updates:
-            print(f"  - Grade {sup.grade} {sup.subject}: status='{sup.status}', topic='{sup.decided_topic}', resource='{sup.recommended_resource}', activity_status='{sup.activity_status}'")
-
         # STEP 3: Auto-Deliver generated activities for active grades
         evals = orch_result.specialist_evaluations or {}
         for sup in orch_result.state_updates:
             if sup.status == "reconciled" and sup.decided_topic and sup.recommended_resource:
                 if sup.activity_status != "passed_safety_gate":
-                    print(f"[Safety Gate Rejection] Activity for Grade {sup.grade} {sup.subject} (status='{sup.activity_status}') did not pass safety gate. Delivery skipped.")
+                    print(f"{ANSI_BOLD}{ANSI_RED}[Safety Gate Rejection] Activity for Grade {sup.grade} {sup.subject} (status='{sup.activity_status}') did not pass safety gate. Delivery skipped.{ANSI_RESET}")
                     continue
 
                 act_design = None

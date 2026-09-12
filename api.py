@@ -1,4 +1,7 @@
 import os
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -294,7 +297,19 @@ async def get_classroom_state():
         state = read_shared_state()
         return state
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to read shared state: {str(e)}")
+
+
+# ANSI Color Codes for API Terminal Logging
+ANSI_CYAN = "\033[96m"
+ANSI_GREEN = "\033[92m"
+ANSI_YELLOW = "\033[93m"
+ANSI_RED = "\033[91m"
+ANSI_MAGENTA = "\033[95m"
+ANSI_BLUE = "\033[94m"
+ANSI_BOLD = "\033[1m"
+ANSI_RESET = "\033[0m"
 
 
 @app.post("/api/classroom/start")
@@ -307,8 +322,16 @@ async def start_classroom_session(payload: Dict[str, Any] = Body(...)):
     """
     try:
         active_grades, subjects, duration_minutes, resources, constraints = parse_teacher_input(payload)
+        active_grades = active_grades[:1]  # Temporarily run ONE grade only for single-grade validation
 
         session_id = f"sess_{uuid.uuid4().hex[:8]}"
+
+        print(f"\n{ANSI_BOLD}{ANSI_CYAN}======================================================================{ANSI_RESET}")
+        print(f"{ANSI_BOLD}{ANSI_GREEN}[API] /api/classroom/start Request Received{ANSI_RESET}")
+        print(f"   {ANSI_CYAN}Session ID:{ANSI_RESET} {session_id}")
+        print(f"   {ANSI_CYAN}Active Grades:{ANSI_RESET} {active_grades} | {ANSI_CYAN}Duration:{ANSI_RESET} {duration_minutes} min")
+        print(f"   {ANSI_CYAN}Resources Available:{ANSI_RESET} {resources}")
+        print(f"{ANSI_BOLD}{ANSI_CYAN}======================================================================{ANSI_RESET}\n")
 
         session = ClassroomSession(
             session_id=session_id,
@@ -378,6 +401,7 @@ async def start_classroom_session(payload: Dict[str, Any] = Body(...)):
     except HTTPException:
         raise
     except Exception as e:
+        traceback.print_exc()
         print(f"[API Error] Failed to start classroom session: {e}")
         raise HTTPException(status_code=500, detail=f"Agent orchestration failed: {str(e)}")
 
@@ -545,9 +569,11 @@ async def submit_classroom_signals(payload: Dict[str, Any] = Body(...), session_
             detail=mismatch_error
         )
 
-    grade_str = str(grade_raw).replace("Grade", "").replace("_", " ").strip().split()[0]
-    subject_str = normalize_subject(payload.get("subject", "Math"))
-    g_key = f"Grade_{grade_str}_{subject_str}"
+    print(f"\n{ANSI_BOLD}{ANSI_CYAN}======================================================================{ANSI_RESET}")
+    print(f"{ANSI_BOLD}{ANSI_YELLOW}📡 [API] Mid-Session Classroom Signal Received{ANSI_RESET}")
+    print(f"   {ANSI_CYAN}Session ID:{ANSI_RESET} {req_session_id} | {ANSI_CYAN}Target Grade:{ANSI_RESET} Grade {grade_raw}")
+    print(f"   {ANSI_CYAN}Signal Observation:{ANSI_RESET} \"{signal_text}\"")
+    print(f"{ANSI_BOLD}{ANSI_CYAN}======================================================================{ANSI_RESET}\n")
 
     formatted_signals = {
         g_key: True,
@@ -575,6 +601,7 @@ async def submit_classroom_signals(payload: Dict[str, Any] = Body(...), session_
             "delivered_activities": serialize_delivered_activities(runner.session.delivered_activities)
         }
     except Exception as e:
+        traceback.print_exc()
         print(f"[API Error] Failed to process adaptive signal: {e}")
         raise HTTPException(status_code=500, detail=f"Adaptive cycle execution failed: {str(e)}")
 
@@ -604,6 +631,7 @@ async def trigger_classroom_run(session_id: str, payload: Dict[str, Any] = Body(
             "delivered_activities": serialize_delivered_activities(runner.session.delivered_activities)
         }
     except Exception as e:
+        traceback.print_exc()
         print(f"[API Error] Failed to run classroom cycle: {e}")
         raise HTTPException(status_code=500, detail=f"Cycle run failed: {str(e)}")
 
@@ -649,6 +677,7 @@ async def end_session_endpoint(payload: Dict[str, Any] = Body(default={}), sessi
     except HTTPException:
         raise
     except Exception as e:
+        traceback.print_exc()
         print(f"[API Error] Failed to end session: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

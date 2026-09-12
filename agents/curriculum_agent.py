@@ -1,4 +1,7 @@
 import json
+import os
+import time
+import traceback
 from typing import Any, AsyncGenerator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -518,7 +521,11 @@ First call get_syllabus_position and get_prerequisite_map to inspect syllabus po
         name="CurriculumAgent",
         description="SAARTHI Curriculum Agent reconciling syllabus, progress diagnosis, and constraints.",
     )
+    import time
+    t0 = time.time()
     result = agent(prompt)
+    elapsed = time.time() - t0
+    print(f"[TIMING] CurriculumAgent Grade {grade}: {elapsed:.1f}s")
 
     if hasattr(result, "structured_output") and result.structured_output:
         raw_decision = (

@@ -1,5 +1,9 @@
 import json
 import uuid
+import os
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, AsyncGenerator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -101,6 +105,47 @@ def parse_grade_key(g_key: str) -> tuple[str, str]:
 
 
 from concurrent.futures import ThreadPoolExecutor
+
+# ANSI Color Codes for Rich Terminal Logging
+ANSI_CYAN = "\033[96m"
+ANSI_GREEN = "\033[92m"
+ANSI_YELLOW = "\033[93m"
+ANSI_RED = "\033[91m"
+ANSI_MAGENTA = "\033[95m"
+ANSI_BLUE = "\033[94m"
+ANSI_BOLD = "\033[1m"
+ANSI_RESET = "\033[0m"
+
+
+def _log_specialist_summary(prop: dict):
+    """Prints clear color-coded summary of specialist agent recommendations for a grade."""
+    g_str = prop.get("grade")
+    subj_str = prop.get("subject")
+    p_diag = prop.get("progress_diag", {})
+    c_dec = prop.get("curriculum_dec", {})
+    r_rec = prop.get("resource_rec", {})
+    s_v = prop.get("safety_verdict")
+
+    direction = str(p_diag.get("recommendation_direction", "reinforce")).lower()
+    mastery = str(p_diag.get("mastery_estimate", "developing"))
+    pacing = str(c_dec.get("pacing_decision", "hold")).lower()
+    decided_topic = c_dec.get("decided_topic", "")
+    rec_resource = r_rec.get("recommended_resource", "printable_worksheet")
+
+    p_color = ANSI_RED if direction in ["hold", "remediate", "reinforce"] else (ANSI_GREEN if direction == "advance" else ANSI_YELLOW)
+    c_color = ANSI_RED if pacing in ["hold", "revisit"] else (ANSI_GREEN if pacing == "advance" else ANSI_YELLOW)
+
+    print(f"\n{ANSI_BOLD}{ANSI_BLUE}--- Specialist Agent Recommendations for Grade {g_str} ({subj_str}) ---{ANSI_RESET}")
+    print(f"  {ANSI_CYAN}ProgressAgent{ANSI_RESET} says:   {p_color}{direction.upper()} Grade {g_str}{ANSI_RESET} (Mastery: {mastery})")
+    print(f"  {ANSI_CYAN}CurriculumAgent{ANSI_RESET} says: {c_color}{pacing.upper()} Grade {g_str}{ANSI_RESET} -> Decided Topic: '{decided_topic}'")
+    print(f"  {ANSI_CYAN}ResourceAgent{ANSI_RESET} says:   {ANSI_YELLOW}ALLOCATE {rec_resource}{ANSI_RESET} for Grade {g_str}")
+    if s_v:
+        passed = getattr(s_v, "passed", True)
+        action = getattr(s_v, "action", "pass")
+        s_color = ANSI_GREEN if passed else ANSI_RED
+        s_label = f"PASSED ({action})" if passed else f"REJECTED ({action})"
+        print(f"  {ANSI_CYAN}SafetyGate{ANSI_RESET} verdict:    {s_color}{s_label}{ANSI_RESET}")
+
 
 def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dict]:
     g_key = a_item["grade_key"]
@@ -262,6 +307,7 @@ def _evaluate_single_active_grade(a_item: dict, session: dict) -> tuple[str, dic
         "safety_verdict": safety_verdict,
         "safety_attempts": attempts
     }
+    _log_specialist_summary(prop)
     return g_key, prop
 
 
@@ -327,7 +373,8 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
 
     # STEP 2: Run specialist agents for active grades concurrently
     if active_evals:
-        with ThreadPoolExecutor(max_workers=min(8, len(active_evals))) as executor:
+        agent_parallelism = int(os.getenv("AGENT_PARALLELISM", "3"))
+        with ThreadPoolExecutor(max_workers=min(agent_parallelism, len(active_evals))) as executor:
             futures = [executor.submit(_evaluate_single_active_grade, a_item, session) for a_item in active_evals]
             for future in futures:
                 g_key, prop = future.result()
@@ -358,10 +405,25 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
             }
         }
 
+    compact_session = {
+        "session_id": session.get("session_id"),
+        "active_grades": session.get("active_grades"),
+        "trigger_type": session.get("trigger_type"),
+        "session_info": session.get("session_info"),
+        "session_constraints": session.get("session_constraints"),
+        "new_signals": session.get("new_signals"),
+    }
+
+    compact_shared_state = {
+        "grades": shared_state.get("grades", {}),
+        "attendance": shared_state.get("attendance", {}),
+        "classroom_resources": shared_state.get("classroom_resources", {}),
+    }
+
     orchestrator_user_prompt = (
         f"You are evaluating live classroom orchestration cycle {cycle_id}.\n\n"
-        f"Ground-Truth Shared Classroom State:\n{json.dumps(shared_state, indent=2)}\n\n"
-        f"Active Session Constraints & Resources:\n{json.dumps(session, indent=2)}\n\n"
+        f"Ground-Truth Shared Classroom State:\n{json.dumps(compact_shared_state, indent=2)}\n\n"
+        f"Active Session Constraints & Resources:\n{json.dumps(compact_session, indent=2)}\n\n"
         f"Candidate Grades Evaluated ({len(proposals)}): {list(proposals.keys())}\n"
         f"Skipped Grades ({len(skipped_evals)}): {[item['grade_key'] for item in skipped_evals]}\n\n"
         f"Specialist Agent Pipeline Outputs per Active Grade:\n{json.dumps(specialist_summary, indent=2)}\n\n"
@@ -383,7 +445,11 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
         name="OrchestratorAgent",
         description="SAARTHI Orchestrator Agent sequencing active grades, resolving conflicts, surfacing one next action, and acting as single state writer."
     )
+    import time
+    t0 = time.time()
     agent_result = orchestrator_agent(orchestrator_user_prompt)
+    elapsed = time.time() - t0
+    print(f"[TIMING] OrchestratorAgent: {elapsed:.1f}s")
 
     if hasattr(agent_result, "structured_output") and agent_result.structured_output:
         raw_llm_result = agent_result.structured_output
@@ -468,6 +534,34 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
 
     # STEP 5: Single-Writer State Commit (write_shared_state)
     write_shared_state({"grades": state_updates_dict})
+
+    # Log Conflict Resolution & Single Prioritized Action
+    print(f"\n{ANSI_BOLD}{ANSI_MAGENTA}======================================================================{ANSI_RESET}")
+    print(f"{ANSI_BOLD}{ANSI_MAGENTA}⚡ [ORCHESTRATOR CONFLICT RESOLUTION & REASONING]{ANSI_RESET}")
+    print(f"{ANSI_BOLD}{ANSI_MAGENTA}======================================================================{ANSI_RESET}")
+
+    if final_next_action.resolved_conflicts:
+        print(f"\n{ANSI_BOLD}{ANSI_YELLOW}Cross-Grade Conflicts Resolved:{ANSI_RESET}")
+        for c_msg in final_next_action.resolved_conflicts:
+            print(f"  {ANSI_YELLOW}• {c_msg}{ANSI_RESET}")
+
+    print(f"\n{ANSI_BOLD}{ANSI_CYAN}Orchestrator Rationale:{ANSI_RESET}")
+    print(f"  {final_next_action.reason}")
+
+    prio = final_next_action.priority
+    prio_color = ANSI_RED if prio == "critical" else (ANSI_MAGENTA if prio == "high" else (ANSI_YELLOW if prio == "medium" else ANSI_GREEN))
+
+    print(f"\n{ANSI_BOLD}{ANSI_GREEN}✔ [Single Prioritized Action Committed to Shared State]{ANSI_RESET}")
+    print(f"  {ANSI_BOLD}Priority:{ANSI_RESET}       {prio_color}{prio.upper()}{ANSI_RESET}")
+    print(f"  {ANSI_BOLD}Target Grade:{ANSI_RESET}   {ANSI_CYAN}Grade {final_next_action.grade} ({final_next_action.subject}){ANSI_RESET}")
+    print(f"  {ANSI_BOLD}Action Type:{ANSI_RESET}    {final_next_action.action_type}")
+    print(f"  {ANSI_BOLD}Reason:{ANSI_RESET}         {final_next_action.reason}")
+
+    print(f"\n{ANSI_BOLD}{ANSI_CYAN}[State Updates Committed to Shared Store (Single Writer)]{ANSI_RESET}")
+    for sup in final_state_updates:
+        st_color = ANSI_GREEN if sup.status == "reconciled" else ANSI_YELLOW
+        print(f"  • {ANSI_BOLD}Grade {sup.grade} {sup.subject}:{ANSI_RESET} status={st_color}{sup.status}{ANSI_RESET}, topic='{sup.decided_topic}', resource='{sup.recommended_resource}', activity_status='{sup.activity_status}'")
+    print(f"{ANSI_BOLD}{ANSI_MAGENTA}======================================================================{ANSI_RESET}\n")
 
     formatted_evaluations = {}
     for g_k, prop in proposals.items():

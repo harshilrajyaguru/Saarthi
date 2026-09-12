@@ -47,6 +47,20 @@ def get_groq_client():
     return _groq_client
 
 
+def _deep_clean_groq_messages(data: Any) -> Any:
+    """Recursively removes reasoningContent, reasoning_content, reasoning, and reasoning_effort from dicts and lists."""
+    if isinstance(data, dict):
+        cleaned = {}
+        for k, v in data.items():
+            if k in ("reasoningContent", "reasoning_content", "reasoning", "reasoning_effort"):
+                continue
+            cleaned[k] = _deep_clean_groq_messages(v)
+        return cleaned
+    elif isinstance(data, list):
+        return [_deep_clean_groq_messages(item) for item in data]
+    return data
+
+
 def _convert_strands_messages_to_groq(messages: list[Any], system_prompt: str | None = None) -> list[dict]:
     groq_msgs = []
     sys_str = (system_prompt or "").strip()
@@ -119,7 +133,7 @@ def _convert_strands_messages_to_groq(messages: list[Any], system_prompt: str | 
         elif text_parts:
             groq_msgs.append({"role": role, "content": "\n".join(text_parts)})
 
-    return groq_msgs
+    return _deep_clean_groq_messages(groq_msgs)
 
 
 def _convert_tool_specs_to_groq(tool_specs: list[Any] | None) -> tuple[list[dict], Optional[str]]:
@@ -172,12 +186,10 @@ def _convert_tool_specs_to_groq(tool_specs: list[Any] | None) -> tuple[list[dict
     return groq_tools, struct_tool_name
 
 
-# ── GroqModel Implementation ──────────────────────────────────────────────────
-
 def _get_fallback_chain(start_model: str) -> list[str]:
     raw_env = os.getenv(
         "GROQ_FALLBACK_MODELS",
-        "openai/gpt-oss-120b,llama-3.3-70b-versatile,openai/gpt-oss-20b,llama-3.1-8b-instant"
+        "openai/gpt-oss-120b,openai/gpt-oss-20b,llama-3.3-70b-versatile,llama-3.1-8b-instant"
     )
     fallback_list = [m.strip() for m in raw_env.split(",") if m.strip()]
 
@@ -202,21 +214,14 @@ def _is_decommissioned_error(e: Exception) -> bool:
         or "model_not_found" in full_msg
         or "not_found" in full_msg
         or "not found" in full_msg
+        or "does not exist" in full_msg
+        or "404" in full_msg
     )
 
 
 def _sanitize_messages(messages: list[Any]) -> list[dict[str, Any]]:
     """Groq rejects reasoningContent on replayed multi-turn history."""
-    clean = []
-    for msg in messages:
-        if isinstance(msg, dict):
-            m = dict(msg)
-            for key in ("reasoningContent", "reasoning_content", "reasoning"):
-                m.pop(key, None)
-            clean.append(m)
-        else:
-            clean.append(msg)
-    return clean
+    return _deep_clean_groq_messages(messages)
 
 
 async def _execute_completion_with_fallback(
@@ -229,7 +234,7 @@ async def _execute_completion_with_fallback(
     import groq
 
     if "messages" in req_kwargs and isinstance(req_kwargs["messages"], list):
-        req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
+        req_kwargs["messages"] = _deep_clean_groq_messages(req_kwargs["messages"])
 
     start_model = req_kwargs.get("model") or getattr(model_obj, "model_name", None) or os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
     chain = _get_fallback_chain(start_model)
@@ -246,24 +251,28 @@ async def _execute_completion_with_fallback(
         for attempt in range(max_retries):
             try:
                 async with _GROQ_SEM:
-                    reasoning = getattr(model_obj, "reasoning_effort", None)
+                    reasoning_env = os.getenv("GROQ_REASONING_EFFORT", "low").strip().lower()
+                    reasoning = getattr(model_obj, "reasoning_effort", reasoning_env)
                     if reasoning:
+                        reasoning = str(reasoning).strip().lower()
+
+                    req_kwargs["messages"] = _deep_clean_groq_messages(req_kwargs["messages"])
+
+                    if reasoning and reasoning != "none" and "gpt-oss" in candidate_model:
                         try:
-                            req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
                             return client.chat.completions.create(
                                 **req_kwargs, reasoning_effort=reasoning
                             )
-                        except (TypeError, groq.BadRequestError, groq.UnprocessableEntityError) as err:
+                        except (TypeError, groq.BadRequestError, groq.UnprocessableEntityError, groq.NotFoundError) as err:
                             if _is_decommissioned_error(err):
                                 raise err
 
-                    req_kwargs["messages"] = _sanitize_messages(req_kwargs["messages"])
                     return client.chat.completions.create(**req_kwargs)
 
-            except groq.BadRequestError as e:
+            except (groq.BadRequestError, groq.NotFoundError, groq.UnprocessableEntityError) as e:
                 if _is_decommissioned_error(e):
                     last_exception = e
-                    print(f"[GroqModel Fallback] Model '{candidate_model}' raised BadRequestError ({e}). Retrying with next model in fallback chain...")
+                    print(f"[GroqModel Fallback] Model '{candidate_model}' raised error ({e}). Retrying with next model in fallback chain...")
                     break
                 else:
                     raise
@@ -297,20 +306,22 @@ class GroqModel(Model):
     def __init__(
         self,
         model_name: str | None = None,
-        reasoning_effort: str = "low",
+        reasoning_effort: str | None = None,
         temperature: float = 0.2,
     ):
         if not model_name:
             model_name = os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
+        if not reasoning_effort:
+            reasoning_effort = os.getenv("GROQ_REASONING_EFFORT", "low")
         self.model_name = model_name
-        self.reasoning_effort = reasoning_effort
+        self.reasoning_effort = reasoning_effort.lower() if reasoning_effort else "low"
         self.temperature = temperature
 
     def update_config(self, **model_config: Any) -> None:
         if "model_name" in model_config:
             self.model_name = model_config["model_name"]
         if "reasoning_effort" in model_config:
-            self.reasoning_effort = model_config["reasoning_effort"]
+            self.reasoning_effort = str(model_config["reasoning_effort"]).lower()
         if "temperature" in model_config:
             self.temperature = model_config["temperature"]
 
@@ -350,6 +361,7 @@ class GroqModel(Model):
             "messages": messages,
             "response_format": {"type": "json_object"},
             "temperature": self.temperature,
+            "max_tokens": kwargs.get("max_tokens", int(os.getenv("GROQ_MAX_TOKENS", "1200"))),
         }
 
         response = await _execute_completion_with_fallback(client, req_kwargs, self)

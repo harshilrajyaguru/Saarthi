@@ -1,4 +1,7 @@
 import json
+import os
+import time
+import traceback
 from typing import Any, AsyncGenerator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -217,7 +220,11 @@ INSTRUCTIONS:
         description="SAARTHI Activity Agent designing student-facing activities targeting specific trouble spots."
     )
 
+    import time
+    t0 = time.time()
     result = agent(prompt)
+    elapsed = time.time() - t0
+    print(f"[TIMING] ActivityAgent Grade {grade}: {elapsed:.1f}s")
 
     if hasattr(result, "structured_output") and result.structured_output:
         if hasattr(result.structured_output, "model_dump"):

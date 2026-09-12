@@ -1,4 +1,7 @@
 import json
+import os
+import time
+import traceback
 from typing import Literal, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -158,7 +161,11 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
         name="ProgressAgent",
         description="SAARTHI Progress Agent diagnosing learning state from evidence.",
     )
+    import time
+    t0 = time.time()
     result = agent(prompt)
+    elapsed = time.time() - t0
+    print(f"[TIMING] ProgressAgent Grade {grade}: {elapsed:.1f}s")
 
     if hasattr(result, "structured_output") and result.structured_output:
         raw_diagnosis = (
