@@ -511,7 +511,8 @@ Teacher Constraints:
 
 First call get_syllabus_position and get_prerequisite_map to inspect syllabus position and prerequisite dependencies before making your pacing decision.
 """
-    print(f"\n[STRANDS AGENT] Invoking CurriculumAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    model_id = getattr(_CURRICULUM_MODEL, "model_id", getattr(_CURRICULUM_MODEL, "model_name", "unknown"))
+    print(f"\n[STRANDS AGENT] Invoking CurriculumAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
     agent = Agent(
         model=_CURRICULUM_MODEL,

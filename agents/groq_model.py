@@ -189,7 +189,7 @@ def _convert_tool_specs_to_groq(tool_specs: list[Any] | None) -> tuple[list[dict
 def _get_fallback_chain(start_model: str) -> list[str]:
     raw_env = os.getenv(
         "GROQ_FALLBACK_MODELS",
-        "openai/gpt-oss-120b,openai/gpt-oss-20b,llama-3.3-70b-versatile,llama-3.1-8b-instant"
+        "openai/gpt-oss-120b,openai/gpt-oss-20b,llama-3.1-8b-instant"
     )
     fallback_list = [m.strip() for m in raw_env.split(",") if m.strip()]
 

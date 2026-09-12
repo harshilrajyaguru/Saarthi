@@ -209,7 +209,8 @@ INSTRUCTIONS:
    - An answer key or expected outcomes for the items where applicable.
 6. Ensure estimated_time_minutes <= {available_time_minutes}.
 """
-    print(f"\n[STRANDS AGENT] Invoking ActivityAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject} topic '{decided_topic}'...")
+    model_id = getattr(_ACTIVITY_MODEL, "model_id", getattr(_ACTIVITY_MODEL, "model_name", "unknown"))
+    print(f"\n[STRANDS AGENT] Invoking ActivityAgent ({model_id}) for Grade {grade} {subject} topic '{decided_topic}'...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
     agent = Agent(
         model=_ACTIVITY_MODEL,

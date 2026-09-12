@@ -151,7 +151,8 @@ First call get_history and get_trouble_spot_log tools to inspect prior session d
     history_res = get_history(grade=grade, subject=subject, topic=current_topic, n=10)
     history_count = history_res.get("count", 0) if isinstance(history_res, dict) else 0
 
-    print(f"\n[STRANDS AGENT] Invoking ProgressAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    model_id = getattr(_PROGRESS_MODEL, "model_id", getattr(_PROGRESS_MODEL, "model_name", "unknown"))
+    print(f"\n[STRANDS AGENT] Invoking ProgressAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException when multiple grades run concurrently.
     agent = Agent(
         model=_PROGRESS_MODEL,

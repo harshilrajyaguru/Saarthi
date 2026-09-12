@@ -371,14 +371,11 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
             activity_status="skipped_no_change"
         ))
 
-    # STEP 2: Run specialist agents for active grades concurrently
+    # STEP 2: Run specialist agents for active grades sequentially
     if active_evals:
-        agent_parallelism = int(os.getenv("AGENT_PARALLELISM", "3"))
-        with ThreadPoolExecutor(max_workers=min(agent_parallelism, len(active_evals))) as executor:
-            futures = [executor.submit(_evaluate_single_active_grade, a_item, session) for a_item in active_evals]
-            for future in futures:
-                g_key, prop = future.result()
-                proposals[g_key] = prop
+        for a_item in active_evals:
+            g_key, prop = _evaluate_single_active_grade(a_item, session)
+            proposals[g_key] = prop
 
     # STEP 3: Route actual orchestration decision through existing Strands Agent (Ollama Qwen3:8b)
     shared_state = read_shared_state()
@@ -436,7 +433,8 @@ def run_orchestration_cycle(session: dict) -> OrchestrationResult:
         f"5. Document resolved_conflicts in next_action if applicable."
     )
 
-    print(f"\n[STRANDS AGENT] Invoking OrchestratorAgent (Groq openai/gpt-oss-120b) for cycle {cycle_id}...")
+    model_id = getattr(_ORCHESTRATOR_MODEL, "model_id", getattr(_ORCHESTRATOR_MODEL, "model_name", "unknown"))
+    print(f"\n[STRANDS AGENT] Invoking OrchestratorAgent ({model_id}) for cycle {cycle_id}...")
     orchestrator_agent = Agent(
         model=_ORCHESTRATOR_MODEL,
         system_prompt=SYSTEM_PROMPT,

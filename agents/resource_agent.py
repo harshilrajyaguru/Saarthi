@@ -509,7 +509,8 @@ Evaluate resource feasibility for:
 
 First call get_resource_inventory(session), get_resource_usage_log(grade, subject, topic), and check_concurrent_demand(session) before producing your final structured ResourceRecommendation.
 """
-    print(f"\n[STRANDS AGENT] Invoking ResourceAgent (Groq openai/gpt-oss-120b) for Grade {grade} {subject}...")
+    model_id = getattr(_RESOURCE_MODEL, "model_id", getattr(_RESOURCE_MODEL, "model_name", "unknown"))
+    print(f"\n[STRANDS AGENT] Invoking ResourceAgent ({model_id}) for Grade {grade} {subject}...")
     # Fresh Agent per call — avoids ConcurrencyException for concurrent grade evaluation.
     agent = Agent(
         model=_RESOURCE_MODEL,

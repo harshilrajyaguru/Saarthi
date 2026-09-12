@@ -28,9 +28,9 @@ def get_saarthi_model(tier: str = "smart", **kwargs):
     else:
         # Default to Groq for current cloud deployment
         if tier == "fast":
-            model_id = os.getenv("GROQ_MODEL_ID_FAST", "openai/gpt-oss-20b")
+            model_id = os.getenv("GROQ_MODEL_ID_FAST", "llama-3.1-8b-instant")
         else:
-            model_id = os.getenv("GROQ_MODEL_ID", "openai/gpt-oss-120b")
+            model_id = os.getenv("GROQ_MODEL_ID", "llama-3.1-8b-instant")
 
         return OpenAIModel(
             client_args={

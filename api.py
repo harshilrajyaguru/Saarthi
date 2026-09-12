@@ -314,7 +314,7 @@ ANSI_RESET = "\033[0m"
 
 @app.post("/api/classroom/start")
 @app.post("/api/start-session")
-async def start_classroom_session(payload: Dict[str, Any] = Body(...)):
+def start_classroom_session(payload: Dict[str, Any] = Body(...)):
     """
     Accepts real teacher input, initializes a ClassroomSession,
     and executes the cold-start multi-agent Orchestrator cycle.
@@ -322,7 +322,6 @@ async def start_classroom_session(payload: Dict[str, Any] = Body(...)):
     """
     try:
         active_grades, subjects, duration_minutes, resources, constraints = parse_teacher_input(payload)
-        active_grades = active_grades[:1]  # Temporarily run ONE grade only for single-grade validation
 
         session_id = f"sess_{uuid.uuid4().hex[:8]}"
 
